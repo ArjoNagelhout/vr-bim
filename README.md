@@ -14,6 +14,24 @@ The following tutorial was used to create a plugin:
 
 https://www.autodesk.com/support/technical/article/caas/tsarticles/ts/7I2bC1zUr4VjJ3U31uM66K.html
 
+## installing revit plugin for development purposes
+
+Needs administrator privileges to access the C:\Program Files\Autodesk\Revit 2024\AddIns directory. 
+
+### Debug
+This only copies the .addin file, but keeps the .dll in its original location
+
+```batch
+python install_addin_debug.py
+```
+
+### Release
+This creates a folder in the AddIns folder that contains the copied .dll
+
+```batch
+python install_addin_debug.py
+```
+
 ## unity-revit-app
 
 Unity app that receives data from the Revit plugin. 

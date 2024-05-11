@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RevitAddIns>
+	<AddIn Type="Command">
+		<Name>RevitToVRPlugin</Name>
+		<FullClassName>RevitToVRPlugin.Class1</FullClassName>
+		<Text>RevitToVRPlugin</Text>
+		<Description>Plugin for Revit to enable live editing of BIM data in VR, experimental.</Description>
+		<VisibilityMode>AlwaysVisible</VisibilityMode>
+		<Assembly>{AssemblyName}</Assembly>
+		<AddInId>018f6734-c0eb-73da-8f9a-3599e6c16b65</AddInId>
+		<VendorId>ShapeReality</VendorId>
+		<VendorDescription>ShapeReality, https://shapereality.io/</VendorDescription>
+	</AddIn>
+</RevitAddIns>

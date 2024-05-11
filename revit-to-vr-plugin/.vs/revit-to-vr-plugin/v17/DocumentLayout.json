@@ -1,10 +1,21 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "Z:\\Documents\\Final Bachelor Project\\vr-bim\\revit-to-vr-plugin\\",
+  "WorkspaceRootPath": "\\\\Mac\\Home\\Documents\\Final_Bachelor_Project\\vr-bim\\revit-to-vr-plugin\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{BCB1D1B6-77E7-4EEE-8A31-43A048894EE1}|revit-to-vr-plugin.csproj|z:\\documents\\final bachelor project\\vr-bim\\revit-to-vr-plugin\\class1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{BCB1D1B6-77E7-4EEE-8A31-43A048894EE1}|revit-to-vr-plugin.csproj|solutionrelative:class1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{00000000-0000-0000-0000-000000000000}|\u003CSolution\u003E|revit-to-vr-plugin||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BCB1D1B6-77E7-4EEE-8A31-43A048894EE1}|revit-to-vr-plugin.csproj|\\\\Mac\\Home\\Documents\\Final_Bachelor_Project\\vr-bim\\revit-to-vr-plugin\\revittovrplugin.addin||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BCB1D1B6-77E7-4EEE-8A31-43A048894EE1}|revit-to-vr-plugin.csproj|\\\\mac\\home\\documents\\final_bachelor_project\\vr-bim\\revit-to-vr-plugin\\properties\\assemblyinfo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BCB1D1B6-77E7-4EEE-8A31-43A048894EE1}|revit-to-vr-plugin.csproj|\\\\mac\\home\\documents\\final_bachelor_project\\vr-bim\\revit-to-vr-plugin\\class1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BCB1D1B6-77E7-4EEE-8A31-43A048894EE1}|revit-to-vr-plugin.csproj|\\\\mac\\home\\documents\\final_bachelor_project\\vr-bim\\revit-to-vr-plugin\\||{B270807C-D8C6-49EB-8EBE-8E8D566637A1}|6185191f-1008-4fb2-a715-3a4e4f27e610"
     }
   ],
   "DocumentGroupContainers": [
@@ -19,19 +30,53 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "Class1.cs",
-              "DocumentMoniker": "Z:\\Documents\\Final Bachelor Project\\vr-bim\\revit-to-vr-plugin\\Class1.cs",
-              "RelativeDocumentMoniker": "Class1.cs",
-              "ToolTip": "Z:\\Documents\\Final Bachelor Project\\vr-bim\\revit-to-vr-plugin\\Class1.cs",
-              "RelativeToolTip": "Class1.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-05-11T10:11:48.104Z",
+              "Title": "revit-to-vr-plugin",
+              "DocumentMoniker": "\\\\Mac\\Home\\Documents\\Final_Bachelor_Project\\vr-bim\\revit-to-vr-plugin\\revit-to-vr-plugin.csproj",
+              "RelativeDocumentMoniker": "revit-to-vr-plugin.csproj",
+              "ToolTip": "\\\\Mac\\Home\\Documents\\Final_Bachelor_Project\\vr-bim\\revit-to-vr-plugin\\revit-to-vr-plugin.csproj",
+              "RelativeToolTip": "revit-to-vr-plugin.csproj",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2024-05-11T12:21:13.423Z",
               "EditorCaption": ""
             },
             {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{cce594b6-0c39-4442-ba28-10c64ac7e89f}"
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Class1.cs",
+              "DocumentMoniker": "\\\\Mac\\Home\\Documents\\Final_Bachelor_Project\\vr-bim\\revit-to-vr-plugin\\Class1.cs",
+              "RelativeDocumentMoniker": "Class1.cs",
+              "ToolTip": "\\\\Mac\\Home\\Documents\\Final_Bachelor_Project\\vr-bim\\revit-to-vr-plugin\\Class1.cs",
+              "RelativeToolTip": "Class1.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAqwBAAAAAXAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-05-11T12:13:41.455Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "AssemblyInfo.cs",
+              "DocumentMoniker": "\\\\Mac\\Home\\Documents\\Final_Bachelor_Project\\vr-bim\\revit-to-vr-plugin\\Properties\\AssemblyInfo.cs",
+              "RelativeDocumentMoniker": "Properties\\AssemblyInfo.cs",
+              "ToolTip": "\\\\Mac\\Home\\Documents\\Final_Bachelor_Project\\vr-bim\\revit-to-vr-plugin\\Properties\\AssemblyInfo.cs",
+              "RelativeToolTip": "Properties\\AssemblyInfo.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABQAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-05-11T10:43:53.723Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "RevitToVRPlugin.addin",
+              "DocumentMoniker": "\\\\Mac\\Home\\Documents\\Final_Bachelor_Project\\vr-bim\\revit-to-vr-plugin\\RevitToVRPlugin.addin",
+              "RelativeDocumentMoniker": "RevitToVRPlugin.addin",
+              "ToolTip": "\\\\Mac\\Home\\Documents\\Final_Bachelor_Project\\vr-bim\\revit-to-vr-plugin\\RevitToVRPlugin.addin",
+              "RelativeToolTip": "RevitToVRPlugin.addin",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAkAAAA5AAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000072|",
+              "WhenOpened": "2024-05-11T10:27:23.733Z",
+              "EditorCaption": ""
             }
           ]
         }
