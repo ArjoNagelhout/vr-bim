@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34728.123
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "revit-to-vr-plugin", "revit-to-vr-plugin.csproj", "{BCB1D1B6-77E7-4EEE-8A31-43A048894EE1}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BCB1D1B6-77E7-4EEE-8A31-43A048894EE1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BCB1D1B6-77E7-4EEE-8A31-43A048894EE1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BCB1D1B6-77E7-4EEE-8A31-43A048894EE1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BCB1D1B6-77E7-4EEE-8A31-43A048894EE1}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {CB95BA26-AF16-48AE-9EAC-98B98A39F845}
+	EndGlobalSection
+EndGlobal

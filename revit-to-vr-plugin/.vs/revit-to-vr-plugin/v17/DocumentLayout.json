@@ -1,0 +1,41 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "Z:\\Documents\\Final Bachelor Project\\vr-bim\\revit-to-vr-plugin\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{BCB1D1B6-77E7-4EEE-8A31-43A048894EE1}|revit-to-vr-plugin.csproj|z:\\documents\\final bachelor project\\vr-bim\\revit-to-vr-plugin\\class1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BCB1D1B6-77E7-4EEE-8A31-43A048894EE1}|revit-to-vr-plugin.csproj|solutionrelative:class1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Class1.cs",
+              "DocumentMoniker": "Z:\\Documents\\Final Bachelor Project\\vr-bim\\revit-to-vr-plugin\\Class1.cs",
+              "RelativeDocumentMoniker": "Class1.cs",
+              "ToolTip": "Z:\\Documents\\Final Bachelor Project\\vr-bim\\revit-to-vr-plugin\\Class1.cs",
+              "RelativeToolTip": "Class1.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-05-11T10:11:48.104Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{cce594b6-0c39-4442-ba28-10c64ac7e89f}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
