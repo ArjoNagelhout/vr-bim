@@ -3,7 +3,7 @@ import sys
 
 import shutil
 
-addins_directory = r'C:\Program Files\Autodesk\Revit 2024\AddIns'
+addins_directory = r'C:\ProgramData\Autodesk\Revit\Addins\2024'
 revit_plugin_directory_name = "revit-to-vr-plugin"
 addin_file_name = "RevitToVRPlugin.addin"
 

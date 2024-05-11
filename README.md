@@ -8,9 +8,9 @@ It currently consists of two parts:
 
 Revit plugin (a .NET .dll that gets loaded by Revit). 
 
-Written in C#. 
+Written in C#, .NET 4.8
 
-The following tutorial was used to create a plugin:
+The following tutorial was used to create the plugin:
 
 https://www.autodesk.com/support/technical/article/caas/tsarticles/ts/7I2bC1zUr4VjJ3U31uM66K.html
 
