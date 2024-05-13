@@ -1,5 +1,5 @@
 bin
 .vs
 obj
-Backup
-UpgradeLog.htm
+Backup*
+UpgradeLog*.*

@@ -15,6 +15,9 @@ using System.Windows;
 using System.Net.Sockets;
 using System.Net;
 
+using WebSocketSharp;
+using WebSocketSharp.Server;
+
 namespace revit_to_vr_plugin
 {
     // we need to send the data over the network to the Unity Runtime, installed on the
@@ -135,6 +138,21 @@ namespace revit_to_vr_plugin
     // use: https://github.com/sta/websocket-sharp,
     // because implementing the protocol ourselves is silly. 
 
+    public class TestWebSocket : WebSocketBehavior
+    {
+        protected override void OnMessage(MessageEventArgs e)
+        {
+            var msg = e.Data == "Test"
+                      ? "Received test"
+                      : "Nope, that was something else.";
+
+            TaskDialog dialog = new TaskDialog(string.Format("We got a message: {0}", msg));
+            dialog.Show();
+
+            Send(msg);
+        }
+    }
+
     public class RevitToVRServer
     {
         // properties
@@ -144,7 +162,21 @@ namespace revit_to_vr_plugin
         public RevitToVRServer()
         {
             // todo: change to non-blocking
-            Execute();
+            //Execute();
+            ExecuteWebsocket();
+        }
+
+        private void ExecuteWebsocket()
+        {
+            WebSocketServer server = new WebSocketServer("ws://127.0.0.1");
+
+            server.AddWebSocketService<TestWebSocket>("/Test");
+            server.Start();
+            while (true)
+            {
+
+            }
+            server.Stop();
         }
 
         private void Execute()
