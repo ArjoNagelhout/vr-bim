@@ -8,12 +8,15 @@ using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Selection;
+using Autodesk.Revit.UI.Events;
 using Autodesk.Revit.DB.Architecture;
-namespace RevitToVRPlugin
-{   
+
+namespace revit_to_vr_plugin
+{
+    // This command is taken from the Revit plugin sample code in the API docs
     [Transaction(TransactionMode.Manual)]
     [Regeneration(RegenerationOption.Manual)]
-    public class Class1 : IExternalCommand
+    public class TestCommand : IExternalCommand
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {

@@ -8,27 +8,21 @@ It currently consists of two parts:
 
 ## revit-to-vr-plugin
 
-Revit plugin (a .NET .dll that gets loaded by Revit). 
-
-Written in C#, .NET 4.8
-
-The following tutorial was used to create the plugin:
-
-https://www.autodesk.com/support/technical/article/caas/tsarticles/ts/7I2bC1zUr4VjJ3U31uM66K.html
+Revit plugin (a .NET 4.8 .dll that gets loaded by Revit). 
 
 ### Installing Revit plugin for development purposes
 
-Needs administrator privileges to access the C:\Program Files\Autodesk\Revit 2024\AddIns directory. 
-
 #### Debug
-This only copies the `.addin` file, but keeps the `.dll` in its original location. 
+This only copies the .addin file, but keeps the .dll in its original location. This script only needs to be run once, because when the .dll gets recompiled, the .addin now refers to the new one. 
 
 ```bat
 python scripts/install_addin_debug.py
 ```
 
+To debug the Revit plugin from Visual Studio, inside `Properties > Debug` of the `revit-to-vr-plugin` project, set **`Start Action`** to `Start External Program` and the path to the Revit .exe, e.g. `C:\Program Files\Autodesk\Revit 2024\Revit.exe`. 
+
 #### Release
-This creates a directory in the AddIns directory that contains the copied `.dll`. 
+This creates a directory in the AddIns directory that contains the copied .dll. 
 
 ```bat
 python scripts/install_addin_release.py
