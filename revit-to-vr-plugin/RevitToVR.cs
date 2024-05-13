@@ -54,6 +54,8 @@ namespace revit_to_vr_plugin
         public static string dockablePaneName = "RevitToVR";
     }
 
+    // WPF is used for defining the UI. 
+    // a XAML file defines the hierarchy and data binding, and we create the class here (see DockablePane.xaml and DockablePane.xaml.cs)
     public class DockablePaneCreator : IFrameworkElementCreator
     {
         FrameworkElement IFrameworkElementCreator.CreateFrameworkElement()
