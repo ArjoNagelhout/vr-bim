@@ -17,6 +17,7 @@ using System.Net;
 
 using WebSocketSharp;
 using WebSocketSharp.Server;
+using System.Windows.Interop;
 
 namespace revit_to_vr_plugin
 {
@@ -172,6 +173,8 @@ namespace revit_to_vr_plugin
 
             server.AddWebSocketService<TestWebSocket>("/Test");
             server.Start();
+            TaskDialog dialog = new TaskDialog(string.Format("Started server at ws://127.0.0.1/Test"));
+            dialog.Show();
             while (true)
             {
 
