@@ -47,6 +47,11 @@ namespace revit_to_vr_plugin
     // registration of addins:
     // https://help.autodesk.com/view/RVT/2024/ENU/?guid=Revit_API_Revit_API_Developers_Guide_Introduction_Getting_Started_Using_the_Autodesk_Revit_API_Registration_of_add_ins_html
 
+    // todo:
+    // - [ ] create websocket connection / websocket server that can be started and stopped from UI (send dummy data)
+    // - [ ] receive data in Unity client
+    // - [ ] send geometry over websocket on change to Unity. 
+
     public static class Constants
     {
         public static string tabName = "RevitToVR";
