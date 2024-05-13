@@ -18,9 +18,9 @@ namespace revit_to_vr_plugin
     /// <summary>
     /// Interaction logic for DockablePane.xaml
     /// </summary>
-    public partial class DockablePane : Page
+    public partial class RevitToVRDockablePane : Page
     {
-        public DockablePane()
+        public RevitToVRDockablePane()
         {
             InitializeComponent();
         }

@@ -53,8 +53,8 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DockablePane.xaml.cs">
-      <DependentUpon>DockablePane.xaml</DependentUpon>
+    <Compile Include="RevitToVRDockablePane.xaml.cs">
+      <DependentUpon>RevitToVRDockablePane.xaml</DependentUpon>
     </Compile>
     <Compile Include="SomeOtherClass.cs" />
     <Compile Include="RevitToVR.cs" />
@@ -65,7 +65,7 @@
     <None Include="RevitToVRPlugin.addin" />
   </ItemGroup>
   <ItemGroup>
-    <Page Include="DockablePane.xaml">
+    <Page Include="RevitToVRDockablePane.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

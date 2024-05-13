@@ -12,6 +12,9 @@ using Autodesk.Revit.UI.Events;
 using Autodesk.Revit.DB.Architecture;
 using System.Windows;
 
+using System.Net.Sockets;
+using System.Net;
+
 namespace revit_to_vr_plugin
 {
     // we need to send the data over the network to the Unity Runtime, installed on the
@@ -65,7 +68,7 @@ namespace revit_to_vr_plugin
     {
         FrameworkElement IFrameworkElementCreator.CreateFrameworkElement()
         {
-            return new DockablePane();
+            return new RevitToVRDockablePane();
         }
     }
 
@@ -84,6 +87,8 @@ namespace revit_to_vr_plugin
     {
         // properties
         private DockablePaneProvider pane = new DockablePaneProvider();
+        private EventHandler<SelectionChangedEventArgs> onSelectionChanged;
+        private RevitToVRServer server = new RevitToVRServer();
 
         // methods
         public Application()
@@ -93,15 +98,14 @@ namespace revit_to_vr_plugin
 
         Result IExternalApplication.OnStartup(UIControlledApplication application)
         {
+            // add UI elements
             application.SelectionChanged += onSelectionChanged;
             application.CreateRibbonTab(Constants.tabName);
             application.CreateRibbonPanel(Constants.tabName, Constants.sessionPanelName);
             application.RegisterDockablePane(new DockablePaneId(Guid.NewGuid()), Constants.dockablePaneName, pane);
-           
+            
             return Result.Succeeded;
         }
-
-        private EventHandler<SelectionChangedEventArgs> onSelectionChanged;
 
         Result IExternalApplication.OnShutdown(UIControlledApplication application)
         {
@@ -116,8 +120,65 @@ namespace revit_to_vr_plugin
         }
     }
 
+    // websockets
+    // https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API/Writing_WebSocket_server
+    // and https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API/Writing_WebSocket_servers
+
+    // should be done asynchronously as creating the RevitToVRServer should not be blocking. 
+    // the Revit API is single threaded. 
+    // maybe use a main thread dispatcher? Or some event system?
+
+    // we need to listen to incoming TCP connections, as WebSockets are implemented on top of TCP.
+    // which port?
+
+    // todo: read RFC 6455 (WebSockets protocol standardized by IETF (Internet Engineering Task Force))
+    // use: https://github.com/sta/websocket-sharp,
+    // because implementing the protocol ourselves is silly. 
+
     public class RevitToVRServer
     {
+        // properties
 
+
+        // methods
+        public RevitToVRServer()
+        {
+            // todo: change to non-blocking
+            Execute();
+        }
+
+        private void Execute()
+        {
+            int port = 80;
+            IPAddress address = IPAddress.Parse("127.0.0.1"); // localhost (loopback ip)
+            TcpListener server = new TcpListener(address, port);
+            server.Start();
+            Console.WriteLine("Server started on {0}:{1}, waiting for client to connect", address, port);
+            
+            TcpClient client = server.AcceptTcpClient(); // blocking call, TcpClient is a thin wrapper on top of Socket
+            Console.WriteLine("A client connected!", address, port);
+
+            NetworkStream stream = client.GetStream();
+
+            while (true)
+            {
+                if (!stream.DataAvailable)
+                {
+                    continue;
+                }
+
+                byte[] bytes = new byte[client.Available];
+                stream.Read(bytes, 0, bytes.Length);
+
+                Console.WriteLine();
+
+                TaskDialog dialog = new TaskDialog(string.Format("Read {0} bytes", bytes.Length));
+                dialog.Show();
+
+                // this works :)
+                // read 706 bytes. 
+            }
+
+        }
     }
 }
