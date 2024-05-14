@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Text.Json;
 
 namespace revit_to_vr_common
 {
-    enum EventType
+
+    public enum EventType
     {
         A,
         B,
@@ -15,22 +12,22 @@ namespace revit_to_vr_common
     }
 
     [System.Serializable]
-    public struct NestedData
+    public class NestedData
     {
-        int a;
-        int b;
-        int c;
-        bool yes;
-        bool no;
+        public int a;
+        public int b;
+        public int c;
+        public bool yes;
+        public bool no;
     }
 
     [System.Serializable]
-    public struct TestData
+    public class TestData
     {
-        EventType eventType;
-        float someValue;
-        string anotherValue;
-        NestedData nestedData;
-        NestedData nestedData2;
+        public EventType eventType;
+        public float someValue;
+        public string anotherValue;
+        public NestedData nestedData = new NestedData();
+        public NestedData nestedData2 = new NestedData();
     }
 }
