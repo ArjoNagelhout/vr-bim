@@ -19,6 +19,11 @@ namespace websocket_test_server
 
             Send(msg);
         }
+
+        protected override void OnClose(CloseEventArgs e)
+        {
+            base.OnClose(e);
+        }
     }
 
     internal class Program
@@ -28,7 +33,7 @@ namespace websocket_test_server
             Console.WriteLine("---------- SERVER -----------");
 
             // Server
-            string uri = "ws://10.211.55.3"; // ip address of the Parallels Windows VM. 
+            string uri = "ws://192.168.0.100"; // ip address of the Parallels Windows VM. 
             var server = new WebSocketServer(uri);
             
             server.AddWebSocketService<TestServer>("/Test");

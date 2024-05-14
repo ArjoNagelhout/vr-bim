@@ -12,7 +12,7 @@ namespace websocket_test_client
         static void Main(string[] args)
         {
             Console.WriteLine("---------- CLIENT -----------");
-            string uri = "ws://10.211.55.3/Test"; // ip address of the Parallels Windows VM. 
+            string uri = "ws://192.168.0.100/Test"; // ip address of the Parallels Windows VM. 
             // Client
             using (var socket = new WebSocket(uri))
             {

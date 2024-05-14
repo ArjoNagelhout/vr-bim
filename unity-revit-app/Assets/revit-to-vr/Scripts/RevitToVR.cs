@@ -11,7 +11,7 @@ namespace RevitToVR
         private void Start()
         {
             Debug.Log("Started RevitToVR Session");
-            SendMessage();
+            //SendMessage();
         }
 
         private void OnDestroy()
