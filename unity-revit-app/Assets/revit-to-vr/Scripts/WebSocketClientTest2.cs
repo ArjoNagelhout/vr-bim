@@ -20,6 +20,7 @@ namespace RevitToVR
         void Log(string m)
         {
             text.text += m + "\n";
+            Debug.Log(m);
         }
         
         void Start()
