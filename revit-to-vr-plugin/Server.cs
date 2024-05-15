@@ -16,17 +16,17 @@ namespace revit_to_vr_plugin
 
         protected override void OnMessage(MessageEventArgs e)
         {
-            
+            UIConsole.Log("MainService > OnMessage > " + e.Data);
         }
 
         protected override void OnClose(CloseEventArgs e)
         {
-            
+            UIConsole.Log("MainService > OnClose");
         }
 
         protected override void OnOpen()
         {
-            
+            UIConsole.Log("MainService > OnOpen");
         }
     }
 
@@ -44,6 +44,7 @@ namespace revit_to_vr_plugin
             server.AddWebSocketService<MainService>(Configuration.mainPath);
             server.Start();
             UIConsole.Log(string.Format("Started WebSocketServer at {0} with service MainService at {1}", uri, Configuration.mainPath));
+            
         }
 
         ~Server()
