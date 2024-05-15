@@ -95,8 +95,6 @@ namespace revit_to_vr_plugin
             app.DocumentCreated += OnDocumentCreated;
             app.DocumentOpened += OnDocumentOpened;
 
-            Debug.WriteLine("Startup of Application, amazing");
-
             // add UI elements
             uiApp.CreateRibbonTab(Constants.tabName);
             uiApp.CreateRibbonPanel(Constants.tabName, Constants.sessionPanelName);
@@ -122,11 +120,17 @@ namespace revit_to_vr_plugin
 
         void OnSelectionChanged(object sender, SelectionChangedEventArgs args)
         {
+            UIConsole.Log("OnSelectionChanged");
+
             ISet<ElementId> elements = args.GetSelectedElements();
+
+            
         }
 
         void OnDocumentChanged(object sender, DocumentChangedEventArgs args)
         {
+            UIConsole.Log("OnDocumentChanged");
+
             Document document = args.GetDocument();
             ICollection<ElementId> added = args.GetAddedElementIds();
             ICollection<ElementId> deleted = args.GetDeletedElementIds();
@@ -183,16 +187,19 @@ namespace revit_to_vr_plugin
 
         void OnDocumentClosed(object sender, DocumentClosedEventArgs args)
         {
+            UIConsole.Log("OnDocumentClosed");
             int documentId = args.DocumentId;
         }
 
         void OnDocumentCreated(object sender, DocumentCreatedEventArgs args)
         {
+            UIConsole.Log("OnDocumentCreated");
             Document document = args.Document;
         }
 
         void OnDocumentOpened(object sender, DocumentOpenedEventArgs args)
         {
+            UIConsole.Log("OnDocumentOpened");
             Document document = args.Document;
             Guid id = document.CreationGUID;
         }
