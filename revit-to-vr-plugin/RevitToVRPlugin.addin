@@ -11,15 +11,4 @@
 		<VendorId>ShapeReality</VendorId>
 		<VendorDescription>ShapeReality, https://shapereality.io/</VendorDescription>
 	</AddIn>
-	<AddIn Type="Command">
-		<Name>RevitToVRTestCommand</Name>
-		<FullClassName>revit_to_vr_plugin.TestCommand</FullClassName>
-		<Text>RevitToVRTestCommand</Text>
-		<Description>Plugin for Revit to enable live editing of BIM data in VR, experimental. (ICommand)</Description>
-		<VisibilityMode>AlwaysVisible</VisibilityMode>
-		<Assembly>{AssemblyName}</Assembly>
-		<AddInId>018f6734-c0eb-73da-8f9a-3599e6c16b65</AddInId>
-		<VendorId>ShapeReality</VendorId>
-		<VendorDescription>ShapeReality, https://shapereality.io/</VendorDescription>
-	</AddIn>
 </RevitAddIns>
