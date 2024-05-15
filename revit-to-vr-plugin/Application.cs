@@ -32,16 +32,13 @@ namespace revit_to_vr_plugin
     // a XAML file defines the hierarchy and data binding, and we create the class here (see DockablePane.xaml and DockablePane.xaml.cs)
     public class DockablePaneCreator : IFrameworkElementCreator
     {
-        private UIConsole console_;
-
-        public DockablePaneCreator(UIConsole console)
+        public DockablePaneCreator()
         {
-            console_ = console;
         }
 
         FrameworkElement IFrameworkElementCreator.CreateFrameworkElement()
         {
-            return new RevitToVRDockablePane(console_);
+            return new RevitToVRDockablePane();
         }
     }
 
@@ -49,9 +46,9 @@ namespace revit_to_vr_plugin
     {
         private DockablePaneCreator creator;
 
-        public DockablePaneProvider(UIConsole console)
+        public DockablePaneProvider()
         {
-            creator = new DockablePaneCreator(console);
+            creator = new DockablePaneCreator();
         }
 
         void IDockablePaneProvider.SetupDockablePane(DockablePaneProviderData data)
@@ -69,18 +66,21 @@ namespace revit_to_vr_plugin
         private static Application instance_;
         public static Application Instance => instance_;
 
-        // properties
-        private UIConsole console_ = new UIConsole();
-        public UIConsole Console => console_;
+        // public properties        
+        public Server server = new Server();
+
+        // private properties
+        
         private DockablePaneProvider paneProvider;
+        
 
         // methods
         public Application()
         {
             Debug.Assert(instance_ == null);
             instance_ = this;
-            paneProvider = new DockablePaneProvider(console_);
-            console_.Log("Application started");
+            paneProvider = new DockablePaneProvider();
+            UIConsole.Log("RevitToVR application started");
         }
 
         Result IExternalApplication.OnStartup(UIControlledApplication uiApp)

@@ -22,21 +22,19 @@ namespace revit_to_vr_plugin
     /// </summary>
     public partial class RevitToVRDockablePane : Page, INotifyPropertyChanged
     {
-        private UIConsole console_;
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public RevitToVRDockablePane(UIConsole console)
+        public RevitToVRDockablePane()
         {
             InitializeComponent();
             DataContext = this;
-            console_ = console;
-            console_.onTextChanged += OnTextChanged;
-            OnTextChanged(console_.Text);
+            UIConsole.Instance.onTextChanged += OnTextChanged;
+            OnTextChanged(UIConsole.Instance.Text);
         }
 
         ~RevitToVRDockablePane()
         {
-            console_.onTextChanged -= OnTextChanged;
+            UIConsole.Instance.onTextChanged -= OnTextChanged;
         }
 
         void OnTextChanged(string text)

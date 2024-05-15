@@ -10,7 +10,7 @@ using WebSocketSharp.Server;
 
 namespace revit_to_vr_plugin
 {
-    internal class MainService : WebSocketBehavior
+    public class MainService : WebSocketBehavior
     {
         
 
@@ -31,7 +31,7 @@ namespace revit_to_vr_plugin
     }
 
     // server is responsible for sending events and data to the
-    internal class Server
+    public class Server
     {
         // properties
         WebSocketServer server;
@@ -39,9 +39,11 @@ namespace revit_to_vr_plugin
         // methods
         public Server()
         {
-            server = new WebSocketServer(Configuration.uri);
+            string uri = Configuration.uri;
+            server = new WebSocketServer(uri);
             server.AddWebSocketService<MainService>(Configuration.mainPath);
             server.Start();
+            UIConsole.Log(string.Format("Started WebSocketServer at {0} with service MainService at {1}", uri, Configuration.mainPath));
         }
 
         ~Server()
