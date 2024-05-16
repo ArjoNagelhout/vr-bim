@@ -67,11 +67,12 @@ namespace revit_to_vr_plugin
         public static Application Instance => instance_;
 
         // public properties        
-        public Server server = new Server();
+        public MainService server = new MainService();
 
         // private properties
         
         private DockablePaneProvider paneProvider;
+        private uint connectionCount = 0;
         
 
         // methods
@@ -123,8 +124,6 @@ namespace revit_to_vr_plugin
             UIConsole.Log("OnSelectionChanged");
 
             ISet<ElementId> elements = args.GetSelectedElements();
-
-            
         }
 
         void OnDocumentChanged(object sender, DocumentChangedEventArgs args)
@@ -202,6 +201,32 @@ namespace revit_to_vr_plugin
             UIConsole.Log("OnDocumentOpened");
             Document document = args.Document;
             Guid id = document.CreationGUID;
+        }
+
+        // called by MainService
+
+        public void OnClientSentMessage(MessageEventArgs args)
+        {
+            if (args.IsText)
+            {
+                // handle text, should be json
+
+            }
+            else if (args.IsBinary)
+            {
+                // handle binary data
+            }
+        }
+
+        public void OnClientConnected()
+        {
+            connectionCount++;
+            
+        }
+
+        public void OnClientDisconnected()
+        {
+            connectionCount--;
         }
     }
 }
