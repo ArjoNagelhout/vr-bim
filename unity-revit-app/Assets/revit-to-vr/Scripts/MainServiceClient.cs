@@ -12,10 +12,15 @@ namespace RevitToVR
         private WebSocket socket;
         private bool connected = false;
         private string uri = Configuration.uri + Configuration.mainPath;
+
+        public delegate void OnMessageAction(object sender, MessageEventArgs args);
+
+        public OnMessageAction OnMessage;
         
         public MainServiceClient()
         {
             socket = new WebSocket(uri);
+            socket.WaitTime = TimeSpan.FromSeconds(1);
             socket.OnMessage += (sender, e) => UIConsole.Log("MainService (Server) sent: " + e.Data);
             
             socket.ConnectAsync();
@@ -23,15 +28,22 @@ namespace RevitToVR
 
             socket.OnOpen += OnOpen;
             socket.OnClose += OnClose;
-            socket.OnMessage += OnMessage;
+            socket.OnMessage += OnMessageInternal;
         }
 
-        ~MainServiceClient()
+        public void Disconnect()
         {
+            UIConsole.Log("Disconnected");
             socket.OnOpen -= OnOpen;
             socket.OnClose -= OnClose;
-            socket.OnMessage -= OnMessage;
+            socket.OnMessage -= OnMessageInternal;
+            socket.Close();
             socket = null;
+        }
+        
+        ~MainServiceClient()
+        {
+            Disconnect();
         }
 
         void OnOpen(object sender, EventArgs args)
@@ -46,9 +58,10 @@ namespace RevitToVR
             UIConsole.Log("MainServiceClient > OnClose, reason: " + args.Reason);
         }
 
-        void OnMessage(object sender, MessageEventArgs args)
+        void OnMessageInternal(object sender, MessageEventArgs args)
         {
             UIConsole.Log("MainServiceClient > OnMessage: " + args.Data);
+            OnMessage?.Invoke(sender, args);
         }
     }
 }

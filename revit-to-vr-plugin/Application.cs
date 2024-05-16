@@ -18,6 +18,7 @@ using WebSocketSharp;
 using WebSocketSharp.Server;
 using System.Windows.Interop;
 using Autodesk.Revit.DB.Events;
+using revit_to_vr_common;
 
 namespace revit_to_vr_plugin
 {
@@ -67,7 +68,7 @@ namespace revit_to_vr_plugin
         public static Application Instance => instance_;
 
         // public properties        
-        public MainService server = new MainService();
+        public Server server = new Server();
 
         // private properties
         
@@ -135,14 +136,14 @@ namespace revit_to_vr_plugin
             ICollection<ElementId> deleted = args.GetDeletedElementIds();
             ICollection<ElementId> modified = args.GetModifiedElementIds();
 
-            Element e = document.GetElement(added.First());
-            GeometryElement geometry = e.get_Geometry(new Options()
+            Autodesk.Revit.DB.Element element = document.GetElement(added.First());
+            GeometryElement geometry = element.get_Geometry(new Options()
             {
                 DetailLevel = ViewDetailLevel.Coarse,
                 ComputeReferences = true,
                 IncludeNonVisibleObjects = true
             });
-            Material material = geometry.MaterialElement;
+            Autodesk.Revit.DB.Material material = geometry.MaterialElement;
             
             BoundingBoxXYZ bounds = geometry.GetBoundingBox();
             
@@ -182,18 +183,39 @@ namespace revit_to_vr_plugin
                     PolyLine polyLine = obj as PolyLine;
                 }
             }
+
+            // send event
+            DocumentChangedEvent e = new DocumentChangedEvent();
+            MainService.SendJsonAsync(e, (success) =>
+            {
+
+            });
         }
 
         void OnDocumentClosed(object sender, DocumentClosedEventArgs args)
         {
             UIConsole.Log("OnDocumentClosed");
             int documentId = args.DocumentId;
+
+            // send event
+            DocumentClosedEvent e = new DocumentClosedEvent();
+            MainService.SendJsonAsync(e, (success) =>
+            {
+
+            });
         }
 
         void OnDocumentCreated(object sender, DocumentCreatedEventArgs args)
         {
             UIConsole.Log("OnDocumentCreated");
             Document document = args.Document;
+
+            // send event
+            DocumentOpenedEvent e = new DocumentOpenedEvent();
+            MainService.SendJsonAsync(e, (success) =>
+            {
+
+            });
         }
 
         void OnDocumentOpened(object sender, DocumentOpenedEventArgs args)
@@ -201,6 +223,9 @@ namespace revit_to_vr_plugin
             UIConsole.Log("OnDocumentOpened");
             Document document = args.Document;
             Guid id = document.CreationGUID;
+
+            // send event
+
         }
 
         // called by MainService
