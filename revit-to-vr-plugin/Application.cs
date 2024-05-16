@@ -246,12 +246,14 @@ namespace revit_to_vr_plugin
         public void OnClientConnected()
         {
             connectionCount++;
+            UIConsole.Log("Application > OnClientConnected");
             
         }
 
         public void OnClientDisconnected()
         {
             connectionCount--;
+            UIConsole.Log("Application > OnClientDisconnected");
         }
     }
 }

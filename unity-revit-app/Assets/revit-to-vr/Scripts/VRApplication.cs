@@ -16,9 +16,9 @@ namespace RevitToVR
         private void Start()
         {
             database_ = new Database();
+            UIConsole.Log("Started VRApplication");
             mainServiceClient_ = new MainServiceClient();
             mainServiceClient_.OnMessage += OnMessage;
-            UIConsole.Log("Started VRApplication");
         }
 
         private void OnDestroy()

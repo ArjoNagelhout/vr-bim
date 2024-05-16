@@ -18,7 +18,6 @@ namespace revit_to_vr_plugin
 
         public MainService()
         {
-            Debug.Assert(Instance == null);
             instance_ = this;
         }
 

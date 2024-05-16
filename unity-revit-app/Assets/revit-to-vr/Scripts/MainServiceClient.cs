@@ -10,7 +10,6 @@ namespace RevitToVR
     public class MainServiceClient
     {
         private WebSocket socket;
-        private bool connected = false;
         private string uri = Configuration.uri + Configuration.mainPath;
 
         public delegate void OnMessageAction(object sender, MessageEventArgs args);
@@ -20,15 +19,18 @@ namespace RevitToVR
         public MainServiceClient()
         {
             socket = new WebSocket(uri);
-            socket.WaitTime = TimeSpan.FromSeconds(1);
+            socket.WaitTime = TimeSpan.FromSeconds(5);
             socket.OnMessage += (sender, e) => UIConsole.Log("MainService (Server) sent: " + e.Data);
             
-            socket.ConnectAsync();
-            UIConsole.Log("Connecting to MainServiceClient with uri: " + uri);
-
             socket.OnOpen += OnOpen;
             socket.OnClose += OnClose;
             socket.OnMessage += OnMessageInternal;
+            
+            UIConsole.Log("Connecting to MainServiceClient with uri: " + uri);
+            socket.Connect();
+            
+            
+            socket.Send("be");
         }
 
         public void Disconnect()
@@ -46,19 +48,19 @@ namespace RevitToVR
             Disconnect();
         }
 
-        void OnOpen(object sender, EventArgs args)
+        private void OnOpen(object sender, EventArgs args)
         {
             UIConsole.Log("MainServiceClient > OnOpen");
             
             socket.Send("Connected from Unity!");
         }
 
-        void OnClose(object sender, CloseEventArgs args)
+        private void OnClose(object sender, CloseEventArgs args)
         {
             UIConsole.Log("MainServiceClient > OnClose, reason: " + args.Reason);
         }
 
-        void OnMessageInternal(object sender, MessageEventArgs args)
+        private void OnMessageInternal(object sender, MessageEventArgs args)
         {
             UIConsole.Log("MainServiceClient > OnMessage: " + args.Data);
             OnMessage?.Invoke(sender, args);
