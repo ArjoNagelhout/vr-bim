@@ -26,7 +26,7 @@ namespace RevitToVR
             socket.OnClose += OnClose;
             socket.OnMessage += OnMessageInternal;
             
-            UIConsole.Log("Connecting to MainServiceClient with uri: " + uri);
+            UIConsole.Log("Connecting to MainService with uri: " + uri);
             socket.Connect();
             
             

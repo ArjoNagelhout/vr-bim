@@ -125,6 +125,13 @@ namespace revit_to_vr_plugin
             UIConsole.Log("OnSelectionChanged");
 
             ISet<ElementId> elements = args.GetSelectedElements();
+
+            // send event
+            SelectionChangedEvent e = new SelectionChangedEvent();
+            MainService.SendJsonAsync(e, (success) =>
+            {
+
+            });
         }
 
         void OnDocumentChanged(object sender, DocumentChangedEventArgs args)
