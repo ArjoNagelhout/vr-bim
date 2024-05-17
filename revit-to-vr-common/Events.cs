@@ -18,22 +18,26 @@ namespace revit_to_vr_common
         
     }
 
+    [JsonDerivedType(typeof(DocumentChangedEvent), typeDiscriminator: "documentChanged")]
     public class DocumentChangedEvent : Event
     {
         
     }
 
     // send all data this document contains
+    [JsonDerivedType(typeof(DocumentOpenedEvent), typeDiscriminator: "documentOpened")]
     public class DocumentOpenedEvent : Event
     {
         
     }
 
+    [JsonDerivedType(typeof(DocumentClosedEvent), typeDiscriminator: "documentClosed")]
     public class DocumentClosedEvent : Event
     {
         
     }
 
+    [JsonDerivedType(typeof(SelectionChangedEvent), typeDiscriminator: "selectionChangedEvent")]
     public class SelectionChangedEvent : Event
     {
         

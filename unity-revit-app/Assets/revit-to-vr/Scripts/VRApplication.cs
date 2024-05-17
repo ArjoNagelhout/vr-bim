@@ -31,10 +31,25 @@ namespace RevitToVR
         // server to client communication
         private void OnMessage(object sender, MessageEventArgs args)
         {
+            UIConsole.Log("VRApplication > OnMessage");
             if (args.IsText)
             {
                 // handle text
                 string json = args.Data;
+                // validate json
+                if (string.IsNullOrWhiteSpace(json))
+                {
+                    return;
+                }
+                try
+                {
+                    using var _ = JsonDocument.Parse(json);
+                }
+                catch
+                {
+                    return;
+                }
+                UIConsole.Log("Received json: " + json);
 
                 revit_to_vr_common.Event e = JsonSerializer.Deserialize<revit_to_vr_common.Event>(json);
                 HandleEvent(e);

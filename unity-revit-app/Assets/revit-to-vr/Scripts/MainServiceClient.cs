@@ -20,7 +20,7 @@ namespace RevitToVR
         {
             socket = new WebSocket(uri);
             socket.WaitTime = TimeSpan.FromSeconds(5);
-            socket.OnMessage += (sender, e) => UIConsole.Log("MainService (Server) sent: " + e.Data);
+            //socket.OnMessage += (sender, e) => UIConsole.Log("MainService (Server) sent: " + e.Data);
             
             socket.OnOpen += OnOpen;
             socket.OnClose += OnClose;
@@ -62,8 +62,11 @@ namespace RevitToVR
 
         private void OnMessageInternal(object sender, MessageEventArgs args)
         {
-            UIConsole.Log("MainServiceClient > OnMessage: " + args.Data);
-            OnMessage?.Invoke(sender, args);
+            MainThreadDispatcher.Instance.Enqueue(() =>
+            {
+                UIConsole.Log("MainServiceClient > OnMessage: " + args.Data);
+                OnMessage?.Invoke(sender, args);                
+            });
         }
     }
 }
