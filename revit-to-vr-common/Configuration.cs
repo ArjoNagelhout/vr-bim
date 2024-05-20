@@ -4,6 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Text.Json;
+using System.Runtime.InteropServices;
+using System.Net.NetworkInformation;
+using System.Net.Sockets;
+
 
 namespace revit_to_vr_common
 {
@@ -16,13 +20,30 @@ namespace revit_to_vr_common
             IncludeFields = true
         };
 
-        // make sure this is statically assigned in the DHCP server. 
-        public static string ipAddress = "192.168.0.100";
-
         public static string protocolPrefix = "ws://";
 
-        public static string uri => protocolPrefix + ipAddress;
+        public static string uri => protocolPrefix + GetLocalIpAddress(NetworkInterfaceType.Ethernet);
 
         public static string mainPath = "/main";
+
+        // only to be used by the server as it retrieves the local ip address. 
+        public static string GetLocalIpAddress(NetworkInterfaceType _type)
+        {
+            string output = "";
+            foreach (NetworkInterface item in NetworkInterface.GetAllNetworkInterfaces())
+            {
+                if (item.NetworkInterfaceType == _type && item.OperationalStatus == OperationalStatus.Up)
+                {
+                    foreach (UnicastIPAddressInformation ip in item.GetIPProperties().UnicastAddresses)
+                    {
+                        if (ip.Address.AddressFamily == AddressFamily.InterNetwork)
+                        {
+                            output = ip.Address.ToString();
+                        }
+                    }
+                }
+            }
+            return output;
+        }
     }
 }

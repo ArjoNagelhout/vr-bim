@@ -50,3 +50,33 @@ Bridged means it uses a virtual network interface card (NIC) and does not create
 This sounds like the one we need. Then we also need to set the IP address. 
 
 192.168.0.100 is the static IP address now assigned to the server. 
+
+## Parallels Desktop MAC address issues
+As I'm trying to statically assign the IP address (as configured in the DHCP server) for the server, the MAC address needs to be configured properly. However, Parallels Desktop sometimes uses the MacBook's MAC address (or at least, the router shows the MacBook's MAC address). 
+
+Seems like this issue:
+
+https://forum.parallels.com/threads/pd16-on-big-sur-vm-not-using-the-configured-mac-address.351236/?clientId=1047149074.1715937619&sessionId=1715937618&_gl=1*l60pd4*_up*MQ..*_ga*MTA0NzE0OTA3NC4xNzE1OTM3NjE5*_ga_RYHBN2XNLK*MTcxNTkzNzYxOC4xLjAuMTcxNTkzNzYxOC4wLjAuMA..
+
+MAC Address on macOS:
+
+```
+ifconfig en0
+```
+
+under ether is the mac address
+
+Get MAC address on Windows:
+
+```
+getmac
+```
+
+bridge ip on parallels:
+10.211.55.2
+
+get ip address on Windows:
+
+```
+ipconfig
+```

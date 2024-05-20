@@ -40,9 +40,9 @@ namespace revit_to_vr_plugin
             Send("You got connected, amazing");
         }
 
-        public static void SendJsonAsync<T>(T data, Action<bool> onComplete)
+        public static void SendJson<T>(T data)
         {
-            string json = JsonSerializer.Serialize(data);
+            string json = JsonSerializer.Serialize(data, Configuration.jsonSerializerOptions);
             if (Instance != null)
             {
                 Instance.Send(json);
@@ -50,7 +50,7 @@ namespace revit_to_vr_plugin
             }
             else
             {
-                UIConsole.Log("No Client connected, so no need to send json");
+                UIConsole.Log("json (not sent): " + json);
             }
         }
     }

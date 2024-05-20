@@ -10,6 +10,8 @@ namespace RevitToVR
 {
     public class VRApplication : MonoBehaviour
     {
+        public string ipAddress;
+        
         private MainServiceClient mainServiceClient_;
         private Database database_;
         
@@ -17,7 +19,7 @@ namespace RevitToVR
         {
             database_ = new Database();
             UIConsole.Log("Started VRApplication");
-            mainServiceClient_ = new MainServiceClient();
+            mainServiceClient_ = new MainServiceClient(ipAddress);
             mainServiceClient_.OnMessage += OnMessage;
         }
 

@@ -10,16 +10,24 @@
     d:DesignHeight="600" d:DesignWidth="400">
     <StackPanel Background="White">
         <TextBlock FontSize="24" FontWeight="Bold">Console</TextBlock>
-        <ScrollViewer Height="200">
+        <ScrollViewer Height="700" >
             <TextBlock 
                 Background="Black" 
                 Foreground="#FF4FA3FF" 
                 FontFamily="Consolas" 
                 TextWrapping="WrapWithOverflow" 
-                Text="{Binding Path=ConsoleOutput, UpdateSourceTrigger=PropertyChanged, diag:PresentationTraceSources.TraceLevel=High}">
+                Text="{Binding Path=ConsoleOutput, UpdateSourceTrigger=PropertyChanged, diag:PresentationTraceSources.TraceLevel=High}" RenderTransformOrigin="0.5,0.5">
+                <TextBlock.RenderTransform>
+                    <TransformGroup>
+                        <ScaleTransform/>
+                        <SkewTransform AngleX="0"/>
+                        <RotateTransform/>
+                        <TranslateTransform X="2.475"/>
+                    </TransformGroup>
+                </TextBlock.RenderTransform>
             </TextBlock>
         </ScrollViewer>
 
     </StackPanel>
-    
+
 </Page>

@@ -128,75 +128,48 @@ namespace revit_to_vr_plugin
 
             // send event
             SelectionChangedEvent e = new SelectionChangedEvent();
-            MainService.SendJsonAsync(e, (success) =>
-            {
-
-            });
+            MainService.SendJson(e);
         }
 
         void OnDocumentChanged(object sender, DocumentChangedEventArgs args)
         {
             UIConsole.Log("OnDocumentChanged");
 
-            Document document = args.GetDocument();
-            ICollection<ElementId> added = args.GetAddedElementIds();
-            ICollection<ElementId> deleted = args.GetDeletedElementIds();
-            ICollection<ElementId> modified = args.GetModifiedElementIds();
+            DocumentChangedEvent e = new DocumentChangedEvent()
+            {
+                deletedElementIds = new List<long>(),
+                changedElements = new Dictionary<long, revit_to_vr_common.Element>()
+            };
 
-            Autodesk.Revit.DB.Element element = document.GetElement(added.First());
-            GeometryElement geometry = element.get_Geometry(new Options()
+            try
             {
-                DetailLevel = ViewDetailLevel.Coarse,
-                ComputeReferences = true,
-                IncludeNonVisibleObjects = true
-            });
-            Autodesk.Revit.DB.Material material = geometry.MaterialElement;
-            
-            BoundingBoxXYZ bounds = geometry.GetBoundingBox();
-            
-            foreach (GeometryObject obj in geometry)
-            {
-                // handle all cases that the geometry could be
-                if (obj is Solid)
+                Document document = args.GetDocument();
+                ICollection<ElementId> added = args.GetAddedElementIds();
+                ICollection<ElementId> deleted = args.GetDeletedElementIds();
+                ICollection<ElementId> modified = args.GetModifiedElementIds();
+
+                foreach (ElementId elementId in deleted)
                 {
-                    Solid solid = obj as Solid;
-                    FaceArray faces = solid.Faces;
-                    foreach (Face face in faces)
-                    {
-                        Mesh mesh = face.Triangulate(1);
-                        IList<XYZ> vertices = mesh.Vertices;
-                        IList<XYZ> normals = mesh.GetNormals();
-                    }
+                    e.deletedElementIds.Add(elementId.Value);
                 }
-                else if (obj is Mesh)
+
+                // we don't care if an element is added or changed, it needs to be updated anyway
+                // so on client-side we delete the old data stored for this element id
+                IEnumerable<ElementId> changed = modified.Union(added); 
+                foreach (ElementId elementId in changed)
                 {
-                    Mesh mesh = obj as Mesh;
-                    
-                }
-                else if (obj is GeometryInstance)
-                {
-                    GeometryInstance instance = obj as GeometryInstance;
-                }
-                else if (obj is Curve)
-                {
-                    Curve curve = obj as Curve;
-                }
-                else if (obj is Autodesk.Revit.DB.Point)
-                {
-                    Autodesk.Revit.DB.Point point = obj as Autodesk.Revit.DB.Point;
-                }
-                else if (obj is PolyLine)
-                {
-                    PolyLine polyLine = obj as PolyLine;
+                    revit_to_vr_common.Element targetElement = DataConversion.Convert(document, elementId);
+                    e.changedElements.Add(elementId.Value, targetElement);
                 }
             }
+            catch (Exception exception)
+            {
+                UIConsole.Log("Error: " + exception.Message);
+            }
+            
 
             // send event
-            DocumentChangedEvent e = new DocumentChangedEvent();
-            MainService.SendJsonAsync(e, (success) =>
-            {
-
-            });
+            MainService.SendJson(e);
         }
 
         void OnDocumentClosed(object sender, DocumentClosedEventArgs args)
@@ -206,10 +179,7 @@ namespace revit_to_vr_plugin
 
             // send event
             DocumentClosedEvent e = new DocumentClosedEvent();
-            MainService.SendJsonAsync(e, (success) =>
-            {
-
-            });
+            MainService.SendJson(e);
         }
 
         void OnDocumentCreated(object sender, DocumentCreatedEventArgs args)
@@ -219,10 +189,7 @@ namespace revit_to_vr_plugin
 
             // send event
             DocumentOpenedEvent e = new DocumentOpenedEvent();
-            MainService.SendJsonAsync(e, (success) =>
-            {
-
-            });
+            MainService.SendJson(e);
         }
 
         void OnDocumentOpened(object sender, DocumentOpenedEventArgs args)
@@ -232,7 +199,8 @@ namespace revit_to_vr_plugin
             Guid id = document.CreationGUID;
 
             // send event
-
+            DocumentOpenedEvent e = new DocumentOpenedEvent();
+            MainService.SendJson(e);
         }
 
         // called by MainService

@@ -54,6 +54,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DataConversion.cs" />
     <Compile Include="UIConsole.cs" />
     <Compile Include="RevitToVRDockablePane.xaml.cs">
       <DependentUpon>RevitToVRDockablePane.xaml</DependentUpon>

@@ -10,17 +10,17 @@ namespace RevitToVR
     public class MainServiceClient
     {
         private WebSocket socket;
-        private string uri = Configuration.uri + Configuration.mainPath;
+        private string uri;
 
         public delegate void OnMessageAction(object sender, MessageEventArgs args);
 
         public OnMessageAction OnMessage;
         
-        public MainServiceClient()
+        public MainServiceClient(string ipAddress)
         {
+            uri = Configuration.protocolPrefix + ipAddress + Configuration.mainPath;
             socket = new WebSocket(uri);
             socket.WaitTime = TimeSpan.FromSeconds(5);
-            //socket.OnMessage += (sender, e) => UIConsole.Log("MainService (Server) sent: " + e.Data);
             
             socket.OnOpen += OnOpen;
             socket.OnClose += OnClose;
@@ -28,9 +28,6 @@ namespace RevitToVR
             
             UIConsole.Log("Connecting to MainService with uri: " + uri);
             socket.Connect();
-            
-            
-            socket.Send("be");
         }
 
         public void Disconnect()
