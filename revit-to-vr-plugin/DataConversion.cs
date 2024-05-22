@@ -195,7 +195,11 @@ namespace revit_to_vr_plugin
                             foreach (Face face in faces)
                             {
                                 Mesh mesh = face.Triangulate(Configuration.triangulationlevelOfDetail);
-                                positions.Capacity = positions.Count + mesh.Vertices.Count;
+                                int vertexCount = mesh.Vertices.Count;
+                                positions.Capacity = positions.Count + vertexCount;
+                                normals.Capacity = normals.Count + vertexCount;
+
+                                positions.AddRange(mesh.Vertices);
 
                                 // handle distribution of normals
                                 // https://www.revitapidocs.com/2019/8e00e7aa-b39b-51b4-26e4-0f5c1404df32.htm
@@ -204,21 +208,32 @@ namespace revit_to_vr_plugin
                                 {
                                     case DistributionOfNormals.AtEachPoint:
                                         // one for each vertex
+                                        Debug.Assert(mesh.NumberOfNormals == mesh.Vertices.Count);
+                                        normals.AddRange(mesh.GetNormals());
                                         break;
                                     case DistributionOfNormals.OnePerFace:
                                         // one for the entire face
+                                        Debug.Assert(mesh.NumberOfNormals == 1);
+                                        XYZ normal = mesh.GetNormal(0);
+                                        for (int i = 0; i < mesh.Vertices.Count; i++)
+                                        {
+                                            normals.Add(normal);
+                                        }
                                         break;
                                     case DistributionOfNormals.OnEachFacet:
                                         // one per triangle
+                                        for (int v = 0; v < mesh.NumTriangles; v++)
+                                        {
+                                            for (int i = 0; i < 3; i++)
+                                            {
+                                                normals.Add(mesh.GetNormal(v));
+                                            }
+                                        }
                                         break;
                                 }
-
-
-                                // this is not true apparently
-                                Debug.Assert(mesh.Vertices.Count == mesh.NumberOfNormals);
-                                positions.AddRange(mesh.Vertices);
-                                normals.AddRange(mesh.GetNormals());
                             }
+
+                            Debug.Assert(positions.Count == normals.Count);
 
                             MeshDataToSend result = ConvertVertices(positions, normals, temporaryMeshIndex);
                             outputGeometry = new VRBIM_Solid()

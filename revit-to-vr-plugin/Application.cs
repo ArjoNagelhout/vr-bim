@@ -188,7 +188,7 @@ namespace revit_to_vr_plugin
                     };
 
                     MainService.SendJson(sendMeshDataEvent);
-                    
+                    MainService.SendBytes(meshData.data);
                 }
             }
         }
