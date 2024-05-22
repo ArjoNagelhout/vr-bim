@@ -28,7 +28,13 @@ namespace revit_to_vr_common
         public List<VRBIM_Geometry> geometries;
     }
 
-    [JsonDerivedType(typeof(VRBIM_Geometry), typeDiscriminator: "geometry")]
+    [JsonDerivedType(typeof(VRBIM_Geometry), typeDiscriminator: "base")]
+    [JsonDerivedType(typeof(VRBIM_Solid), typeDiscriminator: "solid")]
+    [JsonDerivedType(typeof(VRBIM_Mesh), typeDiscriminator: "mesh")]
+    [JsonDerivedType(typeof(VRBIM_GeometryInstance), typeDiscriminator: "geometryInstance")]
+    [JsonDerivedType(typeof(VRBIM_Curve), typeDiscriminator: "curve")]
+    [JsonDerivedType(typeof(VRBIM_PolyLine), typeDiscriminator: "polyLine")]
+    [JsonDerivedType(typeof(VRBIM_Point), typeDiscriminator: "point")]
     [System.Serializable]
     public class VRBIM_Geometry
     {
@@ -36,30 +42,35 @@ namespace revit_to_vr_common
     }
 
     [JsonDerivedType(typeof(VRBIM_Solid), typeDiscriminator: "solid")]
+    [System.Serializable]
     public class VRBIM_Solid : VRBIM_Geometry
     {
 
     }
 
     [JsonDerivedType(typeof(VRBIM_Mesh), typeDiscriminator: "mesh")]
+    [System.Serializable]
     public class VRBIM_Mesh : VRBIM_Geometry
     {
 
     }
 
     [JsonDerivedType(typeof(VRBIM_GeometryInstance), typeDiscriminator: "geometryInstance")]
+    [System.Serializable]
     public class VRBIM_GeometryInstance : VRBIM_Geometry
     {
 
     }
 
     [JsonDerivedType(typeof(VRBIM_Curve), typeDiscriminator: "curve")]
+    [System.Serializable]
     public class VRBIM_Curve : VRBIM_Geometry
     {
 
     }
 
     [JsonDerivedType(typeof(VRBIM_PolyLine), typeDiscriminator: "polyLine")]
+    [System.Serializable]
     public class VRBIM_PolyLine : VRBIM_Geometry
     {
 
@@ -68,6 +79,7 @@ namespace revit_to_vr_common
 
 
     [JsonDerivedType(typeof(VRBIM_Point), typeDiscriminator: "point")]
+    [System.Serializable]
     public class VRBIM_Point : VRBIM_Geometry
     {
 
