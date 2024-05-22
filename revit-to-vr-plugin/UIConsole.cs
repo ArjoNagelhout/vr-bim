@@ -42,7 +42,7 @@ namespace revit_to_vr_plugin
         // methods
         public static void Clear()
         {
-            Instance.text_ = "";
+            Instance.Text = "";
         }
         
         public static void Log(string text)

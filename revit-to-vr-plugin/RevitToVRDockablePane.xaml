@@ -9,7 +9,9 @@
     mc:Ignorable="d" 
     d:DesignHeight="600" d:DesignWidth="400">
     <StackPanel Background="White">
+        
         <TextBlock FontSize="24" FontWeight="Bold">Console</TextBlock>
+        <Button Command="{Binding ClearCommand}">Clear</Button>
         <ScrollViewer Height="700" >
             <TextBlock 
                 Background="Black" 

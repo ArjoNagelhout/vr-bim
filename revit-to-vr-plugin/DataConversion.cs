@@ -22,7 +22,7 @@ namespace revit_to_vr_plugin
             };
         }
 
-        public static revit_to_vr_common.AABB Convert(BoundingBoxXYZ bounds)
+        public static revit_to_vr_common.VRBIM_AABB Convert(BoundingBoxXYZ bounds)
         {
             Vector3 min = Convert(bounds.Min);
             Vector3 max = Convert(bounds.Max);
@@ -33,29 +33,37 @@ namespace revit_to_vr_plugin
 
             Vector3 extents = (max - min) / 2.0f;
 
-            return new revit_to_vr_common.AABB()
+            return new revit_to_vr_common.VRBIM_AABB()
             {
                 center = center,
                 extents = extents
             };
         }
 
-        public static revit_to_vr_common.Element Convert(Document document, ElementId elementId)
+        public static revit_to_vr_common.VRBIM_Element Convert(Document document, ElementId elementId)
         {
-            revit_to_vr_common.Element output = new revit_to_vr_common.Element()
+            revit_to_vr_common.VRBIM_Element output = new revit_to_vr_common.VRBIM_Element()
             {
-                elementId = elementId.Value,
-                valid = false,
+                elementId = elementId.Value
             };
 
             Autodesk.Revit.DB.Element element = document.GetElement(elementId);
 
+            if (element == null)
+            {
+                UIConsole.Log("Element is null");
+                return null;
+            }
+
             if (!element.IsValidObject)
             {
                 UIConsole.Log("Element is not a valid object");
-                return output;
+                return null;
             }
 
+            output.name = element.Name;
+
+            // set geometry
             GeometryElement geometry = element.get_Geometry(new Options()
             {
                 DetailLevel = ViewDetailLevel.Coarse,
@@ -65,7 +73,6 @@ namespace revit_to_vr_plugin
 
             if (geometry == null)
             {
-                UIConsole.Log("Geometry is null");
                 return output;
             }
 
@@ -73,11 +80,11 @@ namespace revit_to_vr_plugin
             BoundingBoxXYZ bounds = geometry.GetBoundingBox();
             output.bounds = Convert(bounds);
 
-            // set geometry
-            output.geometries = new List<Geometry>();
-
+            output.geometries = new List<VRBIM_Geometry>();
             foreach (GeometryObject obj in geometry)
             {
+                VRBIM_Geometry outputGeometry = null;
+
                 // handle all cases that the geometry could be
                 if (obj is Solid)
                 {
@@ -89,41 +96,54 @@ namespace revit_to_vr_plugin
                         IList<XYZ> vertices = mesh.Vertices;
                         IList<XYZ> normals = mesh.GetNormals();
                     }
+
+                    outputGeometry = new VRBIM_Solid();
                 }
                 else if (obj is Mesh)
                 {
                     Mesh mesh = obj as Mesh;
-
+                    outputGeometry = new VRBIM_Mesh();
                 }
                 else if (obj is GeometryInstance)
                 {
                     GeometryInstance instance = obj as GeometryInstance;
+                    
+                    outputGeometry = new VRBIM_GeometryInstance();
                 }
                 else if (obj is Curve)
                 {
                     Curve curve = obj as Curve;
+
+                    outputGeometry = new VRBIM_Curve();
+
                 }
-                else if (obj is Autodesk.Revit.DB.Point)
+                else if (obj is Point)
                 {
-                    Autodesk.Revit.DB.Point point = obj as Autodesk.Revit.DB.Point;
+                    Point point = obj as Point;
+
+                    outputGeometry = new VRBIM_Point();
                 }
                 else if (obj is PolyLine)
                 {
                     PolyLine polyLine = obj as PolyLine;
+
+                    outputGeometry = new VRBIM_PolyLine();
                 }
-                output.geometries.Add(new Geometry());
+
+                if (outputGeometry != null)
+                {
+                    output.geometries.Add(outputGeometry);
+                }
             }
 
             // set material
             Autodesk.Revit.DB.Material material = geometry.MaterialElement;
 
-            if (material == null)
+            if (material != null)
             {
-                UIConsole.Log("Material is null");
-                return output;
+                
             }
 
-            output.valid = true;
             return output;
         }
     }

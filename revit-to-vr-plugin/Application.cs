@@ -138,7 +138,7 @@ namespace revit_to_vr_plugin
             DocumentChangedEvent e = new DocumentChangedEvent()
             {
                 deletedElementIds = new List<long>(),
-                changedElements = new Dictionary<long, revit_to_vr_common.Element>()
+                changedElements = new Dictionary<long, revit_to_vr_common.VRBIM_Element>()
             };
 
             try
@@ -158,8 +158,11 @@ namespace revit_to_vr_plugin
                 IEnumerable<ElementId> changed = modified.Union(added); 
                 foreach (ElementId elementId in changed)
                 {
-                    revit_to_vr_common.Element targetElement = DataConversion.Convert(document, elementId);
-                    e.changedElements.Add(elementId.Value, targetElement);
+                    revit_to_vr_common.VRBIM_Element targetElement = DataConversion.Convert(document, elementId);
+                    if (targetElement != null)
+                    {
+                        e.changedElements.Add(elementId.Value, targetElement);
+                    }
                 }
             }
             catch (Exception exception)

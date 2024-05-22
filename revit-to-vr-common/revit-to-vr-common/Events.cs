@@ -23,7 +23,7 @@ namespace revit_to_vr_common
     [System.Serializable]
     public class DocumentChangedEvent : Event
     {
-        public Dictionary<long, Element> changedElements;
+        public Dictionary<long, VRBIM_Element> changedElements;
         public List<long> deletedElementIds;
         public string something = "false";
     }
