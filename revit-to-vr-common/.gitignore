@@ -16,3 +16,6 @@ UpgradeLog*.*
 .vs
 .DS_Store
 .idea
+
+packages
+MigrationBackup

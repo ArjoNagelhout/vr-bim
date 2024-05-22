@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34728.123
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "revit-to-vr-common", "revit-to-vr-common.csproj", "{F48F2675-1AE5-4925-95F8-8B0CDA6B1E1D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "revit-to-vr-common", "revit-to-vr-common\revit-to-vr-common.csproj", "{F48F2675-1AE5-4925-95F8-8B0CDA6B1E1D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "revit-to-vr-common-tests", "revit-to-vr-common-tests\revit-to-vr-common-tests.csproj", "{0F457535-DA24-492C-8EBC-A168665F2A88}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{F48F2675-1AE5-4925-95F8-8B0CDA6B1E1D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F48F2675-1AE5-4925-95F8-8B0CDA6B1E1D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F48F2675-1AE5-4925-95F8-8B0CDA6B1E1D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0F457535-DA24-492C-8EBC-A168665F2A88}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0F457535-DA24-492C-8EBC-A168665F2A88}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0F457535-DA24-492C-8EBC-A168665F2A88}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0F457535-DA24-492C-8EBC-A168665F2A88}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

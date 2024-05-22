@@ -33,6 +33,16 @@ namespace revit_to_vr_common
             return Execute(lhs, rhs, (lhs_, rhs_) => { return lhs_ / rhs_; });
         }
 
+        public static bool operator ==(Vector3 lhs, Vector3 rhs)
+        {
+            return lhs.x == rhs.x && lhs.y == rhs.y && lhs.z == rhs.z;
+        }
+
+        public static bool operator !=(Vector3 lhs, Vector3 rhs)
+        {
+            return !(lhs == rhs);
+        }
+
         private delegate float F(float lhs, float rhs);
 
         private static Vector3 Execute(Vector3 lhs, Vector3 rhs, F func)

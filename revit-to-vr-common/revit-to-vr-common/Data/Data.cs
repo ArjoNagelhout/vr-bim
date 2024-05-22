@@ -8,6 +8,13 @@ namespace revit_to_vr_common
     {
         public Vector3 center;
         public Vector3 extents;
+
+        public static AABB FromMinMax(Vector3 min, Vector3 max)
+        {
+            Vector3 extents = (max - min) / 2;
+            Vector3 center = min + extents;
+            return new AABB() { center = center, extents = extents };
+        }
     }
 
     [System.Serializable]

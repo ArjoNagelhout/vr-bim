@@ -73,7 +73,7 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\revit-to-vr-common\revit-to-vr-common.csproj">
+    <ProjectReference Include="..\revit-to-vr-common\revit-to-vr-common\revit-to-vr-common.csproj">
       <Project>{f48f2675-1ae5-4925-95f8-8b0cda6b1e1d}</Project>
       <Name>revit-to-vr-common</Name>
     </ProjectReference>

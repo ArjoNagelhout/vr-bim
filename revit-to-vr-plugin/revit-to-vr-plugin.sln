@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "revit-to-vr-plugin", "revit
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "websocket-sharp", "..\websocket-sharp\websocket-sharp\websocket-sharp.csproj", "{B357BAC7-529E-4D81-A0D2-71041B19C8DE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "revit-to-vr-common", "..\revit-to-vr-common\revit-to-vr-common.csproj", "{F48F2675-1AE5-4925-95F8-8B0CDA6B1E1D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "revit-to-vr-common", "..\revit-to-vr-common\revit-to-vr-common\revit-to-vr-common.csproj", "{F48F2675-1AE5-4925-95F8-8B0CDA6B1E1D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
