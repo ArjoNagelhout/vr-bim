@@ -25,7 +25,6 @@ namespace revit_to_vr_common
     {
         public Dictionary<long, VRBIM_Element> changedElements;
         public List<long> deletedElementIds;
-        public string something = "false";
     }
 
     // send all data this document contains
@@ -34,7 +33,7 @@ namespace revit_to_vr_common
     public class DocumentOpenedEvent : Event
     {
         
-    }   
+    }
 
     [JsonDerivedType(typeof(DocumentClosedEvent), typeDiscriminator: "documentClosed")]
     [System.Serializable]
@@ -48,5 +47,12 @@ namespace revit_to_vr_common
     public class SelectionChangedEvent : Event
     {
         
+    }
+
+    [JsonDerivedType(typeof(SendMeshDataEvent), typeDiscriminator: "sendMeshData")]
+    [System.Serializable]
+    public class SendMeshDataEvent : Event
+    {
+        public VRBIM_MeshDataDescriptor descriptor;
     }
 }

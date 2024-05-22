@@ -1,19 +1,27 @@
+using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace revit_to_vr_common
 {
+    public enum VRBIM_ViewDetailLevel
+    {
+        Coarse,
+        Medium,
+        Fine
+    }
+
     // axis aligned bounding box
     [System.Serializable]
     public class VRBIM_AABB
     {
-        public Vector3 center;
-        public Vector3 extents;
+        public VRBIM_Vector3 center;
+        public VRBIM_Vector3 extents;
 
-        public static VRBIM_AABB FromMinMax(Vector3 min, Vector3 max)
+        public static VRBIM_AABB FromMinMax(VRBIM_Vector3 min, VRBIM_Vector3 max)
         {
-            Vector3 extents = (max - min) / 2;
-            Vector3 center = min + extents;
+            VRBIM_Vector3 extents = (max - min) / 2;
+            VRBIM_Vector3 center = min + extents;
             return new VRBIM_AABB() { center = center, extents = extents };
         }
     }
@@ -45,7 +53,7 @@ namespace revit_to_vr_common
     [System.Serializable]
     public class VRBIM_Solid : VRBIM_Geometry
     {
-
+        public Guid temporaryMeshId;
     }
 
     [JsonDerivedType(typeof(VRBIM_Mesh), typeDiscriminator: "mesh")]
@@ -53,6 +61,25 @@ namespace revit_to_vr_common
     public class VRBIM_Mesh : VRBIM_Geometry
     {
 
+    }
+
+    [System.Serializable]
+    public class VRBIM_MeshId
+    {
+        public int id;
+        public bool temporary; // if temporary, we should use the temporary id instead of the normal id
+        public Guid temporaryId; // we assign a temporary id so that even temporary meshes can be identified
+    }
+
+    [System.Serializable]
+    public class VRBIM_MeshDataDescriptor
+    {
+        // id
+        public VRBIM_MeshId id;
+
+        // metadata
+        public int vertexCount;
+        public int normalCount;
     }
 
     [JsonDerivedType(typeof(VRBIM_GeometryInstance), typeDiscriminator: "geometryInstance")]
