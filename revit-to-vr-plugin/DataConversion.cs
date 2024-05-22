@@ -197,6 +197,24 @@ namespace revit_to_vr_plugin
                                 Mesh mesh = face.Triangulate(Configuration.triangulationlevelOfDetail);
                                 positions.Capacity = positions.Count + mesh.Vertices.Count;
 
+                                // handle distribution of normals
+                                // https://www.revitapidocs.com/2019/8e00e7aa-b39b-51b4-26e4-0f5c1404df32.htm
+                                DistributionOfNormals distribution = mesh.DistributionOfNormals;
+                                switch (distribution)
+                                {
+                                    case DistributionOfNormals.AtEachPoint:
+                                        // one for each vertex
+                                        break;
+                                    case DistributionOfNormals.OnePerFace:
+                                        // one for the entire face
+                                        break;
+                                    case DistributionOfNormals.OnEachFacet:
+                                        // one per triangle
+                                        break;
+                                }
+
+
+                                // this is not true apparently
                                 Debug.Assert(mesh.Vertices.Count == mesh.NumberOfNormals);
                                 positions.AddRange(mesh.Vertices);
                                 normals.AddRange(mesh.GetNormals());
