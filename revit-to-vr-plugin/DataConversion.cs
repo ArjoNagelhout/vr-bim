@@ -3,11 +3,6 @@ using revit_to_vr_common;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Runtime.InteropServices;
-using System.Data.Odbc;
 
 namespace revit_to_vr_plugin
 {
@@ -91,12 +86,19 @@ namespace revit_to_vr_plugin
             int sizeInBytes = vertexStrideInBytes * vertexCount + indexSizeInBytes * indexCount;
             byte[] data = new byte[sizeInBytes];
 
+            UIConsole.Log($"IsLittleEndian: {BitConverter.IsLittleEndian}");
+
             // copy vertices
             for (int i = 0; i < vertexCount; i++)
             {
                 // we don't store it as the intermediate VRBIM_Vector3, because that would create
                 // a managed object we need to marshal to support copying. 
                 byte[] position = GetBytes(positions[i]);
+
+                
+
+                Debug.WriteLine($"pos at index {i}: {positions[i].X}, {positions[i].Y}, {positions[i].Z} (bytes: {BitConverter.ToString(position, 0, 4 * 3)})");
+                
                 //byte[] normal = GetBytes(normals[i]);
 
                 Buffer.BlockCopy(position, 0, data, vertexStrideInBytes * i, vector3SizeInBytes);

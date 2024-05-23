@@ -2,11 +2,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using UnityEngine;
 using WebSocketSharp;
 using System.Text.Json;
 using revit_to_vr_common;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine.Rendering;
 
 namespace RevitToVR
@@ -134,12 +136,13 @@ namespace RevitToVR
             }
         }
 
-        public struct VRBIM_Vertex
+        [System.Runtime.InteropServices.StructLayout(LayoutKind.Sequential)]
+        public struct VRBIM_ReceivedVertexData
         {
-            public Vector3 position;
+            public VRBIM_Vector3 position;
         }
-
-        private void HandleBinary(SendMeshDataEvent e, byte[] buffer)
+        
+        private unsafe void HandleBinary(SendMeshDataEvent e, byte[] buffer)
         {
             var descriptors = new NativeArray<VertexAttributeDescriptor>(1, Allocator.Temp);
             descriptors[0] = new VertexAttributeDescriptor()
@@ -161,20 +164,32 @@ namespace RevitToVR
             
             Mesh mesh = new Mesh();
             mesh.SetVertexBufferParams(vertexCount, descriptors);
+
+            VRBIM_ReceivedVertexData[] verticesTyped = new VRBIM_ReceivedVertexData[vertexCount];
             
             Bounds bounds = new Bounds();
             for (int i = 0; i < vertexCount; i++)
             {
+                UIConsole.Log($"IsLittleEndian: {BitConverter.IsLittleEndian}");
                 float x = BitConverter.ToSingle(buffer, i * vertexStrideInBytes);
-                float y = BitConverter.ToSingle(buffer, i * vertexStrideInBytes + vector3SizeInBytes);
-                float z = BitConverter.ToSingle(buffer, i * vertexStrideInBytes + vector3SizeInBytes * 2);
+                float y = BitConverter.ToSingle(buffer, i * vertexStrideInBytes + 4);
+                float z = BitConverter.ToSingle(buffer, i * vertexStrideInBytes + 4 * 2);
                 Vector3 pos = new Vector3(x, y, z);
-                UIConsole.Log($"vertex at index: {i}: {pos.ToString()}");
+                UIConsole.Log($"vertex at index: {i}: {pos.ToString()} (bytes: {BitConverter.ToString(buffer, i * vertexStrideInBytes, 4 * 3)})");
                 bounds.Encapsulate(pos); // apparently this is required because Unity crashes otherwise.
+                verticesTyped[i] = new VRBIM_ReceivedVertexData()
+                {
+                    position = new VRBIM_Vector3()
+                    {
+                        x = x,
+                        y = y,
+                        z = z
+                    }
+                };
             }
             
             // count = amount of *vertices* to copy, not bytes
-            mesh.SetVertexBufferData(buffer, 0, 0, vertexCount, 0, MeshUpdateFlags.DontRecalculateBounds);
+            mesh.SetVertexBufferData(verticesTyped, 0, 0, vertexCount, 0, MeshUpdateFlags.DontRecalculateBounds);
             
             // we need to set the indices
             int indexCount = e.descriptor.indexCount;
@@ -188,6 +203,8 @@ namespace RevitToVR
             Buffer.BlockCopy(buffer, offset, indices, 0, indexCount * indexSizeInBytes);
 
             bool firstOk = false;
+
+            UInt32[] indicesTyped = new UInt32[indexCount];
             
             for (int i = 0; i < indexCount; i++)
             {
@@ -199,10 +216,11 @@ namespace RevitToVR
                     firstOk = true;
                 }
                 
-                UIConsole.Log($"index: {index}");
+                //UIConsole.Log($"index: {index}");
+                indicesTyped[i] = index;
             }
             
-            mesh.SetIndexBufferData(indices, 0, 0, indexCount, MeshUpdateFlags.DontRecalculateBounds);
+            mesh.SetIndexBufferData(indicesTyped, 0, 0, indexCount, MeshUpdateFlags.DontRecalculateBounds);
             
             // we also need to set a submesh, otherwise it won't show any triangles
             mesh.subMeshCount = 1;
