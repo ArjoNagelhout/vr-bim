@@ -106,8 +106,7 @@ namespace revit_to_vr_plugin
                     temporary = IsMeshIdTemporary(id),
                     temporaryId = Guid.NewGuid()
                 },
-                vertexCount = vertexCount,
-                normalCount = normals.Count
+                vertexCount = vertexCount
             };
 
             return new MeshDataToSend()
@@ -120,7 +119,8 @@ namespace revit_to_vr_plugin
         public static MeshDataToSend ConvertMesh(Mesh mesh, int id)
         {
             IList<XYZ> positions = mesh.Vertices;
-            IList<XYZ> normals = mesh.GetNormals();
+            List<XYZ> normals = new List<XYZ>();
+            AppendNormals(normals, mesh);
 
             return ConvertVertices(positions, normals, id);
         }
@@ -134,6 +134,45 @@ namespace revit_to_vr_plugin
         public static bool IsMeshIdTemporary(int meshId)
         {
             return meshId < 0;
+        }
+
+        // appends the normals of the provided mesh to the normals
+        // handles different distributions of normals
+        public static void AppendNormals(List<XYZ> normals, Mesh mesh)
+        {
+            int vertexCount = mesh.Vertices.Count;
+            normals.Capacity = normals.Count + vertexCount;
+
+            // handle distribution of normals
+            // https://www.revitapidocs.com/2019/8e00e7aa-b39b-51b4-26e4-0f5c1404df32.htm
+            DistributionOfNormals distribution = mesh.DistributionOfNormals;
+            switch (distribution)
+            {
+                case DistributionOfNormals.AtEachPoint:
+                    // one for each vertex
+                    Debug.Assert(mesh.NumberOfNormals == mesh.Vertices.Count);
+                    normals.AddRange(mesh.GetNormals());
+                    break;
+                case DistributionOfNormals.OnePerFace:
+                    // one for the entire face
+                    Debug.Assert(mesh.NumberOfNormals == 1);
+                    XYZ normal = mesh.GetNormal(0);
+                    for (int i = 0; i < mesh.Vertices.Count; i++)
+                    {
+                        normals.Add(normal);
+                    }
+                    break;
+                case DistributionOfNormals.OnEachFacet:
+                    // one per triangle
+                    for (int v = 0; v < mesh.NumTriangles; v++)
+                    {
+                        for (int i = 0; i < 3; i++)
+                        {
+                            normals.Add(mesh.GetNormal(v));
+                        }
+                    }
+                    break;
+            }
         }
 
         // https://help.autodesk.com/view/RVT/2022/ENU/?guid=Revit_API_Revit_API_Developers_Guide_Revit_Geometric_Elements_Geometry_GeometryObject_Class_html
@@ -197,40 +236,9 @@ namespace revit_to_vr_plugin
                                 Mesh mesh = face.Triangulate(Configuration.triangulationlevelOfDetail);
                                 int vertexCount = mesh.Vertices.Count;
                                 positions.Capacity = positions.Count + vertexCount;
-                                normals.Capacity = normals.Count + vertexCount;
-
+                                
                                 positions.AddRange(mesh.Vertices);
-
-                                // handle distribution of normals
-                                // https://www.revitapidocs.com/2019/8e00e7aa-b39b-51b4-26e4-0f5c1404df32.htm
-                                DistributionOfNormals distribution = mesh.DistributionOfNormals;
-                                switch (distribution)
-                                {
-                                    case DistributionOfNormals.AtEachPoint:
-                                        // one for each vertex
-                                        Debug.Assert(mesh.NumberOfNormals == mesh.Vertices.Count);
-                                        normals.AddRange(mesh.GetNormals());
-                                        break;
-                                    case DistributionOfNormals.OnePerFace:
-                                        // one for the entire face
-                                        Debug.Assert(mesh.NumberOfNormals == 1);
-                                        XYZ normal = mesh.GetNormal(0);
-                                        for (int i = 0; i < mesh.Vertices.Count; i++)
-                                        {
-                                            normals.Add(normal);
-                                        }
-                                        break;
-                                    case DistributionOfNormals.OnEachFacet:
-                                        // one per triangle
-                                        for (int v = 0; v < mesh.NumTriangles; v++)
-                                        {
-                                            for (int i = 0; i < 3; i++)
-                                            {
-                                                normals.Add(mesh.GetNormal(v));
-                                            }
-                                        }
-                                        break;
-                                }
+                                AppendNormals(normals, mesh);
                             }
 
                             Debug.Assert(positions.Count == normals.Count);

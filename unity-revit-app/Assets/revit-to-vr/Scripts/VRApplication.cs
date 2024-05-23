@@ -58,7 +58,7 @@ namespace RevitToVR
                 }
                 UIConsole.Log("VRApplication > OnMessage: Received json: " + json);
 
-                revit_to_vr_common.Event e = JsonSerializer.Deserialize<revit_to_vr_common.Event>(json);
+                revit_to_vr_common.Event e = JsonSerializer.Deserialize<revit_to_vr_common.Event>(json, Configuration.jsonSerializerOptions);
                 HandleEvent(e);
                 cachedEvent_ = e;
             }
@@ -136,53 +136,27 @@ namespace RevitToVR
 
         private void HandleBinary(SendMeshDataEvent e, byte[] buffer)
         {
-            // get the buffer data
-            bool interleave = false;
-            
-            List<VertexAttributeDescriptor> descriptors = new List<VertexAttributeDescriptor>
+            var descriptors = new NativeArray<VertexAttributeDescriptor>(2, Allocator.Temp);
+            descriptors[0] = new VertexAttributeDescriptor()
             {
-                new VertexAttributeDescriptor()
-                {
-                    attribute = VertexAttribute.Position,
-                    format = VertexAttributeFormat.Float32,
-                    dimension = 4 // should be a multiple of 2, can't be 3
-                }
+                attribute = VertexAttribute.Position,
+                format = VertexAttributeFormat.Float32,
+                dimension = 4
             };
-            
-            // only add normals if it is the same length as the vertex count
-            if (e.normalCount == e.vertexCount)
+            descriptors[1] = new VertexAttributeDescriptor()
             {
-                descriptors.Add(new VertexAttributeDescriptor()
-                {
-                    attribute = VertexAttribute.Normal,
-                    format = VertexAttributeFormat.Float32,
-                    dimension = 4
-                });
+                attribute = VertexAttribute.Normal,
+                format = VertexAttributeFormat.Float32,
+                dimension = 4
+            };
 
-                interleave = true;
-            }
-            
-            // interleave if necessary
-            
-
-            NativeArray<VertexAttributeDescriptor> descriptorsNativeArray =
-                new NativeArray<VertexAttributeDescriptor>(descriptors.Count, Allocator.Temp);
-            for (int i = 0; i < descriptors.Count; i++)
-            {
-                descriptorsNativeArray[i] = descriptors[i];
-            }
-            
-            // add 32 bits padding to VRBIM_Vector3
-            
-            Debug.Assert(e.vertexCount == e.normalCount);
-            
-            int vertexCount = e.vertexCount;
+            int vertexCount = e.descriptor.vertexCount;
             
             Mesh mesh = new Mesh();
-            mesh.SetVertexBufferParams(vertexCount, descriptorsNativeArray);
+            mesh.SetVertexBufferParams(vertexCount, descriptors);
             mesh.SetVertexBufferData(buffer, 0, 0, vertexCount, 0, MeshUpdateFlags.Default);
             
-            MeshDataRepository.Instance.Meshes.Add(e.meshDataId, mesh);
+            MeshDataRepository.Instance.AddMesh(e.descriptor.id, mesh);
         }
     }
 }

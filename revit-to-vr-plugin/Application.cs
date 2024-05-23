@@ -20,6 +20,8 @@ using System.Windows.Interop;
 using Autodesk.Revit.DB.Events;
 using revit_to_vr_common;
 using static revit_to_vr_plugin.DataConversion;
+using System.Text.Json;
+using System.Windows.Markup;
 
 namespace revit_to_vr_plugin
 {
@@ -172,10 +174,15 @@ namespace revit_to_vr_plugin
             {
                 UIConsole.Log("Error: " + exception.Message);
             }
-            
+
 
             // send event
             MainService.SendJson(e);
+
+            string json = JsonSerializer.Serialize(e, Configuration.jsonSerializerOptions);
+
+            revit_to_vr_common.Event eve = JsonSerializer.Deserialize<revit_to_vr_common.Event>(json, Configuration.jsonSerializerOptions);
+
 
             // send mesh data
             if (toSend.Count > 0)
