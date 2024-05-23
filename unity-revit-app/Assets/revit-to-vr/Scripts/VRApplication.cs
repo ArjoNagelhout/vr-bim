@@ -134,39 +134,34 @@ namespace RevitToVR
             }
         }
 
+        public struct VRBIM_Vertex
+        {
+            public Vector3 position;
+        }
+
         private void HandleBinary(SendMeshDataEvent e, byte[] buffer)
         {
-            var descriptors = new NativeArray<VertexAttributeDescriptor>(2, Allocator.Temp);
+            var descriptors = new NativeArray<VertexAttributeDescriptor>(1, Allocator.Temp);
             descriptors[0] = new VertexAttributeDescriptor()
             {
                 attribute = VertexAttribute.Position,
                 format = VertexAttributeFormat.Float32,
                 dimension = 3
             };
-            descriptors[1] = new VertexAttributeDescriptor()
-            {
-                attribute = VertexAttribute.Normal,
-                format = VertexAttributeFormat.Float32,
-                dimension = 3
-            };
+            // descriptors[1] = new VertexAttributeDescriptor()
+            // {
+            //     attribute = VertexAttribute.Normal,
+            //     format = VertexAttributeFormat.Float32,
+            //     dimension = 3
+            // };
 
             int vertexCount = e.descriptor.vertexCount;
             int vector3SizeInBytes = 3 * 4; // 3 components * 4 bytes per float
-            int vertexStrideInBytes = vector3SizeInBytes * 2; // 2 attributes (position and float)
+            int vertexStrideInBytes = vector3SizeInBytes; //* 2; // 2 attributes (position and float)
             
             Mesh mesh = new Mesh();
             mesh.SetVertexBufferParams(vertexCount, descriptors);
             
-            // count = amount of *vertices* to copy, not bytes
-            mesh.SetVertexBufferData(buffer, 0, 0, vertexCount, 0, MeshUpdateFlags.Default);
-            
-            // we need to set the indices
-            int indexCount = vertexCount;
-            mesh.SetIndexBufferParams(indexCount, IndexFormat.UInt32);
-
-            int indexSizeInBytes = 4;
-            byte[] indices = new byte[indexCount * indexSizeInBytes];
-
             Bounds bounds = new Bounds();
             for (int i = 0; i < vertexCount; i++)
             {
@@ -175,12 +170,39 @@ namespace RevitToVR
                 float z = BitConverter.ToSingle(buffer, i * vertexStrideInBytes + vector3SizeInBytes * 2);
                 Vector3 pos = new Vector3(x, y, z);
                 UIConsole.Log($"vertex at index: {i}: {pos.ToString()}");
-                bounds.Encapsulate(pos);
+                bounds.Encapsulate(pos); // apparently this is required because Unity crashes otherwise.
             }
             
-            Buffer.BlockCopy(buffer, vertexCount * vertexStrideInBytes, indices, 0, indexCount * indexSizeInBytes);
+            // count = amount of *vertices* to copy, not bytes
+            mesh.SetVertexBufferData(buffer, 0, 0, vertexCount, 0, MeshUpdateFlags.DontRecalculateBounds);
             
-            mesh.SetIndexBufferData(indices, 0, 0, indexCount, MeshUpdateFlags.Default);
+            // we need to set the indices
+            int indexCount = e.descriptor.indexCount;
+            UIConsole.Log($"indexCount: {indexCount}");
+            mesh.SetIndexBufferParams(indexCount, IndexFormat.UInt32);
+            
+            int indexSizeInBytes = 4;
+            byte[] indices = new byte[indexCount * indexSizeInBytes];
+
+            int offset = vertexCount * vertexStrideInBytes;
+            Buffer.BlockCopy(buffer, offset, indices, 0, indexCount * indexSizeInBytes);
+
+            bool firstOk = false;
+            
+            for (int i = 0; i < indexCount; i++)
+            {
+                UInt32 index = BitConverter.ToUInt32(indices, i * indexSizeInBytes);
+
+                if (!firstOk && index > 0 && index < vertexCount)
+                {
+                    UIConsole.Log($"First ok index index: {i}");
+                    firstOk = true;
+                }
+                
+                UIConsole.Log($"index: {index}");
+            }
+            
+            mesh.SetIndexBufferData(indices, 0, 0, indexCount, MeshUpdateFlags.DontRecalculateBounds);
             
             // we also need to set a submesh, otherwise it won't show any triangles
             mesh.subMeshCount = 1;
@@ -194,10 +216,12 @@ namespace RevitToVR
                 firstVertex = 0, 
                 bounds = bounds
             };
+
+            mesh.bounds = bounds;
             
             mesh.SetSubMesh(0, subMeshDescriptor, MeshUpdateFlags.DontRecalculateBounds);
             
-            //mesh.RecalculateBounds();
+            // mesh.RecalculateBounds();
             
             mesh.UploadMeshData(true);
             

@@ -27,7 +27,7 @@ namespace revit_to_vr_plugin
 
         public static byte[] GetBytes(XYZ xyz)
         {
-            byte[] data = new byte[4 * 4];
+            byte[] data = new byte[3 * 4];
             byte[] x = BitConverter.GetBytes((float)xyz.X);
             byte[] y = BitConverter.GetBytes((float)xyz.Y);
             byte[] z = BitConverter.GetBytes((float)xyz.Z);
@@ -75,7 +75,7 @@ namespace revit_to_vr_plugin
             return ConvertMesh(mesh, temporaryMeshIndex);
         }
 
-        public static MeshDataToSend ConvertVertices(IList<XYZ> positions, IList<XYZ> normals, int id)
+        public static MeshDataToSend ConvertVertices(IList<XYZ> positions, IList<XYZ> normals, IList<UInt32> indices, int id)
         {
             // store interleaved
             
@@ -83,10 +83,10 @@ namespace revit_to_vr_plugin
             Debug.Assert(positions.Count == normals.Count);
 
             int vector3SizeInBytes = 3 * 4;
-            int vertexStrideInBytes = 2 * vector3SizeInBytes;
+            int vertexStrideInBytes = vector3SizeInBytes;//2 * vector3SizeInBytes;
 
-            int indexCount = vertexCount;
-            int indexSizeInBytes = 4; // 32 bits integer
+            int indexCount = indices.Count;
+            int indexSizeInBytes = 4; // 32 bits unsigned integer
 
             int sizeInBytes = vertexStrideInBytes * vertexCount + indexSizeInBytes * indexCount;
             byte[] data = new byte[sizeInBytes];
@@ -97,17 +97,16 @@ namespace revit_to_vr_plugin
                 // we don't store it as the intermediate VRBIM_Vector3, because that would create
                 // a managed object we need to marshal to support copying. 
                 byte[] position = GetBytes(positions[i]);
-                byte[] normal = GetBytes(normals[i]);
+                //byte[] normal = GetBytes(normals[i]);
 
                 Buffer.BlockCopy(position, 0, data, vertexStrideInBytes * i, vector3SizeInBytes);
-                Buffer.BlockCopy(normal, 0, data, vertexStrideInBytes * i + vector3SizeInBytes, vector3SizeInBytes);
+                //Buffer.BlockCopy(normal, 0, data, vertexStrideInBytes * i + vector3SizeInBytes, vector3SizeInBytes);
             }
 
             // copy indices
             for (int i = 0; i < indexCount; i++)
             {
-                UInt32 unsignedI = (UInt32)i;
-                byte[] index = BitConverter.GetBytes(unsignedI);
+                byte[] index = BitConverter.GetBytes(indices[i]);
                 Buffer.BlockCopy(index, 0, data, vertexStrideInBytes * vertexCount + i * indexSizeInBytes, indexSizeInBytes);
             }
 
@@ -119,8 +118,17 @@ namespace revit_to_vr_plugin
                     temporary = IsMeshIdTemporary(id),
                     temporaryId = Guid.NewGuid()
                 },
-                vertexCount = vertexCount
+                vertexCount = vertexCount,
+                indexCount = indexCount
             };
+
+            //string indicesString = "";
+            foreach (UInt32 index in indices)
+            {
+                //indicesString += index + ", ";
+                Debug.Assert(index < vertexCount);
+            }
+            //UIConsole.Log(indicesString);
 
             return new MeshDataToSend()
             {
@@ -133,9 +141,11 @@ namespace revit_to_vr_plugin
         {
             IList<XYZ> positions = mesh.Vertices;
             List<XYZ> normals = new List<XYZ>();
+            List<UInt32> indices = new List<UInt32>();
             AppendNormals(normals, mesh);
+            AppendIndices(indices, mesh, 0);
 
-            return ConvertVertices(positions, normals, id);
+            return ConvertVertices(positions, normals, indices, id);
         }
 
         public class MeshDataToSend
@@ -186,6 +196,30 @@ namespace revit_to_vr_plugin
                     }
                     break;
             }
+        }
+
+        // returns index count
+        public static void AppendIndices(List<UInt32> indices, Mesh mesh, UInt32 vertexOffset)
+        {
+            int indexCount = mesh.NumTriangles * 3;
+            indices.Capacity = indices.Count + indexCount; // increase capacity
+            // test whether the indices are correct
+            for (int triangleIndex = 0; triangleIndex < mesh.NumTriangles; triangleIndex++)
+            {
+                MeshTriangle triangle = mesh.get_Triangle(triangleIndex);
+                // these are probably sequential, but just to be sure
+                UInt32 xIndex = triangle.get_Index(0);
+                UInt32 yIndex = triangle.get_Index(1);
+                UInt32 zIndex = triangle.get_Index(2);
+                indices.Add(vertexOffset + xIndex);
+                indices.Add(vertexOffset + yIndex);
+                indices.Add(vertexOffset + zIndex);
+            }
+        }
+
+        public static bool XYZIsEqual(XYZ lhs, XYZ rhs)
+        {
+            return lhs.X == rhs.X && lhs.Y == rhs.Y && lhs.Z == rhs.Z;
         }
 
         // https://help.autodesk.com/view/RVT/2022/ENU/?guid=Revit_API_Revit_API_Developers_Guide_Revit_Geometric_Elements_Geometry_GeometryObject_Class_html
@@ -241,22 +275,26 @@ namespace revit_to_vr_plugin
                         {
                             List<XYZ> positions = new List<XYZ>();
                             List<XYZ> normals = new List<XYZ>();
+                            List<UInt32> indices = new List<UInt32>();
 
                             FaceArray faces = solid.Faces;
 
                             foreach (Face face in faces)
                             {
+                                UInt32 vertexOffset = (UInt32)positions.Count;
                                 Mesh mesh = face.Triangulate(Configuration.triangulationlevelOfDetail);
+
                                 int vertexCount = mesh.Vertices.Count;
                                 positions.Capacity = positions.Count + vertexCount;
-                                
+
                                 positions.AddRange(mesh.Vertices);
                                 AppendNormals(normals, mesh);
+                                AppendIndices(indices, mesh, vertexOffset);
                             }
 
                             Debug.Assert(positions.Count == normals.Count);
 
-                            MeshDataToSend result = ConvertVertices(positions, normals, temporaryMeshIndex);
+                            MeshDataToSend result = ConvertVertices(positions, normals, indices, temporaryMeshIndex);
                             outputGeometry = new VRBIM_Solid()
                             {
                                 temporaryMeshId = result.descriptor.id.temporaryId

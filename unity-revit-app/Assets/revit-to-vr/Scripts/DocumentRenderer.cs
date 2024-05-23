@@ -25,6 +25,8 @@ namespace RevitToVR
             MeshFilter meshFilter = instance.GetComponent<MeshFilter>();
             MeshRenderer meshRenderer = instance.GetComponent<MeshRenderer>(); // set materials on MeshRenderer
 
+            instance.name += meshId;
+            
             meshFilter.mesh = mesh;
             
             _instances.Add(meshId, instance);

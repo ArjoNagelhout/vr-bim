@@ -52,6 +52,7 @@ namespace revit_to_vr_common
 
         // metadata
         public int vertexCount;
+        public int indexCount;
     }
 
     [JsonDerivedType(typeof(VRBIM_Geometry), typeDiscriminator: "base")]
