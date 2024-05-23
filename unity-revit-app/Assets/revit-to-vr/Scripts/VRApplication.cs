@@ -141,18 +141,18 @@ namespace RevitToVR
             {
                 attribute = VertexAttribute.Position,
                 format = VertexAttributeFormat.Float32,
-                dimension = 4
+                dimension = 3
             };
             descriptors[1] = new VertexAttributeDescriptor()
             {
                 attribute = VertexAttribute.Normal,
                 format = VertexAttributeFormat.Float32,
-                dimension = 4
+                dimension = 3
             };
 
             int vertexCount = e.descriptor.vertexCount;
-            int vector3SizeInBytes = 4 * 4;
-            int vertexStrideInBytes = vector3SizeInBytes * 2;
+            int vector3SizeInBytes = 3 * 4; // 3 components * 4 bytes per float
+            int vertexStrideInBytes = vector3SizeInBytes * 2; // 2 attributes (position and float)
             
             Mesh mesh = new Mesh();
             mesh.SetVertexBufferParams(vertexCount, descriptors);
@@ -160,20 +160,44 @@ namespace RevitToVR
             // count = amount of *vertices* to copy, not bytes
             mesh.SetVertexBufferData(buffer, 0, 0, vertexCount, 0, MeshUpdateFlags.Default);
             
-            // we need to set the indices 
-            int indexCount = vertexCount * 3;
+            // we need to set the indices
+            int indexCount = vertexCount;
             mesh.SetIndexBufferParams(indexCount, IndexFormat.UInt32);
-            mesh.SetIndexBufferData(buffer, vertexCount * vertexStrideInBytes, 0, indexCount, MeshUpdateFlags.Default);
+
+            int indexSizeInBytes = 4;
+            byte[] indices = new byte[indexCount * indexSizeInBytes];
+
+            Bounds bounds = new Bounds();
+            for (int i = 0; i < vertexCount; i++)
+            {
+                float x = BitConverter.ToSingle(buffer, i * vertexStrideInBytes);
+                float y = BitConverter.ToSingle(buffer, i * vertexStrideInBytes + vector3SizeInBytes);
+                float z = BitConverter.ToSingle(buffer, i * vertexStrideInBytes + vector3SizeInBytes * 2);
+                Vector3 pos = new Vector3(x, y, z);
+                UIConsole.Log($"vertex at index: {i}: {pos.ToString()}");
+                bounds.Encapsulate(pos);
+            }
+            
+            Buffer.BlockCopy(buffer, vertexCount * vertexStrideInBytes, indices, 0, indexCount * indexSizeInBytes);
+            
+            mesh.SetIndexBufferData(indices, 0, 0, indexCount, MeshUpdateFlags.Default);
             
             // we also need to set a submesh, otherwise it won't show any triangles
             mesh.subMeshCount = 1;
-            mesh.SetSubMesh(0, new SubMeshDescriptor()
-            {
+            var subMeshDescriptor = new SubMeshDescriptor()
+            {   
+                topology = MeshTopology.Triangles,
+                baseVertex = 0,
                 indexStart = 0,
-                indexCount = indexCount
-            }, MeshUpdateFlags.Default);
+                indexCount = indexCount,
+                vertexCount = vertexCount,
+                firstVertex = 0, 
+                bounds = bounds
+            };
             
-            mesh.RecalculateBounds();
+            mesh.SetSubMesh(0, subMeshDescriptor, MeshUpdateFlags.DontRecalculateBounds);
+            
+            //mesh.RecalculateBounds();
             
             mesh.UploadMeshData(true);
             

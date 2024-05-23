@@ -82,10 +82,10 @@ namespace revit_to_vr_plugin
             int vertexCount = positions.Count;
             Debug.Assert(positions.Count == normals.Count);
 
-            int vector3SizeInBytes = 4 * 4;
+            int vector3SizeInBytes = 3 * 4;
             int vertexStrideInBytes = 2 * vector3SizeInBytes;
 
-            int indexCount = vertexCount * 3;
+            int indexCount = vertexCount;
             int indexSizeInBytes = 4; // 32 bits integer
 
             int sizeInBytes = vertexStrideInBytes * vertexCount + indexSizeInBytes * indexCount;
@@ -104,9 +104,10 @@ namespace revit_to_vr_plugin
             }
 
             // copy indices
-            for (Int32 i = 0; i < indexCount; i++)
+            for (int i = 0; i < indexCount; i++)
             {
-                byte[] index = BitConverter.GetBytes(i);
+                UInt32 unsignedI = (UInt32)i;
+                byte[] index = BitConverter.GetBytes(unsignedI);
                 Buffer.BlockCopy(index, 0, data, vertexStrideInBytes * vertexCount + i * indexSizeInBytes, indexSizeInBytes);
             }
 

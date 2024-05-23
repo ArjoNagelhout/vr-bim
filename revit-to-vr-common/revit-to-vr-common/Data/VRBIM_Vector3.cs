@@ -9,14 +9,12 @@ namespace revit_to_vr_common
     [System.Serializable]
     [System.Runtime.InteropServices.StructLayout(
         System.Runtime.InteropServices.LayoutKind.Sequential,
-        Pack = 4,
-        Size = 16)] // size in bytes = 16 bytes (4 * 4)
+        Pack = 4)] // size in bytes = 12 bytes (3 * 4)
     public struct VRBIM_Vector3
     {
         public float x; // 4 bytes
         public float y; // 4 bytes
         public float z; // 4 bytes
-        // paddding 4 bytes
 
         public static VRBIM_Vector3 operator +(VRBIM_Vector3 lhs, VRBIM_Vector3 rhs)
         {
