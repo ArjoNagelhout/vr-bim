@@ -151,10 +151,31 @@ namespace RevitToVR
             };
 
             int vertexCount = e.descriptor.vertexCount;
+            int vector3SizeInBytes = 4 * 4;
+            int vertexStrideInBytes = vector3SizeInBytes * 2;
             
             Mesh mesh = new Mesh();
             mesh.SetVertexBufferParams(vertexCount, descriptors);
+            
+            // count = amount of *vertices* to copy, not bytes
             mesh.SetVertexBufferData(buffer, 0, 0, vertexCount, 0, MeshUpdateFlags.Default);
+            
+            // we need to set the indices 
+            int indexCount = vertexCount * 3;
+            mesh.SetIndexBufferParams(indexCount, IndexFormat.UInt32);
+            mesh.SetIndexBufferData(buffer, vertexCount * vertexStrideInBytes, 0, indexCount, MeshUpdateFlags.Default);
+            
+            // we also need to set a submesh, otherwise it won't show any triangles
+            mesh.subMeshCount = 1;
+            mesh.SetSubMesh(0, new SubMeshDescriptor()
+            {
+                indexStart = 0,
+                indexCount = indexCount
+            }, MeshUpdateFlags.Default);
+            
+            mesh.RecalculateBounds();
+            
+            mesh.UploadMeshData(true);
             
             MeshDataRepository.Instance.AddMesh(e.descriptor.id, mesh);
         }

@@ -82,11 +82,16 @@ namespace revit_to_vr_plugin
             int vertexCount = positions.Count;
             Debug.Assert(positions.Count == normals.Count);
 
-            int vector3Size = 4 * 4;
-            int offset = 2 * vector3Size;
-            int sizeInBytes = offset * vertexCount;
+            int vector3SizeInBytes = 4 * 4;
+            int vertexStrideInBytes = 2 * vector3SizeInBytes;
+
+            int indexCount = vertexCount * 3;
+            int indexSizeInBytes = 4; // 32 bits integer
+
+            int sizeInBytes = vertexStrideInBytes * vertexCount + indexSizeInBytes * indexCount;
             byte[] data = new byte[sizeInBytes];
 
+            // copy vertices
             for (int i = 0; i < vertexCount; i++)
             {
                 // we don't store it as the intermediate VRBIM_Vector3, because that would create
@@ -94,8 +99,15 @@ namespace revit_to_vr_plugin
                 byte[] position = GetBytes(positions[i]);
                 byte[] normal = GetBytes(normals[i]);
 
-                Buffer.BlockCopy(position, 0, data, offset * i, vector3Size);
-                Buffer.BlockCopy(normal, 0, data, offset * i + vector3Size, vector3Size);
+                Buffer.BlockCopy(position, 0, data, vertexStrideInBytes * i, vector3SizeInBytes);
+                Buffer.BlockCopy(normal, 0, data, vertexStrideInBytes * i + vector3SizeInBytes, vector3SizeInBytes);
+            }
+
+            // copy indices
+            for (Int32 i = 0; i < indexCount; i++)
+            {
+                byte[] index = BitConverter.GetBytes(i);
+                Buffer.BlockCopy(index, 0, data, vertexStrideInBytes * vertexCount + i * indexSizeInBytes, indexSizeInBytes);
             }
 
             VRBIM_MeshDataDescriptor descriptor = new VRBIM_MeshDataDescriptor()

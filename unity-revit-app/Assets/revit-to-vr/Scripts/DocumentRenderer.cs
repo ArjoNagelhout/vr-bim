@@ -11,7 +11,7 @@ namespace RevitToVR
         [SerializeField]
         private GameObject prefab;
 
-        private Dictionary<VRBIM_MeshId, GameObject> _instances;
+        private Dictionary<VRBIM_MeshId, GameObject> _instances = new Dictionary<VRBIM_MeshId, GameObject>();
 
         private void Start()
         {
