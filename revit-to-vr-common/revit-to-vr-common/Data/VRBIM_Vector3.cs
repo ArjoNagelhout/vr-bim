@@ -7,47 +7,50 @@ using System.Threading.Tasks;
 namespace revit_to_vr_common
 {
     [System.Serializable]
-    public struct Vector3
+    [System.Runtime.InteropServices.StructLayout(
+        System.Runtime.InteropServices.LayoutKind.Sequential,
+        Pack = 4)] // size in bytes = 12 bytes (3 * 4)
+    public struct VRBIM_Vector3
     {
-        public float x;
-        public float y;
-        public float z;
+        public float x; // 4 bytes
+        public float y; // 4 bytes
+        public float z; // 4 bytes
 
-        public static Vector3 operator +(Vector3 lhs, Vector3 rhs)
+        public static VRBIM_Vector3 operator +(VRBIM_Vector3 lhs, VRBIM_Vector3 rhs)
         {
             return Execute(lhs, rhs, (lhs_, rhs_) => { return lhs_ + rhs_; });
         }
 
-        public static Vector3 operator -(Vector3 lhs, Vector3 rhs)
+        public static VRBIM_Vector3 operator -(VRBIM_Vector3 lhs, VRBIM_Vector3 rhs)
         {
             return Execute(lhs, rhs, (lhs_, rhs_) => { return lhs_ - rhs_; });
         }
 
-        public static Vector3 operator *(Vector3 lhs, float rhs)
+        public static VRBIM_Vector3 operator *(VRBIM_Vector3 lhs, float rhs)
         {
             return Execute(lhs, rhs, (lhs_, rhs_) => { return lhs_ * rhs_; });
         }
 
-        public static Vector3 operator /(Vector3 lhs, float rhs)
+        public static VRBIM_Vector3 operator /(VRBIM_Vector3 lhs, float rhs)
         {
             return Execute(lhs, rhs, (lhs_, rhs_) => { return lhs_ / rhs_; });
         }
 
-        public static bool operator ==(Vector3 lhs, Vector3 rhs)
+        public static bool operator ==(VRBIM_Vector3 lhs, VRBIM_Vector3 rhs)
         {
             return lhs.x == rhs.x && lhs.y == rhs.y && lhs.z == rhs.z;
         }
 
-        public static bool operator !=(Vector3 lhs, Vector3 rhs)
+        public static bool operator !=(VRBIM_Vector3 lhs, VRBIM_Vector3 rhs)
         {
             return !(lhs == rhs);
         }
 
         private delegate float F(float lhs, float rhs);
 
-        private static Vector3 Execute(Vector3 lhs, Vector3 rhs, F func)
+        private static VRBIM_Vector3 Execute(VRBIM_Vector3 lhs, VRBIM_Vector3 rhs, F func)
         {
-            return new Vector3()
+            return new VRBIM_Vector3()
             {
                 x = func(lhs.x, rhs.x),
                 y = func(lhs.y, rhs.y),
@@ -55,9 +58,9 @@ namespace revit_to_vr_common
             };
         }
 
-        private static Vector3 Execute(Vector3 lhs, float rhs, F func)
+        private static VRBIM_Vector3 Execute(VRBIM_Vector3 lhs, float rhs, F func)
         {
-            return new Vector3()
+            return new VRBIM_Vector3()
             {
                 x = func(lhs.x, rhs),
                 y = func(lhs.y, rhs),

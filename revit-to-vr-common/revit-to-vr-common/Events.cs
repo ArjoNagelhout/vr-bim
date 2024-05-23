@@ -13,40 +13,47 @@ namespace revit_to_vr_common
     [JsonDerivedType(typeof(DocumentOpenedEvent), typeDiscriminator: "documentOpened")]
     [JsonDerivedType(typeof(DocumentClosedEvent), typeDiscriminator: "documentClosed")]
     [JsonDerivedType(typeof(SelectionChangedEvent), typeDiscriminator: "selectionChangedEvent")]
+    [JsonDerivedType(typeof(SendMeshDataEvent), typeDiscriminator: "sendMeshData")]
     [System.Serializable]
     public class Event
     {
         
     }
 
-    [JsonDerivedType(typeof(DocumentChangedEvent), typeDiscriminator: "documentChanged")]
     [System.Serializable]
+    [JsonDerivedType(typeof(DocumentChangedEvent), typeDiscriminator: "documentChanged")]
     public class DocumentChangedEvent : Event
     {
         public Dictionary<long, VRBIM_Element> changedElements;
         public List<long> deletedElementIds;
-        public string something = "false";
     }
 
     // send all data this document contains
-    [JsonDerivedType(typeof(DocumentOpenedEvent), typeDiscriminator: "documentOpened")]
     [System.Serializable]
+    [JsonDerivedType(typeof(DocumentOpenedEvent), typeDiscriminator: "documentOpened")]
     public class DocumentOpenedEvent : Event
     {
         
-    }   
+    }
 
-    [JsonDerivedType(typeof(DocumentClosedEvent), typeDiscriminator: "documentClosed")]
     [System.Serializable]
+    [JsonDerivedType(typeof(DocumentClosedEvent), typeDiscriminator: "documentClosed")]
     public class DocumentClosedEvent : Event
     {
         
     }
 
-    [JsonDerivedType(typeof(SelectionChangedEvent), typeDiscriminator: "selectionChangedEvent")]
     [System.Serializable]
+    [JsonDerivedType(typeof(SelectionChangedEvent), typeDiscriminator: "selectionChangedEvent")]
     public class SelectionChangedEvent : Event
     {
         
+    }
+
+    [System.Serializable]
+    [JsonDerivedType(typeof(SendMeshDataEvent), typeDiscriminator: "sendMeshData")]
+    public class SendMeshDataEvent : Event
+    {
+        public VRBIM_MeshDataDescriptor descriptor;
     }
 }

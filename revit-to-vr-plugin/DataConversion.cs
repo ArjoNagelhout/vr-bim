@@ -2,9 +2,12 @@
 using revit_to_vr_common;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Runtime.InteropServices;
+using System.Data.Odbc;
 
 namespace revit_to_vr_plugin
 {
@@ -12,9 +15,9 @@ namespace revit_to_vr_plugin
     {
         // converts doubles to floats, determine whether this is an issue for precision
         // in large models
-        public static revit_to_vr_common.Vector3 Convert(XYZ xyz)
+        public static VRBIM_Vector3 Convert(XYZ xyz)
         {
-            return new revit_to_vr_common.Vector3()
+            return new VRBIM_Vector3()
             {
                 x = (float)xyz.X,
                 y = (float)xyz.Y,
@@ -22,32 +25,178 @@ namespace revit_to_vr_plugin
             };
         }
 
-        public static revit_to_vr_common.VRBIM_AABB Convert(BoundingBoxXYZ bounds)
+        public static byte[] GetBytes(XYZ xyz)
         {
-            Vector3 min = Convert(bounds.Min);
-            Vector3 max = Convert(bounds.Max);
+            byte[] data = new byte[4 * 4];
+            byte[] x = BitConverter.GetBytes((float)xyz.X);
+            byte[] y = BitConverter.GetBytes((float)xyz.Y);
+            byte[] z = BitConverter.GetBytes((float)xyz.Z);
 
-            Vector3 center = (min + max) / 2.0f;
+            Buffer.BlockCopy(x, 0, data, 0, 4);
+            Buffer.BlockCopy(y, 0, data, 4, 4);
+            Buffer.BlockCopy(z, 0, data, 8, 4);
 
+            return data;
+        }
 
+        public static ViewDetailLevel Convert(VRBIM_ViewDetailLevel level)
+        {
+            switch (level)
+            {
+                case VRBIM_ViewDetailLevel.Coarse:
+                    return ViewDetailLevel.Coarse;
+                case VRBIM_ViewDetailLevel.Medium:
+                    return ViewDetailLevel.Medium;
+                case VRBIM_ViewDetailLevel.Fine:
+                    return ViewDetailLevel.Fine;
+            }
+            return ViewDetailLevel.Undefined;
+        }
 
-            Vector3 extents = (max - min) / 2.0f;
+        public static VRBIM_AABB Convert(BoundingBoxXYZ bounds)
+        {
+            VRBIM_Vector3 min = Convert(bounds.Min);
+            VRBIM_Vector3 max = Convert(bounds.Max);
 
-            return new revit_to_vr_common.VRBIM_AABB()
+            VRBIM_Vector3 center = (min + max) / 2.0f;
+            VRBIM_Vector3 extents = (max - min) / 2.0f;
+
+            return new VRBIM_AABB()
             {
                 center = center,
                 extents = extents
             };
         }
 
-        public static revit_to_vr_common.VRBIM_Element Convert(Document document, ElementId elementId)
+        private static int temporaryMeshIndex = int.MinValue;
+
+        public static MeshDataToSend ConvertTemporaryMesh(Mesh mesh)
         {
-            revit_to_vr_common.VRBIM_Element output = new revit_to_vr_common.VRBIM_Element()
+            return ConvertMesh(mesh, temporaryMeshIndex);
+        }
+
+        public static MeshDataToSend ConvertVertices(IList<XYZ> positions, IList<XYZ> normals, int id)
+        {
+            // store interleaved
+            
+            int vertexCount = positions.Count;
+            Debug.Assert(positions.Count == normals.Count);
+
+            int vector3SizeInBytes = 3 * 4;
+            int vertexStrideInBytes = 2 * vector3SizeInBytes;
+
+            int indexCount = vertexCount;
+            int indexSizeInBytes = 4; // 32 bits integer
+
+            int sizeInBytes = vertexStrideInBytes * vertexCount + indexSizeInBytes * indexCount;
+            byte[] data = new byte[sizeInBytes];
+
+            // copy vertices
+            for (int i = 0; i < vertexCount; i++)
+            {
+                // we don't store it as the intermediate VRBIM_Vector3, because that would create
+                // a managed object we need to marshal to support copying. 
+                byte[] position = GetBytes(positions[i]);
+                byte[] normal = GetBytes(normals[i]);
+
+                Buffer.BlockCopy(position, 0, data, vertexStrideInBytes * i, vector3SizeInBytes);
+                Buffer.BlockCopy(normal, 0, data, vertexStrideInBytes * i + vector3SizeInBytes, vector3SizeInBytes);
+            }
+
+            // copy indices
+            for (int i = 0; i < indexCount; i++)
+            {
+                UInt32 unsignedI = (UInt32)i;
+                byte[] index = BitConverter.GetBytes(unsignedI);
+                Buffer.BlockCopy(index, 0, data, vertexStrideInBytes * vertexCount + i * indexSizeInBytes, indexSizeInBytes);
+            }
+
+            VRBIM_MeshDataDescriptor descriptor = new VRBIM_MeshDataDescriptor()
+            {
+                id = new VRBIM_MeshId()
+                {
+                    id = id,
+                    temporary = IsMeshIdTemporary(id),
+                    temporaryId = Guid.NewGuid()
+                },
+                vertexCount = vertexCount
+            };
+
+            return new MeshDataToSend()
+            {
+                descriptor = descriptor,
+                data = data
+            };
+        }
+
+        public static MeshDataToSend ConvertMesh(Mesh mesh, int id)
+        {
+            IList<XYZ> positions = mesh.Vertices;
+            List<XYZ> normals = new List<XYZ>();
+            AppendNormals(normals, mesh);
+
+            return ConvertVertices(positions, normals, id);
+        }
+
+        public class MeshDataToSend
+        {
+            public VRBIM_MeshDataDescriptor descriptor;
+            public byte[] data;
+        }
+
+        public static bool IsMeshIdTemporary(int meshId)
+        {
+            return meshId < 0;
+        }
+
+        // appends the normals of the provided mesh to the normals
+        // handles different distributions of normals
+        public static void AppendNormals(List<XYZ> normals, Mesh mesh)
+        {
+            int vertexCount = mesh.Vertices.Count;
+            normals.Capacity = normals.Count + vertexCount;
+
+            // handle distribution of normals
+            // https://www.revitapidocs.com/2019/8e00e7aa-b39b-51b4-26e4-0f5c1404df32.htm
+            DistributionOfNormals distribution = mesh.DistributionOfNormals;
+            switch (distribution)
+            {
+                case DistributionOfNormals.AtEachPoint:
+                    // one for each vertex
+                    Debug.Assert(mesh.NumberOfNormals == mesh.Vertices.Count);
+                    normals.AddRange(mesh.GetNormals());
+                    break;
+                case DistributionOfNormals.OnePerFace:
+                    // one for the entire face
+                    Debug.Assert(mesh.NumberOfNormals == 1);
+                    XYZ normal = mesh.GetNormal(0);
+                    for (int i = 0; i < mesh.Vertices.Count; i++)
+                    {
+                        normals.Add(normal);
+                    }
+                    break;
+                case DistributionOfNormals.OnEachFacet:
+                    // one per triangle
+                    for (int v = 0; v < mesh.NumTriangles; v++)
+                    {
+                        for (int i = 0; i < 3; i++)
+                        {
+                            normals.Add(mesh.GetNormal(v));
+                        }
+                    }
+                    break;
+            }
+        }
+
+        // https://help.autodesk.com/view/RVT/2022/ENU/?guid=Revit_API_Revit_API_Developers_Guide_Revit_Geometric_Elements_Geometry_GeometryObject_Class_html
+        public static VRBIM_Element Convert(ElementId elementId, Document document, Queue<MeshDataToSend> toSend)
+        {
+            VRBIM_Element output = new VRBIM_Element()
             {
                 elementId = elementId.Value
             };
 
-            Autodesk.Revit.DB.Element element = document.GetElement(elementId);
+            Element element = document.GetElement(elementId);
 
             if (element == null)
             {
@@ -66,7 +215,7 @@ namespace revit_to_vr_plugin
             // set geometry
             GeometryElement geometry = element.get_Geometry(new Options()
             {
-                DetailLevel = ViewDetailLevel.Coarse,
+                DetailLevel = Convert(Configuration.viewDetailLevel),
                 ComputeReferences = true,
                 IncludeNonVisibleObjects = true
             });
@@ -86,50 +235,62 @@ namespace revit_to_vr_plugin
                 VRBIM_Geometry outputGeometry = null;
 
                 // handle all cases that the geometry could be
-                if (obj is Solid)
+                switch (obj)
                 {
-                    Solid solid = obj as Solid;
-                    FaceArray faces = solid.Faces;
-                    foreach (Face face in faces)
-                    {
-                        Mesh mesh = face.Triangulate(1);
-                        IList<XYZ> vertices = mesh.Vertices;
-                        IList<XYZ> normals = mesh.GetNormals();
-                    }
+                    case Solid solid:
+                        {
+                            List<XYZ> positions = new List<XYZ>();
+                            List<XYZ> normals = new List<XYZ>();
 
-                    outputGeometry = new VRBIM_Solid();
-                }
-                else if (obj is Mesh)
-                {
-                    Mesh mesh = obj as Mesh;
-                    outputGeometry = new VRBIM_Mesh();
-                }
-                else if (obj is GeometryInstance)
-                {
-                    GeometryInstance instance = obj as GeometryInstance;
-                    
-                    outputGeometry = new VRBIM_GeometryInstance();
-                }
-                else if (obj is Curve)
-                {
-                    Curve curve = obj as Curve;
+                            FaceArray faces = solid.Faces;
 
-                    outputGeometry = new VRBIM_Curve();
+                            foreach (Face face in faces)
+                            {
+                                Mesh mesh = face.Triangulate(Configuration.triangulationlevelOfDetail);
+                                int vertexCount = mesh.Vertices.Count;
+                                positions.Capacity = positions.Count + vertexCount;
+                                
+                                positions.AddRange(mesh.Vertices);
+                                AppendNormals(normals, mesh);
+                            }
 
+                            Debug.Assert(positions.Count == normals.Count);
+
+                            MeshDataToSend result = ConvertVertices(positions, normals, temporaryMeshIndex);
+                            outputGeometry = new VRBIM_Solid()
+                            {
+                                temporaryMeshId = result.descriptor.id.temporaryId
+                            };
+                            toSend.Enqueue(result);
+                        }
+                        break;
+                    case Mesh mesh:
+                        {
+
+                        }
+                        break;
+                    case GeometryInstance geometryInstance:
+                        {
+
+                        }
+                        break;
+                    case Curve curve:
+                        {
+
+                        }
+                        break;
+                    case Point point:
+                        {
+
+                        }
+                        break;
+                    case PolyLine polyLine:
+                        {
+
+                        }
+                        break;
                 }
-                else if (obj is Point)
-                {
-                    Point point = obj as Point;
-
-                    outputGeometry = new VRBIM_Point();
-                }
-                else if (obj is PolyLine)
-                {
-                    PolyLine polyLine = obj as PolyLine;
-
-                    outputGeometry = new VRBIM_PolyLine();
-                }
-
+                
                 if (outputGeometry != null)
                 {
                     output.geometries.Add(outputGeometry);
@@ -137,7 +298,7 @@ namespace revit_to_vr_plugin
             }
 
             // set material
-            Autodesk.Revit.DB.Material material = geometry.MaterialElement;
+            Material material = geometry.MaterialElement;
 
             if (material != null)
             {

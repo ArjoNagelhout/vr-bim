@@ -19,6 +19,9 @@ using WebSocketSharp.Server;
 using System.Windows.Interop;
 using Autodesk.Revit.DB.Events;
 using revit_to_vr_common;
+using static revit_to_vr_plugin.DataConversion;
+using System.Text.Json;
+using System.Windows.Markup;
 
 namespace revit_to_vr_plugin
 {
@@ -141,6 +144,8 @@ namespace revit_to_vr_plugin
                 changedElements = new Dictionary<long, revit_to_vr_common.VRBIM_Element>()
             };
 
+            Queue<MeshDataToSend> toSend = new Queue<MeshDataToSend>();
+
             try
             {
                 Document document = args.GetDocument();
@@ -158,7 +163,7 @@ namespace revit_to_vr_plugin
                 IEnumerable<ElementId> changed = modified.Union(added); 
                 foreach (ElementId elementId in changed)
                 {
-                    revit_to_vr_common.VRBIM_Element targetElement = DataConversion.Convert(document, elementId);
+                    VRBIM_Element targetElement = DataConversion.Convert(elementId, document, toSend);
                     if (targetElement != null)
                     {
                         e.changedElements.Add(elementId.Value, targetElement);
@@ -169,10 +174,30 @@ namespace revit_to_vr_plugin
             {
                 UIConsole.Log("Error: " + exception.Message);
             }
-            
+
 
             // send event
             MainService.SendJson(e);
+
+            string json = JsonSerializer.Serialize(e, Configuration.jsonSerializerOptions);
+
+            revit_to_vr_common.Event eve = JsonSerializer.Deserialize<revit_to_vr_common.Event>(json, Configuration.jsonSerializerOptions);
+
+
+            // send mesh data
+            if (toSend.Count > 0)
+            {
+                foreach (MeshDataToSend meshData in toSend)
+                {
+                    SendMeshDataEvent sendMeshDataEvent = new SendMeshDataEvent()
+                    {
+                        descriptor = meshData.descriptor
+                    };
+
+                    MainService.SendJson(sendMeshDataEvent);
+                    MainService.SendBytes(meshData.data);
+                }
+            }
         }
 
         void OnDocumentClosed(object sender, DocumentClosedEventArgs args)
