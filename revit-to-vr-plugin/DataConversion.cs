@@ -78,7 +78,7 @@ namespace revit_to_vr_plugin
             Debug.Assert(positions.Count == normals.Count);
 
             int vector3SizeInBytes = 3 * 4;
-            int vertexStrideInBytes = vector3SizeInBytes;//2 * vector3SizeInBytes;
+            int vertexStrideInBytes = 2 * vector3SizeInBytes;
 
             int indexCount = indices.Count;
             int indexSizeInBytes = 4; // 32 bits unsigned integer
@@ -86,23 +86,18 @@ namespace revit_to_vr_plugin
             int sizeInBytes = vertexStrideInBytes * vertexCount + indexSizeInBytes * indexCount;
             byte[] data = new byte[sizeInBytes];
 
-            UIConsole.Log($"IsLittleEndian: {BitConverter.IsLittleEndian}");
-
             // copy vertices
             for (int i = 0; i < vertexCount; i++)
             {
                 // we don't store it as the intermediate VRBIM_Vector3, because that would create
                 // a managed object we need to marshal to support copying. 
                 byte[] position = GetBytes(positions[i]);
+                byte[] normal = GetBytes(normals[i]);
 
-                
-
-                Debug.WriteLine($"pos at index {i}: {positions[i].X}, {positions[i].Y}, {positions[i].Z} (bytes: {BitConverter.ToString(position, 0, 4 * 3)})");
-                
-                //byte[] normal = GetBytes(normals[i]);
+                //Debug.WriteLine($"pos at index {i}: {positions[i].X}, {positions[i].Y}, {positions[i].Z} (bytes: {BitConverter.ToString(position, 0, 4 * 3)})");
 
                 Buffer.BlockCopy(position, 0, data, vertexStrideInBytes * i, vector3SizeInBytes);
-                //Buffer.BlockCopy(normal, 0, data, vertexStrideInBytes * i + vector3SizeInBytes, vector3SizeInBytes);
+                Buffer.BlockCopy(normal, 0, data, vertexStrideInBytes * i + vector3SizeInBytes, vector3SizeInBytes);
             }
 
             // copy indices
@@ -125,11 +120,11 @@ namespace revit_to_vr_plugin
             };
 
             //string indicesString = "";
-            foreach (UInt32 index in indices)
-            {
+            //foreach (UInt32 index in indices)
+            //{
                 //indicesString += index + ", ";
-                Debug.Assert(index < vertexCount);
-            }
+            //    Debug.Assert(index < vertexCount);
+            //}
             //UIConsole.Log(indicesString);
 
             return new MeshDataToSend()
@@ -210,9 +205,9 @@ namespace revit_to_vr_plugin
             {
                 MeshTriangle triangle = mesh.get_Triangle(triangleIndex);
                 // these are probably sequential, but just to be sure
-                UInt32 xIndex = triangle.get_Index(0);
-                UInt32 yIndex = triangle.get_Index(1);
-                UInt32 zIndex = triangle.get_Index(2);
+                UInt32 xIndex = triangle.get_Index(Configuration.flipWindingOrder ? 2 : 0);
+                UInt32 yIndex = triangle.get_Index(1); // 1 is always the same
+                UInt32 zIndex = triangle.get_Index(Configuration.flipWindingOrder ? 0 : 2);
                 indices.Add(vertexOffset + xIndex);
                 indices.Add(vertexOffset + yIndex);
                 indices.Add(vertexOffset + zIndex);
@@ -224,15 +219,15 @@ namespace revit_to_vr_plugin
             return lhs.X == rhs.X && lhs.Y == rhs.Y && lhs.Z == rhs.Z;
         }
 
+        // when the mesh data needs to be updated, it gets added to the toSend parameter
+        // to see whether it needs updating, it uses the ApplicationState.sentGeometryPerGeometryObjectId
         // https://help.autodesk.com/view/RVT/2022/ENU/?guid=Revit_API_Revit_API_Developers_Guide_Revit_Geometric_Elements_Geometry_GeometryObject_Class_html
-        public static VRBIM_Element Convert(ElementId elementId, Document document, Queue<MeshDataToSend> toSend)
+        public static VRBIM_Element Convert(Element element, ClientState state, Queue<MeshDataToSend> toSend)
         {
             VRBIM_Element output = new VRBIM_Element()
             {
-                elementId = elementId.Value
+                elementId = element.Id.Value
             };
-
-            Element element = document.GetElement(elementId);
 
             if (element == null)
             {
@@ -268,6 +263,25 @@ namespace revit_to_vr_plugin
             output.geometries = new List<VRBIM_Geometry>();
             foreach (GeometryObject obj in geometry)
             {
+                // we need to check whether the GeometryObject is already sent
+                // 1. see if the GeometryObject id has been sent at all
+                // if not, we need to send it
+                // otherwise:
+                // 2. do a diff between the last sent GeometryObject and this one
+                if (state.sentGeometry.TryGetValue(obj.Id, out SentGeometryObjectData data))
+                {
+                    if (data.hashCode == obj.GetHashCode())
+                    {
+                        // we don't need to send this geometry as it has not changed. 
+                        UIConsole.Log("Geometry has not changed, skipping");
+                        continue;
+                    }
+                    else
+                    {
+                        state.sentGeometry.Remove(obj.Id);
+                    }
+                }
+                
                 VRBIM_Geometry outputGeometry = null;
 
                 // handle all cases that the geometry could be
@@ -306,7 +320,10 @@ namespace revit_to_vr_plugin
                         break;
                     case Mesh mesh:
                         {
+                            outputGeometry = new VRBIM_Mesh()
+                            {
 
+                            };
                         }
                         break;
                     case GeometryInstance geometryInstance:
@@ -335,6 +352,12 @@ namespace revit_to_vr_plugin
                 {
                     output.geometries.Add(outputGeometry);
                 }
+
+                state.sentGeometry.Add(obj.Id, new SentGeometryObjectData()
+                {
+                    geometryObjectId = obj.Id,
+                    hashCode = obj.GetHashCode()
+                });
             }
 
             // set material

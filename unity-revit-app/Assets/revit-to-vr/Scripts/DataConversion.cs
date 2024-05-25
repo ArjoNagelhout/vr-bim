@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,6 +8,18 @@ namespace RevitToVR
 {
     public static class DataConversion
     {
+        public static bool FlipYAndZAxes = true;
+        
+        public static VRBIM_Vector3 GetVector3FromBytes(byte[] buffer, int startIndex)
+        {
+            return new VRBIM_Vector3()
+            {
+                x = BitConverter.ToSingle(buffer, startIndex + 0),
+                y = BitConverter.ToSingle(buffer, startIndex + (FlipYAndZAxes ? 8 : 4)),
+                z = BitConverter.ToSingle(buffer, startIndex + (FlipYAndZAxes ? 4 : 8))
+            };
+        }
+        
         public static Vector3 ToUnityVector3(VRBIM_Vector3 vector)
         {
             return new Vector3(vector.x, vector.y, vector.z);

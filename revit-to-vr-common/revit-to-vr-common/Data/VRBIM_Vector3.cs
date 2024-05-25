@@ -16,6 +16,13 @@ namespace revit_to_vr_common
         public float y; // 4 bytes
         public float z; // 4 bytes
 
+        public VRBIM_Vector3(float x, float y, float z)
+        {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+        }
+
         public static VRBIM_Vector3 operator +(VRBIM_Vector3 lhs, VRBIM_Vector3 rhs)
         {
             return Execute(lhs, rhs, (lhs_, rhs_) => { return lhs_ + rhs_; });

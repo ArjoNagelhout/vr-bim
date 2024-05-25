@@ -61,6 +61,24 @@ namespace revit_to_vr_plugin
             data.FrameworkElementCreator = creator;
         }
     }
+    
+    public class SentGeometryObjectData
+    {
+        public long geometryObjectId; // non-view specific
+        public int hashCode; // hash code to see whether we need to sent the updated geometry
+    }
+
+    // contains information about which document is currently opened etc.
+    public class ApplicationState
+    {
+        public Document openedDocument;
+    }
+
+    // reset on each connection with the client
+    public class ClientState
+    {
+        public Dictionary<long, SentGeometryObjectData> sentGeometry = new Dictionary<long, SentGeometryObjectData>();
+    }
 
     // this is the entry point for the application
     // the application sends data on an idle event, as we can't directly access the UIApplication and the documents
@@ -77,7 +95,10 @@ namespace revit_to_vr_plugin
         
         private DockablePaneProvider paneProvider;
         private uint connectionCount = 0;
-        
+
+        // state
+        ApplicationState applicationState = new ApplicationState(); // server side state information
+        ClientState clientState = new ClientState();
 
         // methods
         public Application()
@@ -141,7 +162,7 @@ namespace revit_to_vr_plugin
             DocumentChangedEvent e = new DocumentChangedEvent()
             {
                 deletedElementIds = new List<long>(),
-                changedElements = new Dictionary<long, revit_to_vr_common.VRBIM_Element>()
+                changedElements = new Dictionary<long, VRBIM_Element>()
             };
 
             Queue<MeshDataToSend> toSend = new Queue<MeshDataToSend>();
@@ -163,7 +184,10 @@ namespace revit_to_vr_plugin
                 IEnumerable<ElementId> changed = modified.Union(added); 
                 foreach (ElementId elementId in changed)
                 {
-                    VRBIM_Element targetElement = DataConversion.Convert(elementId, document, toSend);
+                    Element element = document.GetElement(elementId);
+                    UIConsole.Log(elementId.ToString());
+                    
+                    VRBIM_Element targetElement = DataConversion.Convert(element, clientState, toSend);
                     if (targetElement != null)
                     {
                         e.changedElements.Add(elementId.Value, targetElement);
@@ -181,29 +205,25 @@ namespace revit_to_vr_plugin
 
             string json = JsonSerializer.Serialize(e, Configuration.jsonSerializerOptions);
 
-            revit_to_vr_common.Event eve = JsonSerializer.Deserialize<revit_to_vr_common.Event>(json, Configuration.jsonSerializerOptions);
-
-
             // send mesh data
-            if (toSend.Count > 0)
+            foreach (MeshDataToSend meshData in toSend)
             {
-                foreach (MeshDataToSend meshData in toSend)
+                SendMeshDataEvent sendMeshDataEvent = new SendMeshDataEvent()
                 {
-                    SendMeshDataEvent sendMeshDataEvent = new SendMeshDataEvent()
-                    {
-                        descriptor = meshData.descriptor
-                    };
+                    descriptor = meshData.descriptor
+                };
 
-                    MainService.SendJson(sendMeshDataEvent);
-                    MainService.SendBytes(meshData.data);
-                }
+                MainService.SendJson(sendMeshDataEvent);
+                MainService.SendBytes(meshData.data);
             }
+            toSend.Clear();
         }
 
         void OnDocumentClosed(object sender, DocumentClosedEventArgs args)
         {
             UIConsole.Log("OnDocumentClosed");
             int documentId = args.DocumentId;
+            applicationState.openedDocument = null;
 
             // send event
             DocumentClosedEvent e = new DocumentClosedEvent();
@@ -214,20 +234,30 @@ namespace revit_to_vr_plugin
         {
             UIConsole.Log("OnDocumentCreated");
             Document document = args.Document;
+            applicationState.openedDocument = document;
 
             // send event
-            DocumentOpenedEvent e = new DocumentOpenedEvent();
-            MainService.SendJson(e);
+            SendDocumentOpenedEvent();
         }
 
         void OnDocumentOpened(object sender, DocumentOpenedEventArgs args)
         {
             UIConsole.Log("OnDocumentOpened");
             Document document = args.Document;
-            Guid id = document.CreationGUID;
-
+            applicationState.openedDocument = document;
+            
             // send event
-            DocumentOpenedEvent e = new DocumentOpenedEvent();
+            SendDocumentOpenedEvent();
+        }
+
+        void SendDocumentOpenedEvent()
+        {
+            Document d = applicationState.openedDocument;
+            Debug.Assert(d != null);
+            DocumentOpenedEvent e = new DocumentOpenedEvent()
+            {
+                documentGuid = d.CreationGUID
+            };
             MainService.SendJson(e);
         }
 
@@ -250,7 +280,17 @@ namespace revit_to_vr_plugin
         {
             connectionCount++;
             UIConsole.Log("Application > OnClientConnected");
-            
+
+            // reset state (e.g. which GeometryObjects have already been sent)
+            clientState = new ClientState();
+
+            // send document opened event if a document is already opened
+            if (applicationState.openedDocument != null)
+            {
+                SendDocumentOpenedEvent();
+
+                // todo: send DocumentChangedEvent with all elements in the document that were changed
+            }
         }
 
         public void OnClientDisconnected()

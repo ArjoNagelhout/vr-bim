@@ -116,4 +116,14 @@ namespace revit_to_vr_common
     {
         long materialId;
     }
+
+
+    public class VRBIM_Instance
+    {
+        // transform
+
+        // element id
+        long elementId;
+
+    }
 }

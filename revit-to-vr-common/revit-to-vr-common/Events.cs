@@ -33,7 +33,7 @@ namespace revit_to_vr_common
     [JsonDerivedType(typeof(DocumentOpenedEvent), typeDiscriminator: "documentOpened")]
     public class DocumentOpenedEvent : Event
     {
-        
+        public Guid documentGuid;
     }
 
     [System.Serializable]

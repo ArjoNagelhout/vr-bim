@@ -16,6 +16,8 @@ namespace revit_to_vr_common
     {
         public static int triangulationlevelOfDetail = 1;
 
+        public static bool flipWindingOrder = true;
+
         public static VRBIM_ViewDetailLevel viewDetailLevel = VRBIM_ViewDetailLevel.Medium;
 
         public static JsonSerializerOptions jsonSerializerOptions = new JsonSerializerOptions()
