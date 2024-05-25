@@ -51,5 +51,7 @@ namespace revit_to_vr_common
             }
             return output;
         }
+
+        public static int temporaryMeshIndex = int.MinValue;
     }
 }

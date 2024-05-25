@@ -63,11 +63,9 @@ namespace revit_to_vr_plugin
             };
         }
 
-        private static int temporaryMeshIndex = int.MinValue;
-
         public static MeshDataToSend ConvertTemporaryMesh(Mesh mesh)
         {
-            return ConvertMesh(mesh, temporaryMeshIndex);
+            return ConvertMesh(mesh, Configuration.temporaryMeshIndex);
         }
 
         public static MeshDataToSend ConvertVertices(IList<XYZ> positions, IList<XYZ> normals, IList<UInt32> indices, int id)
@@ -111,8 +109,7 @@ namespace revit_to_vr_plugin
             {
                 id = new VRBIM_MeshId()
                 {
-                    id = id,
-                    temporary = IsMeshIdTemporary(id),
+                    id = IsMeshIdTemporary(id) ? Configuration.temporaryMeshIndex : id,
                     temporaryId = Guid.NewGuid()
                 },
                 vertexCount = vertexCount,
@@ -362,7 +359,7 @@ namespace revit_to_vr_plugin
 
                             Debug.Assert(positions.Count == normals.Count);
 
-                            MeshDataToSend result = ConvertVertices(positions, normals, indices, temporaryMeshIndex);
+                            MeshDataToSend result = ConvertVertices(positions, normals, indices, Configuration.temporaryMeshIndex);
                             outputGeometry = new VRBIM_Solid()
                             {
                                 temporaryMeshId = result.descriptor.id.temporaryId

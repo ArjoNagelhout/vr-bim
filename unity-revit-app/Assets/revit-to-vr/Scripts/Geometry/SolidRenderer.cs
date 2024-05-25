@@ -6,26 +6,46 @@ using UnityEngine;
 
 namespace RevitToVR
 {
-    public class SolidRenderer : GeometryObjectRenderer
+    public class SolidRenderer : GeometryObjectRenderer, IMeshDataEventListener
     {
         private VRBIM_Solid solid => _geometry as VRBIM_Solid;
 
         private MeshFilter _meshFilter;
         private MeshRenderer _meshRenderer;
 
-        private void Start()
+        protected void Awake()
         {
             _meshFilter = gameObject.AddComponent<MeshFilter>();
             _meshRenderer = gameObject.AddComponent<MeshRenderer>();
             _meshRenderer.material = UnityAssetProvider.instance.defaultMaterial;
         }
 
-        protected override void OnMeshAdded(VRBIM_MeshId meshId, Mesh mesh)
+        protected override void OnInitialize()
         {
-            if (meshId.temporaryId == solid.temporaryMeshId)
-            {
-                _meshFilter.mesh = mesh;
-            }
+            base.OnInitialize();
+            _documentRenderer.RegisterMeshDataEventListener(
+                Utils.CreateTemporaryMeshId(solid.temporaryMeshId),
+                this);
+        }
+
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+            _documentRenderer.UnregisterMeshDataEventListener(
+                Utils.CreateTemporaryMeshId(solid.temporaryMeshId),
+                this);
+        }
+
+        // IMeshDataEventListener
+
+        void IMeshDataEventListener.OnMeshAdded(Mesh mesh)
+        {
+            _meshFilter.mesh = mesh;
+        }
+
+        void IMeshDataEventListener.OnMeshRemoved()
+        {
+            _meshFilter.mesh = null;
         }
     }
 }

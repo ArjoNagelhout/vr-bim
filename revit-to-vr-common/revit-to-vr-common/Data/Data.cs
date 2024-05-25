@@ -63,11 +63,21 @@ namespace revit_to_vr_common
     }
 
     [System.Serializable]
-    public class VRBIM_MeshId
+    public class VRBIM_MeshId : IEquatable<VRBIM_MeshId>
     {
         public int id;
-        public bool temporary; // if temporary, we should use the temporary id instead of the normal id
         public Guid temporaryId; // we assign a temporary id so that even temporary meshes can be identified
+        public bool IsTemporary => id == Configuration.temporaryMeshIndex; // if temporary, we should use the temporary id instead of the normal id
+
+        public bool Equals(VRBIM_MeshId other)
+        {
+            return this.GetHashCode() == other.GetHashCode();
+        }
+
+        public override int GetHashCode()
+        {
+            return id.GetHashCode() ^ temporaryId.GetHashCode();
+        }
     }
 
     [System.Serializable]

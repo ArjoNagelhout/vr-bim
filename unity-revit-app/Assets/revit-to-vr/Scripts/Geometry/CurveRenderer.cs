@@ -9,10 +9,5 @@ namespace RevitToVR
     public class CurveRenderer : GeometryObjectRenderer
     {
         private VRBIM_Curve solid => _geometry as VRBIM_Curve;
-
-        private void Start()
-        {
-            
-        }
     }
 }

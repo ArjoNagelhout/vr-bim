@@ -4,26 +4,37 @@ using UnityEngine;
 
 namespace RevitToVR
 {
+    public interface IMeshDataEventListener
+    {
+        public void OnMeshAdded(Mesh mesh);
+
+        public void OnMeshRemoved();
+    }
+    
     public class ClientDocumentRenderer : MonoBehaviour, IClientDocumentListener, IMeshRepository
     {
-        // events
-
-        public delegate void OnMeshRemoved(VRBIM_MeshId meshId);
-
-        public delegate void OnMeshAdded(VRBIM_MeshId meshId, Mesh mesh);
-
-        public event OnMeshAdded onMeshAdded;
-
-        public event OnMeshRemoved onMeshRemoved;
-
         // meshes
         private Dictionary<VRBIM_MeshId, Mesh> _meshes = new Dictionary<VRBIM_MeshId, Mesh>();
+        private Dictionary<VRBIM_MeshId, IMeshDataEventListener> _meshDataEventListeners =
+            new Dictionary<VRBIM_MeshId, IMeshDataEventListener>();
 
         // elements
         private Dictionary<long, ElementRenderer> _elementRenderers = new Dictionary<long, ElementRenderer>();
         private IMeshRepository _meshRepositoryImplementation;
+        
+        // register listeners for mesh data events
+        public void RegisterMeshDataEventListener(VRBIM_MeshId meshId, IMeshDataEventListener listener)
+        {
+            Debug.Assert(!_meshDataEventListeners.ContainsKey(meshId));
+            _meshDataEventListeners.Add(meshId, listener);
+        }
 
-        // initialize
+        public void UnregisterMeshDataEventListener(VRBIM_MeshId meshId, IMeshDataEventListener listener)
+        {
+            Debug.Assert(_meshDataEventListeners.ContainsKey(meshId));
+            Debug.Assert(_meshDataEventListeners[meshId] == listener);
+            _meshDataEventListeners.Remove(meshId);
+        }
         
         // IMeshRepository implementation
 
@@ -33,7 +44,12 @@ namespace RevitToVR
             RemoveMesh(meshId);
 
             _meshes.Add(meshId, mesh);
-            onMeshAdded?.Invoke(meshId, mesh);
+            
+            // make sure that anyone is listening for this mesh id
+            if (_meshDataEventListeners.TryGetValue(meshId, out IMeshDataEventListener listener))
+            {
+                listener.OnMeshAdded(mesh);                
+            }
         }
 
         public void RemoveMesh(VRBIM_MeshId meshId)
@@ -41,7 +57,11 @@ namespace RevitToVR
             if (_meshes.ContainsKey(meshId))
             {
                 _meshes.Remove(meshId);
-                onMeshRemoved?.Invoke(meshId);
+
+                if (_meshDataEventListeners.TryGetValue(meshId, out IMeshDataEventListener listener))
+                {
+                    listener.OnMeshRemoved();
+                }
             }
         }
 
