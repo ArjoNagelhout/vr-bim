@@ -291,7 +291,7 @@ namespace revit_to_vr_plugin
                 SendDocumentOpenedEvent();
 
                 // todo: send DocumentChangedEvent with all elements in the document that were changed
-                //SendAllElements();
+                SendAllElements();
             }
         }
 
