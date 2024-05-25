@@ -26,12 +26,38 @@ namespace revit_to_vr_common
         }
     }
 
+    [JsonDerivedType(typeof(VRBIM_Location), typeDiscriminator: "base")]
+    [JsonDerivedType(typeof(VRBIM_LocationPoint), typeDiscriminator: "point")]
+    [JsonDerivedType(typeof(VRBIM_LocationCurve), typeDiscriminator: "curve")]
+    public class VRBIM_Location
+    {
+        
+    }
+
+    [JsonDerivedType(typeof(VRBIM_LocationPoint), typeDiscriminator: "point")]
+    public class VRBIM_LocationPoint : VRBIM_Location
+    {
+        public VRBIM_Vector3 point;
+        public float rotation; // rotation along the plane of the associated view
+    }
+
+    // a location curve can have multiple elements joining, such as two walls
+    // we can query which elements are joining, and what type of join it is
+    // for now, this is not relevant
+    [JsonDerivedType(typeof(VRBIM_LocationCurve), typeDiscriminator: "curve")]
+    public class VRBIM_LocationCurve : VRBIM_Location
+    {
+        public VRBIM_Curve curve;
+    }
+
     [System.Serializable]
     public class VRBIM_Element
     {
         public long elementId;
         public string name;
         public VRBIM_AABB bounds;
+        public long ownerViewId; // id of the view that owns the element, used for determining the plane along which rotation is defined of the element
+        public VRBIM_Location location; // transform
 
         public List<VRBIM_Geometry> geometries;
     }
@@ -117,13 +143,4 @@ namespace revit_to_vr_common
         long materialId;
     }
 
-
-    public class VRBIM_Instance
-    {
-        // transform
-
-        // element id
-        long elementId;
-
-    }
 }

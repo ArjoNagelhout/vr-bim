@@ -66,6 +66,7 @@ namespace RevitToVR
         void IClientDocumentListener.ElementRemoved(long elementId)
         {
             Debug.Assert(_elementRenderers.ContainsKey(elementId));
+            Destroy(_elementRenderers[elementId].gameObject);
             _elementRenderers.Remove(elementId);
         }
 

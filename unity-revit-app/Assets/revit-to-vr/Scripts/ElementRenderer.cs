@@ -35,6 +35,9 @@ namespace RevitToVR
                         case VRBIM_Solid:
                             AddGeometry<SolidRenderer>(geometry);
                             break;
+                        case VRBIM_Curve:
+                            AddGeometry<CurveRenderer>(geometry);
+                            break;
                     }
                 }                
             }
@@ -45,7 +48,7 @@ namespace RevitToVR
             GameObject o = new GameObject();
             o.name = $"Geometry: {typeof(T).Name}";
             o.transform.SetParent(transform, false);
-            SolidRenderer r = o.AddComponent<SolidRenderer>();
+            T r = o.AddComponent<T>();
             r.Initialize(_documentRenderer, geometry);
             _geometryObjectRenderers.Add(r);
         }

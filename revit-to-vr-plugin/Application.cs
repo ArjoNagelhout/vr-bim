@@ -2,26 +2,21 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using Autodesk.Revit.ApplicationServices;
-using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
-using Autodesk.Revit.UI.Selection;
 using Autodesk.Revit.UI.Events;
-using Autodesk.Revit.DB.Architecture;
 using System.Windows;
 
 using System.Diagnostics;
 
 using WebSocketSharp;
-using WebSocketSharp.Server;
-using System.Windows.Interop;
 using Autodesk.Revit.DB.Events;
 using revit_to_vr_common;
 using static revit_to_vr_plugin.DataConversion;
 using System.Text.Json;
-using System.Windows.Markup;
+using Autodesk.Revit.Creation;
+using Document = Autodesk.Revit.DB.Document;
 
 namespace revit_to_vr_plugin
 {
@@ -71,7 +66,7 @@ namespace revit_to_vr_plugin
     // contains information about which document is currently opened etc.
     public class ApplicationState
     {
-        public Document openedDocument;
+        public Autodesk.Revit.DB.Document openedDocument;
     }
 
     // reset on each connection with the client
@@ -144,7 +139,7 @@ namespace revit_to_vr_plugin
             return Result.Succeeded;
         }
 
-        void OnSelectionChanged(object sender, SelectionChangedEventArgs args)
+        private void OnSelectionChanged(object sender, SelectionChangedEventArgs args)
         {
             UIConsole.Log("OnSelectionChanged");
 
@@ -155,38 +150,26 @@ namespace revit_to_vr_plugin
             MainService.SendJson(e);
         }
 
-        void OnDocumentChanged(object sender, DocumentChangedEventArgs args)
+        private void SendDocumentChangedEvent(IEnumerable<ElementId> changedElementIds, IEnumerable<ElementId> deletedElementIds)
         {
-            UIConsole.Log("OnDocumentChanged");
-
             DocumentChangedEvent e = new DocumentChangedEvent()
             {
                 deletedElementIds = new List<long>(),
                 changedElements = new Dictionary<long, VRBIM_Element>()
             };
 
+            foreach (ElementId deletedElement in deletedElementIds)
+            {
+                e.deletedElementIds.Add(deletedElement.Value);
+            }
+
             Queue<MeshDataToSend> toSend = new Queue<MeshDataToSend>();
 
             try
             {
-                Document document = args.GetDocument();
-                ICollection<ElementId> added = args.GetAddedElementIds();
-                ICollection<ElementId> deleted = args.GetDeletedElementIds();
-                ICollection<ElementId> modified = args.GetModifiedElementIds();
-
-                foreach (ElementId elementId in deleted)
+                foreach (ElementId elementId in changedElementIds)
                 {
-                    e.deletedElementIds.Add(elementId.Value);
-                }
-
-                // we don't care if an element is added or changed, it needs to be updated anyway
-                // so on client-side we delete the old data stored for this element id
-                IEnumerable<ElementId> changed = modified.Union(added); 
-                foreach (ElementId elementId in changed)
-                {
-                    Element element = document.GetElement(elementId);
-                    UIConsole.Log(elementId.ToString());
-                    
+                    Element element = applicationState.openedDocument.GetElement(elementId);
                     VRBIM_Element targetElement = DataConversion.Convert(element, clientState, toSend);
                     if (targetElement != null)
                     {
@@ -198,7 +181,6 @@ namespace revit_to_vr_plugin
             {
                 UIConsole.Log("Error: " + exception.Message);
             }
-
 
             // send event
             MainService.SendJson(e);
@@ -219,7 +201,26 @@ namespace revit_to_vr_plugin
             toSend.Clear();
         }
 
-        void OnDocumentClosed(object sender, DocumentClosedEventArgs args)
+        private void OnDocumentChanged(object sender, DocumentChangedEventArgs args)
+        {
+            UIConsole.Log("OnDocumentChanged");
+
+            // we don't support editing multiple documents at the same time
+            Document document = args.GetDocument();
+            Debug.Assert(document.CreationGUID == applicationState.openedDocument.CreationGUID);
+
+            ICollection<ElementId> added = args.GetAddedElementIds();
+            ICollection<ElementId> deleted = args.GetDeletedElementIds();
+            ICollection<ElementId> modified = args.GetModifiedElementIds();
+
+            // we don't care if an element is added or changed, it needs to be updated anyway
+            // so on client-side we delete the old data stored for this element id
+            IEnumerable<ElementId> changed = modified.Union(added);
+            
+            SendDocumentChangedEvent(changed, deleted);
+        }
+
+        private void OnDocumentClosed(object sender, DocumentClosedEventArgs args)
         {
             UIConsole.Log("OnDocumentClosed");
             int documentId = args.DocumentId;
@@ -230,7 +231,7 @@ namespace revit_to_vr_plugin
             MainService.SendJson(e);
         }
 
-        void OnDocumentCreated(object sender, DocumentCreatedEventArgs args)
+        private void OnDocumentCreated(object sender, DocumentCreatedEventArgs args)
         {
             UIConsole.Log("OnDocumentCreated");
             Document document = args.Document;
@@ -240,7 +241,7 @@ namespace revit_to_vr_plugin
             SendDocumentOpenedEvent();
         }
 
-        void OnDocumentOpened(object sender, DocumentOpenedEventArgs args)
+        private void OnDocumentOpened(object sender, DocumentOpenedEventArgs args)
         {
             UIConsole.Log("OnDocumentOpened");
             Document document = args.Document;
@@ -250,7 +251,7 @@ namespace revit_to_vr_plugin
             SendDocumentOpenedEvent();
         }
 
-        void SendDocumentOpenedEvent()
+        private void SendDocumentOpenedEvent()
         {
             Document d = applicationState.openedDocument;
             Debug.Assert(d != null);
@@ -290,6 +291,7 @@ namespace revit_to_vr_plugin
                 SendDocumentOpenedEvent();
 
                 // todo: send DocumentChangedEvent with all elements in the document that were changed
+                SendAllElements();
             }
         }
 
@@ -297,6 +299,19 @@ namespace revit_to_vr_plugin
         {
             connectionCount--;
             UIConsole.Log("Application > OnClientDisconnected");
+        }
+
+        private void SendAllElements()
+        {
+            Debug.Assert(applicationState.openedDocument != null);
+
+            // we can filter on category via ElementCategoryFilter
+            // we can filter on type via ElementClassFilter
+            
+            FilteredElementCollector elements = new FilteredElementCollector(applicationState.openedDocument);
+            elements = elements.WhereElementIsNotElementType();
+
+            SendDocumentChangedEvent(elements.ToElementIds(), new List<ElementId>());
         }
     }
 }

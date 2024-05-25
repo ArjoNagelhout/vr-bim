@@ -10,7 +10,7 @@ namespace revit_to_vr_plugin
     {
         // converts doubles to floats, determine whether this is an issue for precision
         // in large models
-        public static VRBIM_Vector3 Convert(XYZ xyz)
+        public static VRBIM_Vector3 ConvertVector(XYZ xyz)
         {
             return new VRBIM_Vector3()
             {
@@ -34,7 +34,7 @@ namespace revit_to_vr_plugin
             return data;
         }
 
-        public static ViewDetailLevel Convert(VRBIM_ViewDetailLevel level)
+        public static ViewDetailLevel ConvertViewDetailLevel(VRBIM_ViewDetailLevel level)
         {
             switch (level)
             {
@@ -48,10 +48,10 @@ namespace revit_to_vr_plugin
             return ViewDetailLevel.Undefined;
         }
 
-        public static VRBIM_AABB Convert(BoundingBoxXYZ bounds)
+        public static VRBIM_AABB ConvertBoundingBox(BoundingBoxXYZ bounds)
         {
-            VRBIM_Vector3 min = Convert(bounds.Min);
-            VRBIM_Vector3 max = Convert(bounds.Max);
+            VRBIM_Vector3 min = ConvertVector(bounds.Min);
+            VRBIM_Vector3 max = ConvertVector(bounds.Max);
 
             VRBIM_Vector3 center = (min + max) / 2.0f;
             VRBIM_Vector3 extents = (max - min) / 2.0f;
@@ -219,16 +219,58 @@ namespace revit_to_vr_plugin
             return lhs.X == rhs.X && lhs.Y == rhs.Y && lhs.Z == rhs.Z;
         }
 
+        public static VRBIM_LocationPoint ConvertLocationPoint(LocationPoint locationPoint)
+        {
+            VRBIM_LocationPoint output = new VRBIM_LocationPoint();
+
+            try
+            {
+                output.point = ConvertVector(locationPoint.Point);
+                output.rotation = (float)locationPoint.Rotation;
+            }
+            catch
+            {
+                return output;
+            }
+
+            return output;
+        }
+
+        public static VRBIM_LocationCurve ConvertLocationCurve(LocationCurve locationCurve)
+        {
+            return new VRBIM_LocationCurve()
+            {
+
+            };
+        }
+
+        public static VRBIM_Location ConvertLocation(Location location)
+        {
+            try
+            {
+                switch (location)
+                {
+                    case LocationPoint locationPoint:
+                        return ConvertLocationPoint(locationPoint);
+
+                    case LocationCurve locationCurve:
+                        return ConvertLocationCurve(locationCurve);
+                }
+            }
+            catch
+            {
+                return null;
+            }
+            
+            //Debug.Assert(false); auto join tracker element can have no location for example
+            return null;
+        }
+
         // when the mesh data needs to be updated, it gets added to the toSend parameter
         // to see whether it needs updating, it uses the ApplicationState.sentGeometryPerGeometryObjectId
         // https://help.autodesk.com/view/RVT/2022/ENU/?guid=Revit_API_Revit_API_Developers_Guide_Revit_Geometric_Elements_Geometry_GeometryObject_Class_html
         public static VRBIM_Element Convert(Element element, ClientState state, Queue<MeshDataToSend> toSend)
         {
-            VRBIM_Element output = new VRBIM_Element()
-            {
-                elementId = element.Id.Value
-            };
-
             if (element == null)
             {
                 UIConsole.Log("Element is null");
@@ -241,12 +283,22 @@ namespace revit_to_vr_plugin
                 return null;
             }
 
-            output.name = element.Name;
+            VRBIM_Element output = new VRBIM_Element()
+            {
+                elementId = element.Id.Value,
+                name = element.Name,
+                ownerViewId = element.OwnerViewId.Value,
+            };
+
+            if (!(element is FamilyInstance))
+            {
+                output.location = ConvertLocation(element.Location);
+            }
 
             // set geometry
             GeometryElement geometry = element.get_Geometry(new Options()
             {
-                DetailLevel = Convert(Configuration.viewDetailLevel),
+                DetailLevel = ConvertViewDetailLevel(Configuration.viewDetailLevel),
                 ComputeReferences = true,
                 IncludeNonVisibleObjects = true
             });
@@ -258,7 +310,7 @@ namespace revit_to_vr_plugin
 
             // set bounds
             BoundingBoxXYZ bounds = geometry.GetBoundingBox();
-            output.bounds = Convert(bounds);
+            output.bounds = ConvertBoundingBox(bounds);
 
             output.geometries = new List<VRBIM_Geometry>();
             foreach (GeometryObject obj in geometry)
@@ -333,7 +385,10 @@ namespace revit_to_vr_plugin
                         break;
                     case Curve curve:
                         {
+                            outputGeometry = new VRBIM_Curve()
+                            {
 
+                            };
                         }
                         break;
                     case Point point:

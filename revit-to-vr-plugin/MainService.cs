@@ -46,11 +46,11 @@ namespace revit_to_vr_plugin
             if (Instance != null)
             {
                 Instance.Send(json);
-                UIConsole.Log("MainService > SendJson: " + json);
+                //UIConsole.Log("MainService > SendJson: " + json);
             }
             else
             {
-                UIConsole.Log("json (not sent): " + json);
+                //UIConsole.Log("json (not sent): " + json);
             }
         }
 

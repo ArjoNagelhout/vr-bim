@@ -61,7 +61,7 @@ namespace RevitToVR
         {
             MainThreadDispatcher.Instance.Enqueue(() =>
             {
-                UIConsole.Log("MainServiceClient > OnMessage: " + args.Data);
+                //UIConsole.Log("MainServiceClient > OnMessage: " + args.Data);
                 OnMessage?.Invoke(sender, args);                
             });
         }

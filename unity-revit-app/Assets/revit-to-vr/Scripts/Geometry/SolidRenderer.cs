@@ -26,7 +26,6 @@ namespace RevitToVR
             {
                 _meshFilter.mesh = mesh;
             }
-            Debug.Log("Damn set the thingsaaa");
         }
     }
 }
