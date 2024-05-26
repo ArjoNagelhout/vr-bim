@@ -61,12 +61,7 @@ namespace RevitToVR
             // called when the connection to the server is opened by the MainServiceClient
             
             // send configuration
-            
-            _mainServiceClient.SendJson(new SendClientConfigurationEvent()
-            {
-                clientConfiguration = clientConfiguration
-            });
-            _mainServiceClient.SendJson(new StartListeningToEvents());
+            SendConfigurationDataAndStartListening();
         }
 
         private void OnClose()
@@ -120,6 +115,15 @@ namespace RevitToVR
             }
         }
 
+        public void SendConfigurationDataAndStartListening()
+        {
+            _mainServiceClient.SendJson(new SendClientConfigurationEvent()
+            {
+                clientConfiguration = clientConfiguration
+            });
+            _mainServiceClient.SendJson(new StartListeningToEvents());
+        }
+
         private void HandleEvent(revit_to_vr_common.ServerEvent @event)
         {
             switch (@event)
@@ -155,6 +159,12 @@ namespace RevitToVR
         private void Handle(DocumentOpenedEvent e)
         {
             UIConsole.Log("Handle DocumentOpenedEvent");
+
+            // ugly, but suffices for now, we don't want to open the document twice
+            if (_clientDocument != null)
+            {
+                Handle(new DocumentClosedEvent());
+            }
             
             // create renderer
             _clientDocumentRenderer = new GameObject().AddComponent<ClientDocumentRenderer>();
@@ -178,7 +188,7 @@ namespace RevitToVR
             _clientDocument.Apply(e);
             
             // destroy renderer
-            Destroy(_clientDocumentRenderer);
+            Destroy(_clientDocumentRenderer.gameObject);
             
             // clear mesh repository
             _meshRepository = null;

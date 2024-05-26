@@ -21411,7 +21411,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8caf80bf72f5b4bc4bad5dbea2aaa6e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ipAddress: 192.168.2.7
+  ipAddress: 192.168.2.6
+  clientConfiguration:
+    triangulationlevelOfDetail: 1
+    viewDetailLevel: 1
+    flipWindingOrder: 1
 --- !u!1001 &2125541156
 PrefabInstance:
   m_ObjectHideFlags: 0

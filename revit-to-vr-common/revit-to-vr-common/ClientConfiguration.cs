@@ -12,8 +12,12 @@ namespace revit_to_vr_common
     public class ClientConfiguration
     {
         // default parameters:
-        public int triangulationlevelOfDetail = 1;
+
+        // The level of detail. Its range is from 0 to 1. 0 is the lowest level of detail and 1 is the highest.
+        public float triangulationlevelOfDetail = 1.0f;
+
         public VRBIM_ViewDetailLevel viewDetailLevel = VRBIM_ViewDetailLevel.Medium;
+
         public bool flipWindingOrder = true;
     }
 }
