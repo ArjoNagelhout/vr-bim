@@ -21414,8 +21414,8 @@ MonoBehaviour:
   ipAddress: 192.168.2.6
   clientConfiguration:
     triangulationlevelOfDetail: 1
-    viewDetailLevel: 1
-    flipWindingOrder: 1
+    viewDetailLevel: 0
+    flipWindingOrder: 0
 --- !u!1001 &2125541156
 PrefabInstance:
   m_ObjectHideFlags: 0
