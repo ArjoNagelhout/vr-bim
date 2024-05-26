@@ -2,9 +2,14 @@
 
 This repository contains experiments with Revit and Unity, and enabling live editing of BIM data inside VR. This is not production ready code. 
 
-It currently consists of two parts:
+It currently consists of three parts:
+- `revit-to-vr-common`
 - `revit-to-vr-plugin`
 - `unity-revit-app`
+
+## revit-to-vr-common
+
+Common class library built to the `unity-revit-app/Assets/revit-to-vr-common-build` folder and included as a dependency in th revit-to-vr-plugin. This enables simple interchange of data from and to json. 
 
 ## revit-to-vr-plugin
 
