@@ -12,7 +12,7 @@ In terms of codebase architecture, the project consists of three modules:
 
 ## revit-to-vr-common
 
-Common class library built to the `unity-revit-app/Assets/revit-to-vr-common-build` folder and included as a dependency in the `revit-to-vr-plugin`. This enables simple interchange of data from and to json between the Revit plugin and the VR Application.  
+Common class library built to the `unity-revit-app/Assets/revit-to-vr-common-build` folder and included as a dependency in both the `revit-to-vr-plugin` and the `unity-revit-app` project. This enables simple interchange of data from and to json between the Revit plugin and the VR Application, as it is exactly the same C# objects and the same configuration for the JsonSerializer. 
 
 ## revit-to-vr-plugin
 
