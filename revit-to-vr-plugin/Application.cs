@@ -73,6 +73,8 @@ namespace revit_to_vr_plugin
     public class ClientState
     {
         public Dictionary<long, SentGeometryObjectData> sentGeometry = new Dictionary<long, SentGeometryObjectData>();
+        public ClientConfiguration clientConfiguration = new ClientConfiguration(); // default client configuration
+        public bool wantsToReceiveEvents = false;
     }
 
     // this is the entry point for the application
@@ -82,6 +84,8 @@ namespace revit_to_vr_plugin
     {
         private static Application instance_;
         public static Application Instance => instance_;
+
+        private ClientEvent cachedEvent;
 
         // public properties        
         public Server server = new Server();
@@ -147,7 +151,7 @@ namespace revit_to_vr_plugin
 
             // send event
             SelectionChangedEvent e = new SelectionChangedEvent();
-            MainService.SendJson(e);
+            SendEventIfDesired(e);
         }
 
         private void SendDocumentChangedEvent(IEnumerable<ElementId> changedElementIds, IEnumerable<ElementId> deletedElementIds)
@@ -170,7 +174,7 @@ namespace revit_to_vr_plugin
                 foreach (ElementId elementId in changedElementIds)
                 {
                     Element element = applicationState.openedDocument.GetElement(elementId);
-                    VRBIM_Element targetElement = DataConversion.Convert(element, clientState, toSend);
+                    VRBIM_Element targetElement = DataConversion.Convert(element, clientState, toSend, clientState.clientConfiguration);
                     if (targetElement != null)
                     {
                         e.changedElements.Add(elementId.Value, targetElement);
@@ -183,7 +187,7 @@ namespace revit_to_vr_plugin
             }
 
             // send event
-            MainService.SendJson(e);
+            SendEventIfDesired(e);
 
             string json = JsonSerializer.Serialize(e, Configuration.jsonSerializerOptions);
 
@@ -195,7 +199,7 @@ namespace revit_to_vr_plugin
                     descriptor = meshData.descriptor
                 };
 
-                MainService.SendJson(sendMeshDataEvent);
+                SendEventIfDesired(sendMeshDataEvent);
                 MainService.SendBytes(meshData.data);
             }
             toSend.Clear();
@@ -228,7 +232,7 @@ namespace revit_to_vr_plugin
 
             // send event
             DocumentClosedEvent e = new DocumentClosedEvent();
-            MainService.SendJson(e);
+            SendEventIfDesired(e);
         }
 
         private void OnDocumentCreated(object sender, DocumentCreatedEventArgs args)
@@ -259,7 +263,7 @@ namespace revit_to_vr_plugin
             {
                 documentGuid = d.CreationGUID
             };
-            MainService.SendJson(e);
+            SendEventIfDesired(e);
         }
 
         // called by MainService
@@ -269,7 +273,30 @@ namespace revit_to_vr_plugin
             if (args.IsText)
             {
                 // handle text, should be json
+                // handle text
+                string json = args.Data;
+                // validate json
+                if (string.IsNullOrWhiteSpace(json))
+                {
+                    return;
+                }
 
+                try
+                {
+                    using var _ = JsonDocument.Parse(json);
+                }
+                catch
+                {
+                    return;
+                }
+
+                UIConsole.Log("Application > OnMessage: Received json: " + json);
+
+                JsonSerializerOptions options = Configuration.jsonSerializerOptions;
+                ClientEvent e = JsonSerializer.Deserialize<ClientEvent>(json, options);
+
+                HandleEvent(e);
+                cachedEvent = e;
             }
             else if (args.IsBinary)
             {
@@ -277,13 +304,39 @@ namespace revit_to_vr_plugin
             }
         }
 
-        public void OnClientConnected()
+        private void SendEventIfDesired(ServerEvent e)
         {
-            connectionCount++;
-            UIConsole.Log("Application > OnClientConnected");
+            MainService.SendJson(e, !clientState.wantsToReceiveEvents);
+        }
 
-            // reset state (e.g. which GeometryObjects have already been sent)
-            clientState = new ClientState();
+        private void HandleEvent(ClientEvent e)
+        {
+            switch (e)
+            {
+                case SendClientConfigurationEvent sendClientConfigurationEvent:
+                    HandleSendClientConfigurationEvent(sendClientConfigurationEvent);
+                    break;
+                case StartListeningToEvents start:
+                    HandleStartListeningToEventsEvent(start);
+                    break;
+                case StopListeningToEvents stop:
+                    HandleStopListeningToEventsEvent(stop);
+                    break;
+            }
+        }
+
+        private void HandleSendClientConfigurationEvent(SendClientConfigurationEvent e)
+        {
+            clientState.clientConfiguration = e.clientConfiguration;
+            clientState.sentGeometry = new Dictionary<long, SentGeometryObjectData>(); // reset the sent geometry
+        }
+
+        private void HandleStartListeningToEventsEvent(StartListeningToEvents e)
+        {
+            clientState.wantsToReceiveEvents = true;
+
+            // on first start listening, make sure we catch up with everything that happened in the document
+            // before we started listening:
 
             // send document opened event if a document is already opened
             if (applicationState.openedDocument != null)
@@ -293,6 +346,21 @@ namespace revit_to_vr_plugin
                 // todo: send DocumentChangedEvent with all elements in the document that were changed
                 SendAllElements();
             }
+        }
+        
+        // very bad naming :)
+        private void HandleStopListeningToEventsEvent(StopListeningToEvents e)
+        {
+            clientState.wantsToReceiveEvents = false;
+        }
+
+        public void OnClientConnected()
+        {
+            connectionCount++;
+            UIConsole.Log("Application > OnClientConnected");
+
+            // reset state (e.g. which GeometryObjects have already been sent)
+            clientState = new ClientState();
         }
 
         public void OnClientDisconnected()
@@ -307,9 +375,16 @@ namespace revit_to_vr_plugin
 
             // we can filter on category via ElementCategoryFilter
             // we can filter on type via ElementClassFilter
-            
+
+            // the following commented out code can be used to get *all* elements
+
+            //FilteredElementCollector elements = new FilteredElementCollector(applicationState.openedDocument);
+            //elements = elements.WhereElementIsNotElementType();
+
+            // for our test, we want to only send the subset of elements
+            // that have been implemented, such as the Toposolid. 
             FilteredElementCollector elements = new FilteredElementCollector(applicationState.openedDocument);
-            elements = elements.WhereElementIsNotElementType();
+            elements = elements.OfClass(typeof(Toposolid));
 
             SendDocumentChangedEvent(elements.ToElementIds(), new List<ElementId>());
         }

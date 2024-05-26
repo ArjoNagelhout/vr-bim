@@ -14,12 +14,6 @@ namespace revit_to_vr_common
     // common configuration parameters for the program to be used by both the VR app and the Revit plugin
     public static class Configuration
     {
-        public static int triangulationlevelOfDetail = 1;
-
-        public static bool flipWindingOrder = true;
-
-        public static VRBIM_ViewDetailLevel viewDetailLevel = VRBIM_ViewDetailLevel.Medium;
-
         public static JsonSerializerOptions jsonSerializerOptions { get; } = new JsonSerializerOptions()
         {
             WriteIndented = true,

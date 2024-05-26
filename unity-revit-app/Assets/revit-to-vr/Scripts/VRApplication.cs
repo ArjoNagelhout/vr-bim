@@ -6,9 +6,11 @@ using System.Runtime.InteropServices;
 using UnityEngine;
 using WebSocketSharp;
 using System.Text.Json;
+using System.Xml;
 using revit_to_vr_common;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
+using UnityEditor.Callbacks;
 using UnityEngine.Rendering;
 
 namespace RevitToVR
@@ -23,6 +25,9 @@ namespace RevitToVR
     public class VRApplication : MonoBehaviour
     {
         public string ipAddress;
+
+        // configuration to use for the connection
+        public ClientConfiguration clientConfiguration;
         
         private MainServiceClient _mainServiceClient;
         private ClientDocument _clientDocument;
@@ -30,20 +35,43 @@ namespace RevitToVR
         private IMeshRepository _meshRepository;
 
         // the event we received, so that we can parse the binary data that is sent using a separate .Send() after the event
-        private revit_to_vr_common.Event _cachedEvent;
+        private revit_to_vr_common.ServerEvent _cachedEvent;
 
         private void Start()
         {
             UIConsole.Log("Started VRApplication");
             _mainServiceClient = new MainServiceClient(ipAddress);
             _mainServiceClient.OnMessage += OnMessage;
+            _mainServiceClient.OnOpen += OnOpen;
+            _mainServiceClient.OnClose += OnClose;
+            _mainServiceClient.Connect();
         }
 
         private void OnDestroy()
         {
             _mainServiceClient.OnMessage -= OnMessage;
+            _mainServiceClient.OnOpen -= OnOpen;
+            _mainServiceClient.OnClose -= OnClose;
             _mainServiceClient.Disconnect();
             _mainServiceClient = null;
+        }
+
+        private void OnOpen()
+        {
+            // called when the connection to the server is opened by the MainServiceClient
+            
+            // send configuration
+            
+            _mainServiceClient.SendJson(new SendClientConfigurationEvent()
+            {
+                clientConfiguration = clientConfiguration
+            });
+            _mainServiceClient.SendJson(new StartListeningToEvents());
+        }
+
+        private void OnClose()
+        {
+            // called when the connection to the server is closed by the MainServiceClient
         }
 
         // server to client communication
@@ -70,8 +98,10 @@ namespace RevitToVR
 
                 UIConsole.Log("VRApplication > OnMessage: Received json: " + json);
 
-                revit_to_vr_common.Event e =
-                    JsonSerializer.Deserialize<revit_to_vr_common.Event>(json, Configuration.jsonSerializerOptions);
+                JsonSerializerOptions options = Configuration.jsonSerializerOptions;
+                revit_to_vr_common.ServerEvent e =
+                    JsonSerializer.Deserialize<revit_to_vr_common.ServerEvent>(json, options);
+                
                 HandleEvent(e);
                 _cachedEvent = e;
             }
@@ -90,7 +120,7 @@ namespace RevitToVR
             }
         }
 
-        private void HandleEvent(revit_to_vr_common.Event @event)
+        private void HandleEvent(revit_to_vr_common.ServerEvent @event)
         {
             switch (@event)
             {

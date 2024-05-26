@@ -11,9 +11,9 @@ namespace revit_to_vr_plugin
 {
     public static partial class DataConversion
     {
-        public static MeshDataToSend ConvertTemporaryMesh(Mesh mesh)
+        public static MeshDataToSend ConvertTemporaryMesh(Mesh mesh, ClientConfiguration clientConfiguration)
         {
-            return ConvertMesh(mesh, Configuration.temporaryMeshIndex);
+            return ConvertMesh(mesh, Configuration.temporaryMeshIndex, clientConfiguration);
         }
 
         public static MeshDataToSend ConvertVertices(IList<XYZ> positions, IList<XYZ> normals, IList<UInt32> indices, int id)
@@ -69,13 +69,13 @@ namespace revit_to_vr_plugin
             };
         }
 
-        public static MeshDataToSend ConvertMesh(Mesh mesh, int id)
+        public static MeshDataToSend ConvertMesh(Mesh mesh, int id, ClientConfiguration clientConfiguration)
         {
             IList<XYZ> positions = mesh.Vertices;
             List<XYZ> normals = new List<XYZ>();
             List<UInt32> indices = new List<UInt32>();
             AppendNormals(normals, mesh);
-            AppendIndices(indices, mesh, 0);
+            AppendIndices(indices, mesh, 0, clientConfiguration);
 
             return ConvertVertices(positions, normals, indices, id);
         }
@@ -131,7 +131,7 @@ namespace revit_to_vr_plugin
         }
 
         // returns index count
-        public static void AppendIndices(List<UInt32> indices, Mesh mesh, UInt32 vertexOffset)
+        public static void AppendIndices(List<UInt32> indices, Mesh mesh, UInt32 vertexOffset, ClientConfiguration clientConfiguration)
         {
             int indexCount = mesh.NumTriangles * 3;
             indices.Capacity = indices.Count + indexCount; // increase capacity
@@ -140,9 +140,9 @@ namespace revit_to_vr_plugin
             {
                 MeshTriangle triangle = mesh.get_Triangle(triangleIndex);
                 // these are probably sequential, but just to be sure
-                UInt32 xIndex = triangle.get_Index(Configuration.flipWindingOrder ? 2 : 0);
+                UInt32 xIndex = triangle.get_Index(clientConfiguration.flipWindingOrder ? 2 : 0);
                 UInt32 yIndex = triangle.get_Index(1); // 1 is always the same
-                UInt32 zIndex = triangle.get_Index(Configuration.flipWindingOrder ? 0 : 2);
+                UInt32 zIndex = triangle.get_Index(clientConfiguration.flipWindingOrder ? 0 : 2);
                 indices.Add(vertexOffset + xIndex);
                 indices.Add(vertexOffset + yIndex);
                 indices.Add(vertexOffset + zIndex);

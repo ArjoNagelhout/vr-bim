@@ -14,7 +14,7 @@ namespace revit_to_vr_plugin
         // when the mesh data needs to be updated, it gets added to the toSend parameter
         // to see whether it needs updating, it uses the ApplicationState.sentGeometryPerGeometryObjectId
         // https://help.autodesk.com/view/RVT/2022/ENU/?guid=Revit_API_Revit_API_Developers_Guide_Revit_Geometric_Elements_Geometry_GeometryObject_Class_html
-        public static VRBIM_Element Convert(Element element, ClientState state, Queue<MeshDataToSend> toSend)
+        public static VRBIM_Element Convert(Element element, ClientState state, Queue<MeshDataToSend> toSend, ClientConfiguration clientConfiguration)
         {
             if (element == null)
             {
@@ -50,7 +50,7 @@ namespace revit_to_vr_plugin
             // set geometry
             GeometryElement geometry = element.get_Geometry(new Options()
             {
-                DetailLevel = ConvertViewDetailLevel(Configuration.viewDetailLevel),
+                DetailLevel = ConvertViewDetailLevel(clientConfiguration.viewDetailLevel),
                 ComputeReferences = true,
                 IncludeNonVisibleObjects = true
             });
@@ -102,14 +102,14 @@ namespace revit_to_vr_plugin
                             foreach (Face face in faces)
                             {
                                 UInt32 vertexOffset = (UInt32)positions.Count;
-                                Mesh mesh = face.Triangulate(Configuration.triangulationlevelOfDetail);
+                                Mesh mesh = face.Triangulate(clientConfiguration.triangulationlevelOfDetail);
 
                                 int vertexCount = mesh.Vertices.Count;
                                 positions.Capacity = positions.Count + vertexCount;
 
                                 positions.AddRange(mesh.Vertices);
                                 AppendNormals(normals, mesh);
-                                AppendIndices(indices, mesh, vertexOffset);
+                                AppendIndices(indices, mesh, vertexOffset, clientConfiguration);
                             }
 
                             Debug.Assert(positions.Count == normals.Count);

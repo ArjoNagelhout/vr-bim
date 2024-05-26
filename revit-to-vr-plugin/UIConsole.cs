@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using System.IO;
 
 namespace revit_to_vr_plugin
 {
@@ -44,12 +45,23 @@ namespace revit_to_vr_plugin
         {
             Instance.Text = "";
         }
-        
+
         public static void Log(string text)
         {
+            text = $"[{DateTime.Now}] {text}";
             Instance.Text += text + "\n";
             Debug.WriteLine(text);
         }
 
+        private static string logFileName = "revit_to_vr_plugin.log";
+
+        private static string logFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), logFileName);
+
+        // Constructor to set up TraceListener
+        private UIConsole()
+        {
+            Trace.Listeners.Add(new TextWriterTraceListener(logFilePath));
+            Trace.AutoFlush = true;
+        }
     }
 }

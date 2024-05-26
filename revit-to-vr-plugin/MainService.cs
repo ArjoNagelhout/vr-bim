@@ -23,7 +23,7 @@ namespace revit_to_vr_plugin
 
         protected override void OnMessage(MessageEventArgs e)
         {
-            UIConsole.Log("MainService > OnMessage > " + e.Data);
+            //UIConsole.Log("MainService > OnMessage > " + e.Data);
             Application.Instance.OnClientSentMessage(e);
         }
 
@@ -40,17 +40,37 @@ namespace revit_to_vr_plugin
             Send("You got connected, amazing");
         }
 
-        public static void SendJson<T>(T data)
+        // dry makes it so it doesn't actually send it to the client, but does serialize
+        public static void SendJson<T>(T data, bool dry)
         {
             string json = JsonSerializer.Serialize(data, Configuration.jsonSerializerOptions);
+
+            // to check why deserialization might fail:
+            //try
+            //{
+            //    T test = JsonSerializer.Deserialize<T>(json, Configuration.jsonSerializerOptions);
+            //}
+            //catch (Exception e)
+            //{
+            //    UIConsole.Log($"Deserialization failed: {e.Message}");
+            //}
+            
+            SendJsonInternal(json, dry);
+        }
+
+        private static void SendJsonInternal(string json, bool dry)
+        {
             if (Instance != null)
             {
-                Instance.Send(json);
-                UIConsole.Log("MainService > SendJson: " + json);
+                if (!dry)
+                {
+                    Instance.Send(json);
+                }
+                //UIConsole.Log("MainService > SendJson: " + json);
             }
             else
             {
-                UIConsole.Log("json (not sent): " + json);
+                //UIConsole.Log("json (not sent): " + json);
             }
         }
 

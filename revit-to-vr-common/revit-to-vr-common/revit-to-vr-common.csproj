@@ -10,6 +10,7 @@
     <RootNamespace>revit_to_vr_common</RootNamespace>
     <AssemblyName>revit-to-vr-common</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <LangVersion>8.0</LangVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
     <NuGetPackageImportStamp>
@@ -37,6 +38,7 @@
     <Reference Include="System.Text.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ClientConfiguration.cs" />
     <Compile Include="Configuration.cs" />
     <Compile Include="Data\Data.cs" />
     <Compile Include="Data\Element.cs" />
@@ -45,6 +47,8 @@
     <Compile Include="Data\Vector3.cs" />
     <Compile Include="Data\Vector3Converters.cs" />
     <Compile Include="Events.cs" />
+    <Compile Include="Events\ClientEvent.cs" />
+    <Compile Include="Events\ServerEvent.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tests\SerializationTest.cs" />
     <Compile Include="Utils.cs" />

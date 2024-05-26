@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Text.Json;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace revit_to_vr_common
 {
@@ -57,12 +58,6 @@ namespace revit_to_vr_common
             var list = new List<VRBIM_Vector3>();
             while (reader.Read() && reader.TokenType != JsonTokenType.EndArray)
             {
-                if (reader.TokenType != JsonTokenType.StartArray)
-                {
-                    throw new JsonException();
-                }
-
-                reader.Read();
                 float x = reader.GetSingle();
 
                 reader.Read();
@@ -70,12 +65,6 @@ namespace revit_to_vr_common
 
                 reader.Read();
                 float z = reader.GetSingle();
-
-                reader.Read();
-                if (reader.TokenType != JsonTokenType.EndArray)
-                {
-                    throw new JsonException();
-                }
 
                 list.Add(new VRBIM_Vector3 { x = x, y = y, z = z });
             }
