@@ -20,11 +20,17 @@ namespace revit_to_vr_common
 
         public static VRBIM_ViewDetailLevel viewDetailLevel = VRBIM_ViewDetailLevel.Medium;
 
-        public static JsonSerializerOptions jsonSerializerOptions = new JsonSerializerOptions()
+        public static JsonSerializerOptions jsonSerializerOptions { get; } = new JsonSerializerOptions()
         {
             WriteIndented = true,
             IncludeFields = true
         };
+
+        static Configuration()
+        {
+            jsonSerializerOptions.Converters.Add(new VRBIM_Vector3Converter());
+            jsonSerializerOptions.Converters.Add(new VRBIM_Vector3ListConverter());
+        }
 
         public static string protocolPrefix = "ws://";
 
