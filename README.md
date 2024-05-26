@@ -4,10 +4,11 @@ This repository contains experiments in creating a live-link between Revit and U
 
 It does not adhere to any best practices, but it might provide some valuable insight into how to build an application that strives to have this type of functionality, which is the reason I made this open-source. 
 
-It currently consists of three parts:
-- `revit-to-vr-common`
-- `revit-to-vr-plugin`
-- `unity-revit-app`
+In terms of codebase architecture, the project consists of three modules:
+
+- **`revit-to-vr-common`**
+- **`revit-to-vr-plugin`**
+- **`unity-revit-app`**
 
 ## revit-to-vr-common
 
