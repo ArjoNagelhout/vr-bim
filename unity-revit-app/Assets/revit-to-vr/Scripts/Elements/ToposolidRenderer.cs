@@ -30,5 +30,20 @@ namespace RevitToVR
         {
             base.OnDeselect();
         }
+        
+        // Edit modes
+        // these methods activate the edit mode for these  
+
+        // edit the 2D sketch that defines the bounds (i.e. outline) of the Toposolid 
+        public void EditSketch()
+        {
+            
+        }
+
+        // edit the creases and vertices that define the height of the Toposolid
+        public void ModifySubElements()
+        {
+            
+        }
     }
 }

@@ -46,7 +46,6 @@
     <Compile Include="Data\Geometry\Geometry.cs" />
     <Compile Include="Data\Vector3.cs" />
     <Compile Include="Data\Vector3Converters.cs" />
-    <Compile Include="Events.cs" />
     <Compile Include="Events\ClientEvent.cs" />
     <Compile Include="Events\ServerEvent.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
