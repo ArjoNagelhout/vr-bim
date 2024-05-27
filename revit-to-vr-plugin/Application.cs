@@ -60,7 +60,8 @@ namespace revit_to_vr_plugin
     // contains information about which document is currently opened etc.
     public class ApplicationState
     {
-        public Autodesk.Revit.DB.Document openedDocument;
+        public Document openedDocument;
+        public List<long> selectedElementIds = new List<long>();
     }
 
     // reset on each connection with the client
@@ -140,17 +141,28 @@ namespace revit_to_vr_plugin
         {
             UIConsole.Log("OnSelectionChanged");
 
+            Debug.Assert(applicationState.openedDocument.CreationGUID == args.GetDocument().CreationGUID);
+
             ISet<ElementId> elements = args.GetSelectedElements();
 
-            // send event
-            SelectionChangedEvent e = new SelectionChangedEvent()
-            {
-                selectedElementIds = new List<long>(elements.Count)
-            };
+            List<long> selectedElementIds = new List<long>(elements.Count);
             foreach (ElementId id in elements)
             {
-                e.selectedElementIds.Add(id.Value);
+                selectedElementIds.Add(id.Value);
             }
+
+            // set cached selected element ids so that when the client connects
+            // we can serve which elements are selected (we can't retrieve the selection easily another way on demand)
+            applicationState.selectedElementIds = selectedElementIds;
+            SendSelectionChangedEvent();
+        }
+
+        private void SendSelectionChangedEvent()
+        {
+            SelectionChangedEvent e = new SelectionChangedEvent()
+            {
+                selectedElementIds = applicationState.selectedElementIds
+            };
             SendEventIfDesired(e);
         }
 
@@ -348,6 +360,8 @@ namespace revit_to_vr_plugin
 
                 // todo: send DocumentChangedEvent with all elements in the document that were changed
                 SendAllElements();
+
+                SendSelectionChangedEvent();
             }
         }
         
