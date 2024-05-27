@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using revit_to_vr_common;
+using UnityEngine;
 
 namespace RevitToVR
 {
@@ -36,6 +37,16 @@ namespace RevitToVR
         
         public void Apply(DocumentChangedEvent e)
         {
+            foreach (long deletedElementId in e.deletedElementIds)
+            {
+                Debug.Log($"deletedElementId: {deletedElementId}");
+                if (elements.ContainsKey(deletedElementId))
+                {
+                    elements.Remove(deletedElementId);
+                    Listener?.ElementRemoved(deletedElementId);
+                }
+            }
+            
             foreach (KeyValuePair<long, VRBIM_Element> changedElement in e.changedElements)
             {
                 long key = changedElement.Key;

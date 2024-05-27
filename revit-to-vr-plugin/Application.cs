@@ -56,12 +56,6 @@ namespace revit_to_vr_plugin
             data.FrameworkElementCreator = creator;
         }
     }
-    
-    public class SentGeometryObjectData
-    {
-        public long geometryObjectId; // non-view specific
-        public int hashCode; // hash code to see whether we need to sent the updated geometry
-    }
 
     // contains information about which document is currently opened etc.
     public class ApplicationState
@@ -72,7 +66,6 @@ namespace revit_to_vr_plugin
     // reset on each connection with the client
     public class ClientState
     {
-        public Dictionary<long, SentGeometryObjectData> sentGeometry = new Dictionary<long, SentGeometryObjectData>();
         public ClientConfiguration clientConfiguration = new ClientConfiguration(); // default client configuration
         public bool wantsToReceiveEvents = false;
     }
@@ -156,6 +149,9 @@ namespace revit_to_vr_plugin
 
         private void SendDocumentChangedEvent(IEnumerable<ElementId> changedElementIds, IEnumerable<ElementId> deletedElementIds)
         {
+            changedElementIds = FilterElements(changedElementIds);
+            deletedElementIds = FilterElements(deletedElementIds);
+
             DocumentChangedEvent e = new DocumentChangedEvent()
             {
                 deletedElementIds = new List<long>(),
@@ -220,7 +216,7 @@ namespace revit_to_vr_plugin
             // we don't care if an element is added or changed, it needs to be updated anyway
             // so on client-side we delete the old data stored for this element id
             IEnumerable<ElementId> changed = modified.Union(added);
-            
+
             SendDocumentChangedEvent(changed, deleted);
         }
 
@@ -328,7 +324,6 @@ namespace revit_to_vr_plugin
         private void HandleSendClientConfigurationEvent(SendClientConfigurationEvent e)
         {
             clientState.clientConfiguration = e.clientConfiguration;
-            clientState.sentGeometry = new Dictionary<long, SentGeometryObjectData>(); // reset the sent geometry
         }
 
         private void HandleStartListeningToEventsEvent(StartListeningToEvents e)
@@ -373,6 +368,21 @@ namespace revit_to_vr_plugin
         {
             Debug.Assert(applicationState.openedDocument != null);
 
+            FilteredElementCollector elements = new FilteredElementCollector(applicationState.openedDocument);
+            elements = elements.WhereElementIsNotElementType(); // inverts, so we collect all
+
+            SendDocumentChangedEvent(elements.ToElementIds(), new List<ElementId>());
+        }
+
+        // this is the filter of what elements we want to collect. Should be changed into
+        // a configuration 
+        // and it's inefficient to create the collector twice, but works for now. 
+        private IEnumerable<ElementId> FilterElements(IEnumerable<ElementId> elementIds)
+        {
+            if (elementIds.Count() == 0)
+            {
+                return elementIds;
+            }
             // we can filter on category via ElementCategoryFilter
             // we can filter on type via ElementClassFilter
 
@@ -380,13 +390,13 @@ namespace revit_to_vr_plugin
 
             //FilteredElementCollector elements = new FilteredElementCollector(applicationState.openedDocument);
             //elements = elements.WhereElementIsNotElementType();
-
+            
             // for our test, we want to only send the subset of elements
             // that have been implemented, such as the Toposolid. 
-            FilteredElementCollector elements = new FilteredElementCollector(applicationState.openedDocument);
-            elements = elements.OfClass(typeof(Toposolid));
+            FilteredElementCollector elements = new FilteredElementCollector(applicationState.openedDocument, elementIds.ToList());
 
-            SendDocumentChangedEvent(elements.ToElementIds(), new List<ElementId>());
+            elements = elements.OfClass(typeof(Toposolid));
+            return elements.ToElementIds();
         }
     }
 }

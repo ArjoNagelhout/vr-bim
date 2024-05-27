@@ -39,6 +39,7 @@ namespace RevitToVR
 
         private void Start()
         {
+            Application.targetFrameRate = 30;
             UIConsole.Log("Started VRApplication");
             _mainServiceClient = new MainServiceClient(ipAddress);
             _mainServiceClient.OnMessage += OnMessage;

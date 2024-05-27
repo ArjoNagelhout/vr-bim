@@ -67,25 +67,6 @@ namespace revit_to_vr_plugin
             output.geometries = new List<VRBIM_Geometry>();
             foreach (GeometryObject obj in geometry)
             {
-                // we need to check whether the GeometryObject is already sent
-                // 1. see if the GeometryObject id has been sent at all
-                // if not, we need to send it
-                // otherwise:
-                // 2. do a diff between the last sent GeometryObject and this one
-                if (state.sentGeometry.TryGetValue(obj.Id, out SentGeometryObjectData data))
-                {
-                    if (data.hashCode == obj.GetHashCode())
-                    {
-                        // we don't need to send this geometry as it has not changed. 
-                        UIConsole.Log("Geometry has not changed, skipping");
-                        continue;
-                    }
-                    else
-                    {
-                        state.sentGeometry.Remove(obj.Id);
-                    }
-                }
-
                 VRBIM_Geometry outputGeometry = null;
 
                 // handle all cases that the geometry could be
@@ -159,12 +140,6 @@ namespace revit_to_vr_plugin
                 {
                     output.geometries.Add(outputGeometry);
                 }
-
-                state.sentGeometry.Add(obj.Id, new SentGeometryObjectData()
-                {
-                    geometryObjectId = obj.Id,
-                    hashCode = obj.GetHashCode()
-                });
             }
 
             // set material

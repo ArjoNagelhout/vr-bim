@@ -27,6 +27,12 @@ namespace RevitToVR
         {
             Debug.Assert(!_meshDataEventListeners.ContainsKey(meshId));
             _meshDataEventListeners.Add(meshId, listener);
+            
+            // if the mesh already exists, directly call the listener
+            if (_meshes.TryGetValue(meshId, out Mesh mesh))
+            {
+                listener.OnMeshAdded(mesh);
+            }
         }
 
         public void UnregisterMeshDataEventListener(VRBIM_MeshId meshId, IMeshDataEventListener listener)
@@ -34,6 +40,11 @@ namespace RevitToVR
             Debug.Assert(_meshDataEventListeners.ContainsKey(meshId));
             Debug.Assert(_meshDataEventListeners[meshId] == listener);
             _meshDataEventListeners.Remove(meshId);
+
+            if (_meshes.ContainsKey(meshId))
+            {
+                _meshes.Remove(meshId);
+            }
         }
         
         // IMeshRepository implementation

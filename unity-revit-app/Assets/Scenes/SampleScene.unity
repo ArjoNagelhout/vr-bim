@@ -18124,7 +18124,7 @@ Light:
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
-  m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 0}
+  m_BoundingSphereOverride: {x: 1e-45, y: 1.7202255e-21, z: 1e-45, w: -6.325716e+35}
   m_UseBoundingSphereOverride: 0
   m_UseViewFrustumForShadowCasterCull: 1
   m_ShadowRadius: 0
@@ -21411,7 +21411,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8caf80bf72f5b4bc4bad5dbea2aaa6e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ipAddress: 192.168.2.6
+  ipAddress: 172.20.10.10
   clientConfiguration:
     triangulationlevelOfDetail: 0
     viewDetailLevel: 0
