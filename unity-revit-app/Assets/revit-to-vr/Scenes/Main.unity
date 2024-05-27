@@ -283,6 +283,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: XRRig
       objectReference: {fileID: 0}
+    - target: {fileID: 5796033700332855886, guid: ac294755f46a042e5b1dd2b9f6b6507d, type: 3}
+      propertyPath: m_DefaultParameters.m_FeatheringEffect
+      value: 0.32
+      objectReference: {fileID: 0}
     - target: {fileID: 7397310427183464702, guid: ac294755f46a042e5b1dd2b9f6b6507d, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
