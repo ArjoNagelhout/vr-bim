@@ -150,7 +150,8 @@ namespace revit_to_vr_plugin
         private void SendDocumentChangedEvent(IEnumerable<ElementId> changedElementIds, IEnumerable<ElementId> deletedElementIds)
         {
             changedElementIds = FilterElements(changedElementIds);
-            deletedElementIds = FilterElements(deletedElementIds);
+            // we don't filter deletedElementIds, because that creates a FilteredElementCollector, which checks for the Elements in the database,
+            // but because it has just been deleted, it doesn't exist, and thus would set deletedElementIds to an empty enumerable. 
 
             DocumentChangedEvent e = new DocumentChangedEvent()
             {
@@ -383,6 +384,7 @@ namespace revit_to_vr_plugin
             {
                 return elementIds;
             }
+
             // we can filter on category via ElementCategoryFilter
             // we can filter on type via ElementClassFilter
 
