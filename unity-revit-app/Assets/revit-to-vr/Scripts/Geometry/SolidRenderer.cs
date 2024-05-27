@@ -47,5 +47,19 @@ namespace RevitToVR
         {
             _meshFilter.mesh = null;
         }
+        
+        // ISelectionChangedListener
+
+        public override void OnSelect()
+        {
+            base.OnSelect();
+            _meshRenderer.material = UnityAssetProvider.instance.defaultSelectedMaterial;
+        }
+
+        public override void OnDeselect()
+        {
+            base.OnDeselect();
+            _meshRenderer.material = UnityAssetProvider.instance.defaultMaterial;
+        }
     }
 }

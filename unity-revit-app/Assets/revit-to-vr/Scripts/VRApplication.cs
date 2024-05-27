@@ -201,6 +201,7 @@ namespace RevitToVR
         private void Handle(SelectionChangedEvent e)
         {
             UIConsole.Log("Handle SelectionChangedEvent");
+            _clientDocument.Apply(e);
         }
 
         private void Handle(SendMeshDataEvent e)

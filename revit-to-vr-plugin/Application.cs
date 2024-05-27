@@ -143,7 +143,14 @@ namespace revit_to_vr_plugin
             ISet<ElementId> elements = args.GetSelectedElements();
 
             // send event
-            SelectionChangedEvent e = new SelectionChangedEvent();
+            SelectionChangedEvent e = new SelectionChangedEvent()
+            {
+                selectedElementIds = new List<long>(elements.Count)
+            };
+            foreach (ElementId id in elements)
+            {
+                e.selectedElementIds.Add(id.Value);
+            }
             SendEventIfDesired(e);
         }
 

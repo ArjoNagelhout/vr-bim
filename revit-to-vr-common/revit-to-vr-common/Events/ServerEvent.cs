@@ -46,7 +46,7 @@ namespace revit_to_vr_common
     [JsonDerivedType(typeof(SelectionChangedEvent), typeDiscriminator: "selectionChangedEvent")]
     public class SelectionChangedEvent : ServerEvent
     {
-
+        public List<long> selectedElementIds;
     }
 
     [System.Serializable]

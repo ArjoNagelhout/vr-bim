@@ -9,6 +9,8 @@ namespace RevitToVR
     {
         // assets
         public Material defaultMaterial;
+
+        public Material defaultSelectedMaterial;
         
         // singleton implementation
         

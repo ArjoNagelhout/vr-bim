@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace RevitToVR
 {
-    public class GeometryObjectRenderer : MonoBehaviour
+    public class GeometryObjectRenderer : MonoBehaviour, ISelectionChangedListener
     {
         protected ClientDocumentRenderer _documentRenderer;
 
@@ -22,6 +22,16 @@ namespace RevitToVR
         }
         
         protected virtual void OnDestroy()
+        {
+            
+        }
+
+        public virtual void OnSelect()
+        {
+            
+        }
+
+        public virtual void OnDeselect()
         {
             
         }

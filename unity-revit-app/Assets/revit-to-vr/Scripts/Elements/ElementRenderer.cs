@@ -8,11 +8,11 @@ namespace RevitToVR
     // we simply destroy and re-add elements when they're changed, so we don't need
     // to handle changes. This obviously isn't the correct way to handle this, but
     // for demonstration purposes it suffices.  
-    public class ElementRenderer : MonoBehaviour
+    public class ElementRenderer : MonoBehaviour, ISelectionChangedListener
     {
-        private ClientDocumentRenderer _documentRenderer;
+        protected ClientDocumentRenderer _documentRenderer;
         
-        private VRBIM_Element _element;
+        protected VRBIM_Element _element;
 
         private List<GeometryObjectRenderer> _geometryObjectRenderers = new List<GeometryObjectRenderer>();
 
@@ -20,10 +20,9 @@ namespace RevitToVR
         public void Initialize(ClientDocumentRenderer documentRenderer, VRBIM_Element element)
         {
             _documentRenderer = documentRenderer;
-
-            name = $"{element.name} ({element.elementId})";
-
             _element = element;
+            
+            name = $"{_element.name} ({_element.elementId})";
             
             // create GeometryObjectRenderer for each geometry object
             if (_element.geometries != null)
@@ -41,6 +40,13 @@ namespace RevitToVR
                     }
                 }                
             }
+            
+            OnInitialize();
+        }
+
+        protected virtual void OnInitialize()
+        {
+            
         }
 
         private void AddGeometry<T>(VRBIM_Geometry geometry) where T : GeometryObjectRenderer
@@ -53,11 +59,27 @@ namespace RevitToVR
             _geometryObjectRenderers.Add(r);
         }
 
-        private void OnDestroy()
+        protected virtual void OnDestroy()
         {
             foreach (GeometryObjectRenderer geometryObjectRenderer in _geometryObjectRenderers)
             {
                 Destroy(geometryObjectRenderer.gameObject);
+            }
+        }
+
+        public virtual void OnSelect()
+        {
+            foreach (GeometryObjectRenderer geometryObjectRenderer in _geometryObjectRenderers)
+            {
+                geometryObjectRenderer.OnSelect();
+            }
+        }
+
+        public virtual void OnDeselect()
+        {
+            foreach (GeometryObjectRenderer geometryObjectRenderer in _geometryObjectRenderers)
+            {
+                geometryObjectRenderer.OnDeselect();
             }
         }
     }

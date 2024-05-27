@@ -17,7 +17,7 @@ namespace RevitToVR
         private Dictionary<VRBIM_MeshId, Mesh> _meshes = new Dictionary<VRBIM_MeshId, Mesh>();
         private Dictionary<VRBIM_MeshId, IMeshDataEventListener> _meshDataEventListeners =
             new Dictionary<VRBIM_MeshId, IMeshDataEventListener>();
-
+        
         // elements
         private Dictionary<long, ElementRenderer> _elementRenderers = new Dictionary<long, ElementRenderer>();
         private IMeshRepository _meshRepositoryImplementation;
@@ -85,11 +85,24 @@ namespace RevitToVR
 
         void IClientDocumentListener.ElementAdded(long elementId, VRBIM_Element element)
         {
+            switch (element)
+            {
+                case VRBIM_Toposolid:
+                    AddElementRenderer<ToposolidRenderer>(elementId, element);
+                    break;
+                default:
+                    AddElementRenderer<ElementRenderer>(elementId, element);
+                    break;
+            }
+        }
+
+        private void AddElementRenderer<T>(long elementId, VRBIM_Element element) where T : ElementRenderer
+        {
             Debug.Assert(!_elementRenderers.ContainsKey(elementId));
             // instantiate element renderer
             GameObject elementRendererObject = new GameObject();
             elementRendererObject.transform.SetParent(transform);
-            ElementRenderer elementRenderer = elementRendererObject.AddComponent<ElementRenderer>();
+            T elementRenderer = elementRendererObject.AddComponent<T>();
             elementRenderer.Initialize(this, element);
             _elementRenderers.Add(elementId, elementRenderer);
         }
@@ -107,6 +120,22 @@ namespace RevitToVR
             foreach (KeyValuePair<long, ElementRenderer> entry in _elementRenderers)
             {
                 Destroy(entry.Value.gameObject);
+            }
+        }
+
+        void IClientDocumentListener.ElementSelected(long elementId)
+        {
+            if (_elementRenderers.TryGetValue(elementId, out ElementRenderer elementRenderer))
+            {
+                (elementRenderer as ISelectionChangedListener).OnSelect();
+            }
+        }
+
+        void IClientDocumentListener.ElementDeselected(long elementId)
+        {
+            if (_elementRenderers.TryGetValue(elementId, out ElementRenderer elementRenderer))
+            {
+                (elementRenderer as ISelectionChangedListener).OnDeselect();
             }
         }
     }

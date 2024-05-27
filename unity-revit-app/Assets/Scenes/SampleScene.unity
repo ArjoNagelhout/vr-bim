@@ -17,7 +17,7 @@ RenderSettings:
   m_Fog: 1
   m_FogColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   m_FogMode: 3
-  m_FogDensity: 0.01
+  m_FogDensity: 0.001
   m_LinearFogStart: 0
   m_LinearFogEnd: 300
   m_AmbientSkyColor: {r: 0.20599997, g: 0.46132573, b: 1, a: 1}
@@ -18124,7 +18124,7 @@ Light:
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
-  m_BoundingSphereOverride: {x: 1e-45, y: 1.7202255e-21, z: 1e-45, w: -6.325716e+35}
+  m_BoundingSphereOverride: {x: 0, y: 6e-44, z: 3e-45, w: 1.2626e-41}
   m_UseBoundingSphereOverride: 0
   m_UseViewFrustumForShadowCasterCull: 1
   m_ShadowRadius: 0
@@ -19478,6 +19478,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   defaultMaterial: {fileID: 2100000, guid: d4068de136b6e412fb6dd9557f6be928, type: 2}
+  defaultSelectedMaterial: {fileID: 2100000, guid: 89024b733b985404b83c105b9f6e6f5f, type: 2}
 --- !u!1 &1961494665
 GameObject:
   m_ObjectHideFlags: 0
@@ -21411,7 +21412,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8caf80bf72f5b4bc4bad5dbea2aaa6e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ipAddress: 172.20.10.10
+  ipAddress: 131.155.160.42
   clientConfiguration:
     triangulationlevelOfDetail: 0
     viewDetailLevel: 0
