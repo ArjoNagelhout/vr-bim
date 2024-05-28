@@ -62,6 +62,7 @@ namespace revit_to_vr_plugin
     {
         public Document openedDocument;
         public List<long> selectedElementIds = new List<long>();
+        public EditMode editMode;
     }
 
     // reset on each connection with the client
@@ -337,11 +338,17 @@ namespace revit_to_vr_plugin
                 case SendClientConfigurationEvent sendClientConfigurationEvent:
                     HandleSendClientConfigurationEvent(sendClientConfigurationEvent);
                     break;
-                case StartListeningToEvents start:
-                    HandleStartListeningToEventsEvent(start);
+                case StartListeningToEvents startListeningToEvents:
+                    HandleStartListeningToEvents(startListeningToEvents);
                     break;
-                case StopListeningToEvents stop:
-                    HandleStopListeningToEventsEvent(stop);
+                case StopListeningToEvents stopListeningToEvents:
+                    HandleStopListeningToEvents(stopListeningToEvents);
+                    break;
+                case StartEditMode startEditMode:
+                    HandleStartEditMode(startEditMode);
+                    break;
+                case StopEditMode stopEditMode:
+                    HandleStopEditMode(stopEditMode);
                     break;
             }
         }
@@ -351,7 +358,7 @@ namespace revit_to_vr_plugin
             clientState.clientConfiguration = e.clientConfiguration;
         }
 
-        private void HandleStartListeningToEventsEvent(StartListeningToEvents e)
+        private void HandleStartListeningToEvents(StartListeningToEvents e)
         {
             clientState.wantsToReceiveEvents = true;
 
@@ -365,10 +372,30 @@ namespace revit_to_vr_plugin
             }
         }
         
-        // very bad naming :)
-        private void HandleStopListeningToEventsEvent(StopListeningToEvents e)
+        private void HandleStopListeningToEvents(StopListeningToEvents e)
         {
             clientState.wantsToReceiveEvents = false;
+        }
+
+        // handle edit modes
+
+        private void HandleStartEditMode(StartEditMode e)
+        {
+            // stop current mode if needed
+            if (applicationState.editMode != null)
+            {
+                applicationState.editMode.StopEditMode();
+                applicationState.editMode = null;
+            }
+
+            applicationState.editMode = e.data;
+            applicationState.editMode.StartEditMode();
+        }
+
+        private void HandleStopEditMode(StopEditMode e)
+        {
+            EditMode editMode = applicationState.editMode;
+            editMode.StopEditMode();
         }
 
         public void OnClientConnected()

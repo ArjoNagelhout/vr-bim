@@ -12,6 +12,8 @@ namespace revit_to_vr_common
     [JsonDerivedType(typeof(SendClientConfigurationEvent), typeDiscriminator: "sendClientConfiguration")]
     [JsonDerivedType(typeof(StartListeningToEvents), typeDiscriminator: "startListeningToEvents")]
     [JsonDerivedType(typeof(StopListeningToEvents), typeDiscriminator: "stopListeningToEvents")]
+    [JsonDerivedType(typeof(StartEditMode), typeDiscriminator: "startEditMode")]
+    [JsonDerivedType(typeof(StopEditMode), typeDiscriminator: "stopEditMode")]
     public class ClientEvent
     {
 
@@ -38,5 +40,19 @@ namespace revit_to_vr_common
     public class StopListeningToEvents : ClientEvent
     {
 
+    }
+
+    [System.Serializable]
+    [JsonDerivedType(typeof(StartEditMode), typeDiscriminator: "startEditMode")]
+    public class StartEditMode : ClientEvent
+    {
+        public EditMode data;
+    }
+
+    [System.Serializable]
+    [JsonDerivedType(typeof(StopEditMode), typeDiscriminator: "stopEditMode")]
+    public class StopEditMode : ClientEvent
+    {
+        public EditMode data; // to check whether the client tries to close the correct edit mode
     }
 }
