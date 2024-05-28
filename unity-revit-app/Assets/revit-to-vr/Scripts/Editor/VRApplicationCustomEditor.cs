@@ -6,7 +6,7 @@ using UnityEditor;
 namespace RevitToVR
 {
     [CustomEditor(typeof(VRApplication))]
-    public class CustomVRApplicationEditor : Editor
+    public class VRApplicationCustomEditor : Editor
     {
         public override void OnInspectorGUI()
         {

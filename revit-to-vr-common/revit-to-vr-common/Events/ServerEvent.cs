@@ -13,6 +13,8 @@ namespace revit_to_vr_common
     [JsonDerivedType(typeof(DocumentClosedEvent), typeDiscriminator: "documentClosed")]
     [JsonDerivedType(typeof(SelectionChangedEvent), typeDiscriminator: "selectionChangedEvent")]
     [JsonDerivedType(typeof(SendMeshDataEvent), typeDiscriminator: "sendMeshData")]
+    [JsonDerivedType(typeof(StartedEditMode), typeDiscriminator: "startedEditMode")]
+    [JsonDerivedType(typeof(StoppedEditMode), typeDiscriminator: "stoppedEditMode")]
     [System.Serializable]
     public class ServerEvent
     {
@@ -54,5 +56,19 @@ namespace revit_to_vr_common
     public class SendMeshDataEvent : ServerEvent
     {
         public VRBIM_MeshDataDescriptor descriptor;
+    }
+
+    [System.Serializable]
+    [JsonDerivedType(typeof(StartedEditMode), typeDiscriminator: "startedEditMode")]
+    public class StartedEditMode : ServerEvent
+    {
+        public EditModeData populatedEditModeData;
+    }
+
+    [System.Serializable]
+    [JsonDerivedType(typeof(StoppedEditMode), typeDiscriminator: "stoppedEditMode")]
+    public class StoppedEditMode : ServerEvent
+    {
+        public EditModeData stoppedEditModeData; // to validate whether the correct edit mode is stopped
     }
 }

@@ -46,13 +46,13 @@ namespace revit_to_vr_common
     [JsonDerivedType(typeof(StartEditMode), typeDiscriminator: "startEditMode")]
     public class StartEditMode : ClientEvent
     {
-        public EditMode data;
+        public EditModeData data;
     }
 
     [System.Serializable]
     [JsonDerivedType(typeof(StopEditMode), typeDiscriminator: "stopEditMode")]
     public class StopEditMode : ClientEvent
     {
-        public EditMode data; // to check whether the client tries to close the correct edit mode
+        public EditModeData data; // to check whether the client tries to close the correct edit mode
     }
 }

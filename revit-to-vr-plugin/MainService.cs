@@ -41,7 +41,7 @@ namespace revit_to_vr_plugin
         }
 
         // dry makes it so it doesn't actually send it to the client, but does serialize
-        public static void SendJson<T>(T data, bool dry)
+        public static void SendJson<T>(T data, bool dry = false)
         {
             string json = JsonSerializer.Serialize(data, Configuration.jsonSerializerOptions);
 

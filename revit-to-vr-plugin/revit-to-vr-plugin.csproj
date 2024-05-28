@@ -61,6 +61,8 @@
     <Compile Include="DataConversion\Element.cs" />
     <Compile Include="DataConversion\Elements\Toposolid.cs" />
     <Compile Include="DataConversion\Geometry\Mesh.cs" />
+    <Compile Include="EditMode\EditMode.cs" />
+    <Compile Include="EditMode\ToposolidEditModes.cs" />
     <Compile Include="UIConsole.cs" />
     <Compile Include="RevitToVRDockablePane.xaml.cs">
       <DependentUpon>RevitToVRDockablePane.xaml</DependentUpon>

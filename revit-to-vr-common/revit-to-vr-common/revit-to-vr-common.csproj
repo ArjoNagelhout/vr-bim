@@ -41,7 +41,7 @@
     <Compile Include="ClientConfiguration.cs" />
     <Compile Include="Configuration.cs" />
     <Compile Include="Data\Data.cs" />
-    <Compile Include="Data\EditMode\EditMode.cs" />
+    <Compile Include="Data\EditModeData.cs" />
     <Compile Include="Data\Element.cs" />
     <Compile Include="Data\Geometry\Curve.cs" />
     <Compile Include="Data\Geometry\Geometry.cs" />

@@ -1,16 +1,12 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
 using UnityEngine;
 using WebSocketSharp;
 using System.Text.Json;
-using System.Xml;
 using revit_to_vr_common;
 using Unity.Collections;
-using Unity.Collections.LowLevel.Unsafe;
-using UnityEditor.Callbacks;
 using UnityEngine.Rendering;
 
 namespace RevitToVR
@@ -33,19 +29,29 @@ namespace RevitToVR
         private ClientDocument _clientDocument;
         private ClientDocumentRenderer _clientDocumentRenderer;
         private IMeshRepository _meshRepository;
-
+        private EditModeState _editModeState;
+        
         // the event we received, so that we can parse the binary data that is sent using a separate .Send() after the event
-        private revit_to_vr_common.ServerEvent _cachedEvent;
+        private ServerEvent _cachedEvent;
 
         private void Start()
         {
             Application.targetFrameRate = 30;
+            
+            CreateEditModeState();
+            
             UIConsole.Log("Started VRApplication");
             _mainServiceClient = new MainServiceClient(ipAddress);
             _mainServiceClient.OnMessage += OnMessage;
             _mainServiceClient.OnOpen += OnOpen;
             _mainServiceClient.OnClose += OnClose;
             _mainServiceClient.Connect();
+        }
+
+        private void CreateEditModeState()
+        {
+            _editModeState = new GameObject().AddComponent<EditModeState>();
+            _editModeState.name = "EditModeState";
         }
 
         private void OnDestroy()
@@ -125,7 +131,7 @@ namespace RevitToVR
             _mainServiceClient.SendJson(new StartListeningToEvents());
         }
 
-        private void HandleEvent(revit_to_vr_common.ServerEvent @event)
+        private void HandleEvent(ServerEvent @event)
         {
             switch (@event)
             {
@@ -144,9 +150,15 @@ namespace RevitToVR
                 case SendMeshDataEvent sendMeshDataEvent:
                     Handle(sendMeshDataEvent);
                     break;
+                case StartedEditMode startedEditMode:
+                    Handle(startedEditMode);
+                    break;
+                case StoppedEditMode stoppedEditMode:
+                    Handle(stoppedEditMode);
+                    break;
             }
         }
-
+        
         private void Handle(DocumentChangedEvent e)
         {
             UIConsole.Log("Handle DocumentChangedEvent");
@@ -208,6 +220,21 @@ namespace RevitToVR
         private void Handle(SendMeshDataEvent e)
         {
             UIConsole.Log("Handle SendMeshDataEvent");
+            // don't need to do anything here, because we already cached the json event and use it
+            // afterward in the HandleBinary function
+        }
+        
+        // edit mode
+        private void Handle(StartedEditMode e)
+        {
+            UIConsole.Log("Handle StartedEditMode event");
+            _editModeState.Apply(e);
+        }
+
+        private void Handle(StoppedEditMode e)
+        {
+            UIConsole.Log("Handle StoppedEditMode event");
+            _editModeState.Apply(e);
         }
 
         private void HandleBinary(byte[] buffer)
@@ -227,7 +254,7 @@ namespace RevitToVR
             public VRBIM_Vector3 normal;
         }
 
-        private unsafe void HandleBinary(SendMeshDataEvent e, byte[] buffer)
+        private void HandleBinary(SendMeshDataEvent e, byte[] buffer)
         {
             var descriptors = new NativeArray<VertexAttributeDescriptor>(2, Allocator.Temp);
             descriptors[0] = new VertexAttributeDescriptor()

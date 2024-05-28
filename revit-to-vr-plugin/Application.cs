@@ -384,18 +384,40 @@ namespace revit_to_vr_plugin
             // stop current mode if needed
             if (applicationState.editMode != null)
             {
-                applicationState.editMode.StopEditMode();
-                applicationState.editMode = null;
+                SendStopEditMode();
             }
 
-            applicationState.editMode = e.data;
-            applicationState.editMode.StartEditMode();
+            EditMode editMode = null;
+            switch (e.data)
+            {
+                case ToposolidEditSketchEditModeData toposolidEditSketch:
+                    editMode = new ToposolidEditSketchEditMode();
+                    break;
+                case ToposolidModifySubElementsEditModeData toposolidModifySubElements:
+                    editMode = new ToposolidModifySubElementsEditMode();
+                    break;
+            }
+            Debug.Assert(editMode != null);
+            editMode.editModeData = e.data;
+            editMode.StartEditMode();
+
+            MainService.SendJson(new StartedEditMode() { populatedEditModeData = editMode.editModeData });
         }
 
         private void HandleStopEditMode(StopEditMode e)
         {
             EditMode editMode = applicationState.editMode;
+            Debug.Assert(editMode != null && editMode.editModeData.GetType() == e.data.GetType());
+            SendStopEditMode();
+        }
+
+        private void SendStopEditMode()
+        {
+            EditMode editMode = applicationState.editMode;
+            Debug.Assert(editMode != null);
             editMode.StopEditMode();
+            MainService.SendJson(new StoppedEditMode() { stoppedEditModeData = editMode.editModeData });
+            editMode = null;
         }
 
         public void OnClientConnected()

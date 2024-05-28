@@ -18,7 +18,6 @@ namespace RevitToVR
         protected override void OnDestroy()
         {
             base.OnDestroy();
-            
         }
 
         public override void OnSelect()
