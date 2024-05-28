@@ -121,6 +121,7 @@ namespace RevitToVR
             {
                 Destroy(entry.Value.gameObject);
             }
+            _elementRenderers.Clear();
         }
 
         void IClientDocumentListener.ElementSelected(long elementId)

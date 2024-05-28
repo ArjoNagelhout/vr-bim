@@ -280,6 +280,11 @@ namespace revit_to_vr_plugin
                 documentGuid = d.CreationGUID
             };
             SendEventIfDesired(e);
+
+            // todo: send DocumentChangedEvent with all elements in the document that were changed
+            SendAllElements();
+
+            SendSelectionChangedEvent();
         }
 
         // called by MainService
@@ -357,11 +362,6 @@ namespace revit_to_vr_plugin
             if (applicationState.openedDocument != null)
             {
                 SendDocumentOpenedEvent();
-
-                // todo: send DocumentChangedEvent with all elements in the document that were changed
-                SendAllElements();
-
-                SendSelectionChangedEvent();
             }
         }
         

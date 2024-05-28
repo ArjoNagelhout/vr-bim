@@ -196,6 +196,7 @@ namespace RevitToVR
             
             // destroy document
             _clientDocument.Dispose();
+            _clientDocument = null;
         }
 
         private void Handle(SelectionChangedEvent e)
