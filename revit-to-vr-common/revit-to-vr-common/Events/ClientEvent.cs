@@ -14,6 +14,7 @@ namespace revit_to_vr_common
     [JsonDerivedType(typeof(StopListeningToEvents), typeDiscriminator: "stopListeningToEvents")]
     [JsonDerivedType(typeof(StartEditMode), typeDiscriminator: "startEditMode")]
     [JsonDerivedType(typeof(StopEditMode), typeDiscriminator: "stopEditMode")]
+    [JsonDerivedType(typeof(SelectElementClientEvent), typeDiscriminator: "selectElementClientEvent")]
     public class ClientEvent
     {
 
@@ -54,5 +55,20 @@ namespace revit_to_vr_common
     public class StopEditMode : ClientEvent
     {
         public EditModeData data; // to check whether the client tries to close the correct edit mode
+    }
+
+    public enum SelectElementType
+    {
+        New, // create a new selection with the provided element ids
+        Add, // add the provided element ids to the selection
+        Remove // remove the provided element ids from the selection
+    }
+
+    [System.Serializable]
+    [JsonDerivedType(typeof(SelectElementClientEvent), typeDiscriminator: "selectElementClientEvent")]
+    public class SelectElementClientEvent : ClientEvent
+    {
+        public SelectElementType type;
+        public List<long> selectedElementIds;
     }
 }

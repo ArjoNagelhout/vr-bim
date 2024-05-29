@@ -101,7 +101,7 @@ namespace RevitToVR
             Debug.Assert(!_elementRenderers.ContainsKey(elementId));
             // instantiate element renderer
             GameObject elementRendererObject = new GameObject();
-            elementRendererObject.transform.SetParent(transform);
+            elementRendererObject.transform.SetParent(transform, false);
             T elementRenderer = elementRendererObject.AddComponent<T>();
             elementRenderer.Initialize(this, element);
             _elementRenderers.Add(elementId, elementRenderer);

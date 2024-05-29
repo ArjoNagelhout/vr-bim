@@ -181,6 +181,7 @@ namespace RevitToVR
             
             // create renderer
             _clientDocumentRenderer = new GameObject().AddComponent<ClientDocumentRenderer>();
+            _clientDocumentRenderer.transform.localScale = new Vector3(0.05f, 0.05f, 0.05f);
             _clientDocumentRenderer.name = $"ClientDocumentRenderer ({e.documentGuid})";
             
             // set mesh repository

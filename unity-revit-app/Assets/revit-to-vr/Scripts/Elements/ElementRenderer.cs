@@ -129,7 +129,16 @@ namespace RevitToVR
         // client to server
         public void InteractableOnSelect()
         {
-            // todo: send a select event back to the server
+            UIConsole.Log("InteractableOnSelect called");
+            // todo: add the other SelectElementType types when holding a shift or control modifier key.  
+            MainServiceClient.instance.SendJson(new SelectElementClientEvent()
+            {
+                selectedElementIds = new List<long>()
+                {
+                    _element.elementId
+                },
+                type = SelectElementType.New
+            });
         }
         
         // these events are received from the server:
