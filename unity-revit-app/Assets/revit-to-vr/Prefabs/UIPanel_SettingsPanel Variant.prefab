@@ -955,11 +955,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3474706868825900441, guid: 3f5a7c7240c7d48a3b78d4c3e33a4218, type: 3}
       propertyPath: m_Size
-      value: 0.9475567
+      value: 0.9475516
       objectReference: {fileID: 0}
     - target: {fileID: 3474706868825900441, guid: 3f5a7c7240c7d48a3b78d4c3e33a4218, type: 3}
       propertyPath: m_Value
-      value: 0.9999983
+      value: 0.99944866
+      objectReference: {fileID: 0}
+    - target: {fileID: 5857827548925893220, guid: 3f5a7c7240c7d48a3b78d4c3e33a4218, type: 3}
+      propertyPath: m_PresetInfoIsWorld
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6597399178773024885, guid: 3f5a7c7240c7d48a3b78d4c3e33a4218, type: 3}
       propertyPath: m_SizeDelta.y

@@ -44,14 +44,14 @@ namespace RevitToVR
         {
             _meshFilter.sharedMesh = mesh;
             _meshCollider.sharedMesh = mesh;
-            _meshCollider.convex = true;
+            _meshCollider.convex = false;
         }
 
         void IMeshDataEventListener.OnMeshRemoved()
         {
             _meshFilter.mesh = null;
             _meshCollider.sharedMesh = null;
-            _meshCollider.convex = false;
+            _meshCollider.convex = true;
         }
 
         public override void OnSelectHoveredStateChanged(bool hovered, bool selected)

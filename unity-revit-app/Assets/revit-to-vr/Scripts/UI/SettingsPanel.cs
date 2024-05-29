@@ -83,7 +83,10 @@ namespace RevitToVR
         // should be called by the connect button
         public void RequestConnect()
         {
-            _vrApplication.RequestConnect(ipAddress);
+            if (ipAddress != "")
+            {
+                _vrApplication.RequestConnect(ipAddress);                
+            }
         }
 
         // should be called by the disconnect button
