@@ -82,11 +82,14 @@ namespace RevitToVR
 
         private void OnDestroy()
         {
-            _mainServiceClient.OnMessage -= OnMessage;
-            _mainServiceClient.OnOpen -= OnOpen;
-            _mainServiceClient.OnClose -= OnClose;
-            _mainServiceClient.Disconnect();
-            _mainServiceClient = null;
+            if (_mainServiceClient != null)
+            {
+                _mainServiceClient.OnMessage -= OnMessage;
+                _mainServiceClient.OnOpen -= OnOpen;
+                _mainServiceClient.OnClose -= OnClose;
+                _mainServiceClient.Disconnect();
+                _mainServiceClient = null;
+            }
         }
 
         private void OnOpen()

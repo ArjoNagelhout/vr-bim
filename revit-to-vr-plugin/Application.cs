@@ -16,7 +16,6 @@ using Autodesk.Revit.DB.Events;
 using revit_to_vr_common;
 using static revit_to_vr_plugin.DataConversion;
 using System.Text.Json;
-using Autodesk.Revit.Creation;
 using Document = Autodesk.Revit.DB.Document;
 
 namespace revit_to_vr_plugin
@@ -65,12 +64,7 @@ namespace revit_to_vr_plugin
         public List<long> selectedElementIds = new List<long>();
         public EditMode editMode;
 
-        // UIDocument exposes functionality for for example changing the selection state in Revit,
-        // so we need it as well in addition to the Document
-        public UIControlledApplication cachedUIControlledApplication;
-        public bool registeredIdlingEvent = false;
-        public UIApplication uiApplication;
-        public UIDocument activeUIDocument;
+        public Queue<ClientEvent> clientEventsToProcessOnIdling = new Queue<ClientEvent>();
     }
 
     // reset on each connection with the client
@@ -110,44 +104,19 @@ namespace revit_to_vr_plugin
             UIConsole.Log("RevitToVR application started");
         }
 
-        private void RegisterIdlingEvent()
-        {
-            if (applicationState.registeredIdlingEvent)
-            {
-                return;
-            }
-            UIControlledApplication app = applicationState.cachedUIControlledApplication;
-            Debug.Assert(app != null);
-            app.Idling += OnIdling;
-            applicationState.registeredIdlingEvent = true;
-        }
-
-        private void UnregisterIdlingEvent()
-        {
-            if (!applicationState.registeredIdlingEvent)
-            {
-                return;
-            }
-            UIControlledApplication app = applicationState.cachedUIControlledApplication;
-            Debug.Assert(app != null);
-            app.Idling -= OnIdling;
-            applicationState.registeredIdlingEvent = false;
-        }
-
         Result IExternalApplication.OnStartup(UIControlledApplication uiApp)
         {
             ControlledApplication app = uiApp.ControlledApplication;
             
             // register events
             uiApp.SelectionChanged += OnSelectionChanged;
+            uiApp.Idling += OnIdling;
 
             app.DocumentChanged += OnDocumentChanged;
             app.DocumentClosed += OnDocumentClosed;
             app.DocumentCreated += OnDocumentCreated;
             app.DocumentOpened += OnDocumentOpened;
 
-            // temp event for retrieving the UIApplication
-            applicationState.cachedUIControlledApplication = uiApp;
 
             // add UI elements
             uiApp.CreateRibbonTab(Constants.tabName);
@@ -175,20 +144,61 @@ namespace revit_to_vr_plugin
         // used for setting the UIApplication... gotta love the Revit API
         private void OnIdling(object sender, IdlingEventArgs args)
         {
-            Debug.Assert(sender is UIApplication);
-            UIControlledApplication uiControlledApp = applicationState.cachedUIControlledApplication;
-            Debug.Assert(uiControlledApp != null);
-
-            UIApplication uiApp = sender as UIApplication;
-            applicationState.uiApplication = uiApp;
-
-            if (uiApp.ActiveUIDocument == null)
+            Queue<ClientEvent> events = applicationState.clientEventsToProcessOnIdling;
+            if (events.Count == 0)
             {
                 return;
             }
 
-            applicationState.activeUIDocument = uiApp.ActiveUIDocument;
-            UnregisterIdlingEvent();
+            UIApplication uiApp = sender as UIApplication;
+            Debug.Assert(uiApp != null);
+
+            foreach (ClientEvent _event in events)
+            {
+                switch (_event)
+                {
+                    case SelectElementClientEvent selectElement:
+                        HandleSelectElementClientEvent(uiApp, selectElement);
+                        break;
+                    default:
+                        Debug.Assert(false, "Client event was not handled in on idling queue");
+                        break;
+                }
+            }
+            events.Clear();
+        }
+
+        private void HandleSelectElementClientEvent(UIApplication uiApp, SelectElementClientEvent e)
+        {
+            Debug.Assert(uiApp != null && uiApp.IsValidObject);
+            UIDocument activeUIDocument = uiApp.ActiveUIDocument;
+            Debug.Assert(activeUIDocument != null && activeUIDocument.IsValidObject);
+
+            // update selection inside Revit
+            Selection selection = uiApp.ActiveUIDocument.Selection;
+            HashSet<long> ids = selection
+                .GetElementIds()
+                .Select((elementId) => elementId.Value)
+                .ToHashSet();
+
+            HashSet<long> providedIds = e.selectedElementIds.ToHashSet();
+
+            switch (e.type)
+            {
+                case SelectElementType.New:
+                    // create new selection of the given element ids
+                    ids = providedIds;
+                    break;
+                case SelectElementType.Add:
+                    // add the provided ids to the current selection
+                    ids.UnionWith(providedIds);
+                    break;
+                case SelectElementType.Remove:
+                    ids.ExceptWith(providedIds);
+                    break;
+            }
+
+            selection.SetElementIds(ids.Select((value) => new ElementId(value)).ToList());
         }
 
         private void OnSelectionChanged(object sender, SelectionChangedEventArgs args)
@@ -303,9 +313,6 @@ namespace revit_to_vr_plugin
             // send event
             DocumentClosedEvent e = new DocumentClosedEvent();
             SendEventIfDesired(e);
-
-            // unregister
-            UnregisterIdlingEvent();
         }
 
         private void OnDocumentCreated(object sender, DocumentCreatedEventArgs args)
@@ -316,9 +323,6 @@ namespace revit_to_vr_plugin
 
             // send event
             SendDocumentOpenedEvent();
-
-            // register
-            RegisterIdlingEvent();
         }
 
         private void OnDocumentOpened(object sender, DocumentOpenedEventArgs args)
@@ -329,9 +333,6 @@ namespace revit_to_vr_plugin
 
             // send event
             SendDocumentOpenedEvent();
-            
-            // register
-            RegisterIdlingEvent();
         }
 
         private void SendDocumentOpenedEvent()
@@ -413,7 +414,7 @@ namespace revit_to_vr_plugin
                     HandleStopEditMode(stopEditMode);
                     break;
                 case SelectElementClientEvent selectElement:
-                    HandleSelectElement(selectElement);
+                    applicationState.clientEventsToProcessOnIdling.Enqueue(selectElement); // we can't perform this directly as we need access to the UIApplication
                     break;
             }
         }
@@ -482,42 +483,7 @@ namespace revit_to_vr_plugin
             Debug.Assert(editMode != null);
             editMode.StopEditMode();
             MainService.SendJson(new StoppedEditMode() { stoppedEditModeData = editMode.editModeData });
-            editMode = null;
-        }
-
-        private void HandleSelectElement(SelectElementClientEvent e)
-        {
-            Debug.Assert(applicationState.activeUIDocument != null);
-
-            // update selection inside Revit
-            Selection selection = applicationState.activeUIDocument.Selection;
-            HashSet<long> ids = selection
-                .GetElementIds()
-                .Select((elementId) => elementId.Value)
-                .ToHashSet();
-
-            HashSet<long> providedIds = e.selectedElementIds.ToHashSet();
-
-            switch (e.type)
-            {
-                case SelectElementType.New:
-                    // create new selection of the given element ids
-                    ids = providedIds;
-                    break;
-                case SelectElementType.Add:
-                    // add the provided ids to the current selection
-                    ids.UnionWith(providedIds);
-                    break;
-                case SelectElementType.Remove:
-                    ids.ExceptWith(providedIds);
-                    break;
-            }
-
-            selection.SetElementIds(ids.Select((value) => new ElementId(value)).ToList());
-
-            // this will automatically call the OnSelectionChanged event, so we
-            // don't have to do anything additional
-
+            applicationState.editMode = null;
         }
 
         public void OnClientConnected()
