@@ -29,7 +29,7 @@ namespace revit_to_vr_plugin
             InitializeComponent();
             DataContext = this;
             UIConsole.Instance.onTextChanged += OnTextChanged;
-            OnTextChanged(UIConsole.Instance.Text);
+            OnTextChanged(UIConsole.Instance.PermanentText + UIConsole.Instance.Text);
         }
 
         ~RevitToVRDockablePane()

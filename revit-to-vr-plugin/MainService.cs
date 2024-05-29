@@ -101,7 +101,7 @@ namespace revit_to_vr_plugin
             server = new WebSocketServer(uri);
             server.AddWebSocketService<MainService>(Configuration.mainPath);
             server.Start();
-            UIConsole.Log(string.Format("Started WebSocketServer at {0} with service MainService at {1}", uri, Configuration.mainPath));
+            UIConsole.LogPermanent(string.Format("Started WebSocketServer at {0} with service MainService at {1}", uri, Configuration.mainPath));
         }
 
         ~Server()

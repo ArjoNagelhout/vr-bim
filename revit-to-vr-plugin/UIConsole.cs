@@ -26,6 +26,17 @@ namespace revit_to_vr_plugin
 
         public delegate void OnTextChanged(string text);
 
+        private string permanentText_;
+        public string PermanentText
+        {
+            get => permanentText_;
+            set
+            {
+                permanentText_ = value;
+                onTextChanged?.Invoke(permanentText_ + text_);
+            }
+        }
+
         // properties
         private string text_;
         public string Text
@@ -34,7 +45,7 @@ namespace revit_to_vr_plugin
             set
             {
                 text_ = value;
-                onTextChanged?.Invoke(text_);
+                onTextChanged?.Invoke(permanentText_ + text_);
             }
         }
 
@@ -46,11 +57,24 @@ namespace revit_to_vr_plugin
             Instance.Text = "";
         }
 
+        public static void ClearPermanent()
+        {
+            Instance.PermanentText = "";
+        }
+
         public static void Log(string text)
         {
-            text = $"[{DateTime.Now}] {text}";
-            Instance.Text += text + "\n";
-            Debug.WriteLine(text);
+            string formatted = $"[{DateTime.Now}] {text}";
+            Instance.Text = formatted + "\n";
+            Debug.WriteLine(formatted);
+        }
+
+        // replaces the permanent text
+        public static void LogPermanent(string text)
+        {
+            string formatted = $"[{DateTime.Now}] {text}";
+            Instance.PermanentText = formatted + "\n";
+            Debug.WriteLine(formatted);
         }
 
         private static string logFileName = "revit_to_vr_plugin.log";
