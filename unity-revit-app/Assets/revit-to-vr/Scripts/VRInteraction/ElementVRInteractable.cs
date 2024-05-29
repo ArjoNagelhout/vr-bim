@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 
@@ -20,7 +21,12 @@ namespace RevitToVR
     public class ElementVRInteractable : XRBaseInteractable
     {
         public IElementVRInteractableListener listener;
-        
+
+        private void Start()
+        {
+            
+        }
+
         protected override void OnHoverEntered(HoverEnterEventArgs args)
         {
             base.OnHoverEntered(args);

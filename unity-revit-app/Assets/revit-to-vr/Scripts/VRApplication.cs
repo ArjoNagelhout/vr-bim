@@ -20,7 +20,13 @@ namespace RevitToVR
     
     public class VRApplication : MonoBehaviour
     {
-        public string ipAddress;
+        private static VRApplication _instance;
+        public static VRApplication instance => _instance;
+
+        // events for the UI
+        public Action onOpen;
+        public Action onClose;
+        public Action onMessage;
 
         // configuration to use for the connection
         public ClientConfiguration clientConfiguration;
@@ -34,6 +40,16 @@ namespace RevitToVR
         // the event we received, so that we can parse the binary data that is sent using a separate .Send() after the event
         private ServerEvent _cachedEvent;
 
+        private void Awake()
+        {
+            if (_instance != null)
+            {
+                Destroy(_instance);
+            }
+
+            _instance = this;
+        }
+        
         private void Start()
         {
             Application.targetFrameRate = 30;
@@ -41,11 +57,21 @@ namespace RevitToVR
             CreateEditModeState();
             
             UIConsole.Log("Started VRApplication");
+        }
+        public void RequestConnect(string ipAddress)
+        {
+            UIConsole.Log("OnRequestConnect");
+            
             _mainServiceClient = new MainServiceClient(ipAddress);
             _mainServiceClient.OnMessage += OnMessage;
             _mainServiceClient.OnOpen += OnOpen;
             _mainServiceClient.OnClose += OnClose;
             _mainServiceClient.Connect();
+        }
+
+        public void RequestDisconnect()
+        {
+            // todo
         }
 
         private void CreateEditModeState()
@@ -69,16 +95,21 @@ namespace RevitToVR
             
             // send configuration
             SendConfigurationDataAndStartListening();
+            
+            onOpen?.Invoke();
         }
 
         private void OnClose()
         {
             // called when the connection to the server is closed by the MainServiceClient
+            onClose?.Invoke();
         }
 
         // server to client communication
         private void OnMessage(object sender, MessageEventArgs args)
         {
+            onMessage?.Invoke();
+            
             if (args.IsText)
             {
                 // handle text
