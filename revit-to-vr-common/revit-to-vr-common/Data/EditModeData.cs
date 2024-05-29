@@ -10,7 +10,7 @@ namespace revit_to_vr_common
     [JsonDerivedType(typeof(EditModeData), typeDiscriminator: "base")]
     [JsonDerivedType(typeof(EditModeData), typeDiscriminator: "toposolidEditSketch")]
     [JsonDerivedType(typeof(EditModeData), typeDiscriminator: "toposolidModifySubElements")]
-    public abstract class EditModeData
+    public class EditModeData
     {
 
     }

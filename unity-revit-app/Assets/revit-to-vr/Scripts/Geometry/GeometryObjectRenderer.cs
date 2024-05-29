@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace RevitToVR
 {
-    public class GeometryObjectRenderer : MonoBehaviour, ISelectionChangedListener
+    public class GeometryObjectRenderer : MonoBehaviour, ISelectHoveredStateChangedListener
     {
         protected ClientDocumentRenderer _documentRenderer;
 
@@ -26,12 +26,7 @@ namespace RevitToVR
             
         }
 
-        public virtual void OnSelect()
-        {
-            
-        }
-
-        public virtual void OnDeselect()
+        public virtual void OnSelectHoveredStateChanged(bool hovered, bool selected)
         {
             
         }

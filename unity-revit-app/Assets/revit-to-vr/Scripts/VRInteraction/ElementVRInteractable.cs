@@ -9,75 +9,40 @@ namespace RevitToVR
         public bool enableYMovement = true;
         public bool enableZMovement = true;
     }
+
+    public interface IElementVRInteractableListener
+    {
+        public void InteractableOnHoverEnter();
+        public void InteractableOnHoverExit();
+        public void InteractableOnSelect();
+    }
     
     public class ElementVRInteractable : XRBaseInteractable
     {
-        [SerializeField] private MeshRenderer _meshRenderer; 
-        
-        private bool _selected = false;
-        private bool selected
-        {
-            get => _selected;
-            set
-            {
-                _selected = value;
-                UpdateMaterial();
-            }
-        }
-
-        private bool _hovered = false;
-        private bool hovered
-        {
-            get => _hovered;
-            set
-            {
-                _hovered = value;
-                UpdateMaterial();
-            }
-        }
-
-        private void UpdateMaterial()
-        {
-            Debug.Assert(_meshRenderer != null);
-            Material material = null;
-            if (selected)
-            {
-                material = UnityAssetProvider.instance.defaultMaterials.selected;
-            }
-            else if (hovered)
-            {
-                material = UnityAssetProvider.instance.defaultMaterials.hovered;
-            }
-            else
-            {
-                material = UnityAssetProvider.instance.defaultMaterials.normal;
-            }
-
-            _meshRenderer.sharedMaterial = material;
-        }
+        public IElementVRInteractableListener listener;
         
         protected override void OnHoverEntered(HoverEnterEventArgs args)
         {
             base.OnHoverEntered(args);
-            hovered = true;
+            listener?.InteractableOnHoverEnter();
         }
 
         protected override void OnHoverExited(HoverExitEventArgs args)
         {
             base.OnHoverExited(args);
-            hovered = false;
+            listener?.InteractableOnHoverExit();
         }
 
         protected override void OnSelectEntered(SelectEnterEventArgs args)
         {
             base.OnSelectEntered(args);
-            selected = true;
+            listener?.InteractableOnSelect();
         }
 
         protected override void OnSelectExited(SelectExitEventArgs args)
         {
             base.OnSelectExited(args);
-            selected = false;
+            // we don't care about this event for selecting elements
         }
     }
 }

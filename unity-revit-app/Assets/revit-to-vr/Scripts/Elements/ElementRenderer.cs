@@ -2,19 +2,60 @@ using System;
 using System.Collections.Generic;
 using revit_to_vr_common;
 using UnityEngine;
+using UnityEngine.XR.Interaction.Toolkit;
 
 namespace RevitToVR
 {
+    public interface ISelectHoveredStateChangedListener
+    {
+        public void OnSelectHoveredStateChanged(bool hovered, bool selected);
+    }
+    
     // we simply destroy and re-add elements when they're changed, so we don't need
     // to handle changes. This obviously isn't the correct way to handle this, but
     // for demonstration purposes it suffices.  
-    public class ElementRenderer : MonoBehaviour, ISelectionChangedListener
+    public class ElementRenderer : MonoBehaviour, ISelectionChangedListener, IElementVRInteractableListener
     {
         protected ClientDocumentRenderer _documentRenderer;
         
         protected VRBIM_Element _element;
 
         private List<GeometryObjectRenderer> _geometryObjectRenderers = new List<GeometryObjectRenderer>();
+
+        private ElementVRInteractable _interactable;
+
+        // not ground truth, but used for updating the mesh renderers in the GeometryObjects
+        private bool _cachedSelected = false;
+
+        private bool cachedSelected
+        {
+            get => _cachedSelected;
+            set
+            {
+                _cachedSelected = value;
+                OnSelectHoveredStateChanged();
+            }
+        }
+
+        private bool _cachedHovered = false;
+
+        private bool cachedHovered
+        {
+            get => _cachedHovered;
+            set
+            {
+                _cachedHovered = value;
+                OnSelectHoveredStateChanged();
+            }
+        }
+
+        private void OnSelectHoveredStateChanged()
+        {
+            foreach (GeometryObjectRenderer obj in _geometryObjectRenderers)
+            {
+                obj.OnSelectHoveredStateChanged(cachedHovered, cachedSelected);
+            }
+        }
 
         // can't use constructors
         public void Initialize(ClientDocumentRenderer documentRenderer, VRBIM_Element element)
@@ -41,12 +82,15 @@ namespace RevitToVR
                 }                
             }
             
+            // add interactable, register events
+            _interactable = gameObject.AddComponent<ElementVRInteractable>();
+            _interactable.listener = this;
+            
             OnInitialize();
         }
 
         protected virtual void OnInitialize()
         {
-            // remove interactable
             
         }
 
@@ -62,8 +106,9 @@ namespace RevitToVR
 
         protected virtual void OnDestroy()
         {
-            // add interactable
-            //gameObject.AddComponent<
+            // deregister interactable
+            _interactable.listener = null;
+            Destroy(_interactable);
             
             foreach (GeometryObjectRenderer geometryObjectRenderer in _geometryObjectRenderers)
             {
@@ -71,20 +116,31 @@ namespace RevitToVR
             }
         }
 
+        public void InteractableOnHoverEnter()
+        {
+            cachedHovered = true;
+        }
+
+        public void InteractableOnHoverExit()
+        {
+            cachedHovered = false;
+        }
+
+        // client to server
+        public void InteractableOnSelect()
+        {
+            // todo: send a select event back to the server
+        }
+        
+        // these events are received from the server:
         public virtual void OnSelect()
         {
-            foreach (GeometryObjectRenderer geometryObjectRenderer in _geometryObjectRenderers)
-            {
-                geometryObjectRenderer.OnSelect();
-            }
+            cachedSelected = true;
         }
 
         public virtual void OnDeselect()
         {
-            foreach (GeometryObjectRenderer geometryObjectRenderer in _geometryObjectRenderers)
-            {
-                geometryObjectRenderer.OnDeselect();
-            }
+            cachedSelected = false;
         }
     }
 }

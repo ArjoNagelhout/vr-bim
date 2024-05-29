@@ -53,19 +53,24 @@ namespace RevitToVR
             _meshCollider.sharedMesh = null;
             _meshCollider.convex = false;
         }
-        
-        // ISelectionChangedListener
 
-        public override void OnSelect()
+        public override void OnSelectHoveredStateChanged(bool hovered, bool selected)
         {
-            base.OnSelect();
-            _meshRenderer.material = UnityAssetProvider.instance.defaultMaterials.selected;
-        }
+            Material material = null;
+            if (selected)
+            {
+                material = UnityAssetProvider.instance.defaultMaterials.selected;
+            }
+            else if (hovered)
+            {
+                material = UnityAssetProvider.instance.defaultMaterials.hovered;
+            }
+            else
+            {
+                material = UnityAssetProvider.instance.defaultMaterials.normal;
+            }
 
-        public override void OnDeselect()
-        {
-            base.OnDeselect();
-            _meshRenderer.material = UnityAssetProvider.instance.defaultMaterials.normal;
+            _meshRenderer.sharedMaterial = material;
         }
     }
 }
