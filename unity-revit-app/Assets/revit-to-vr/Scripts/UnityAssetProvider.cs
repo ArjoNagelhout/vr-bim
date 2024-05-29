@@ -5,12 +5,26 @@ using UnityEngine;
 
 namespace RevitToVR
 {
+    [System.Serializable]
+    public class StateMaterials
+    {
+        public Material normal;
+        public Material hovered;
+        public Material selected;
+    }
+
     public class UnityAssetProvider : MonoBehaviour
     {
-        // assets
-        public Material defaultMaterial;
+        // default mesh material 
+        public StateMaterials defaultMaterials;
+        
+        // editing of toposolid
 
-        public Material defaultSelectedMaterial;
+        public StateMaterials curveMaterials; // for editing the sketch
+
+        public StateMaterials slabShapeVertexMaterials;
+
+        public StateMaterials slabShapeCreaseMaterials;
         
         // singleton implementation
         

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text.Json;
 using revit_to_vr_common;
+using UnityEngine;
 using WebSocketSharp;
 
 namespace RevitToVR
@@ -10,6 +11,9 @@ namespace RevitToVR
     // receives data changes
     public class MainServiceClient
     {
+        private static MainServiceClient _instance;
+        public static MainServiceClient instance => _instance;
+        
         private WebSocket socket;
         private string uri;
 
@@ -23,6 +27,9 @@ namespace RevitToVR
         
         public MainServiceClient(string ipAddress)
         {
+            Debug.Assert(_instance == null);
+            _instance = this;
+            
             uri = Configuration.protocolPrefix + ipAddress + Configuration.mainPath;
             socket = new WebSocket(uri);
             socket.WaitTime = TimeSpan.FromSeconds(5);

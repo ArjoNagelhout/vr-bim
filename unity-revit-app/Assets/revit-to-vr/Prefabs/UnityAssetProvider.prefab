@@ -44,5 +44,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7fcd3c63fc81b4e74a36ad6ad2711882, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  defaultMaterial: {fileID: 2100000, guid: d4068de136b6e412fb6dd9557f6be928, type: 2}
-  defaultSelectedMaterial: {fileID: 2100000, guid: 89024b733b985404b83c105b9f6e6f5f, type: 2}
+  defaultMaterials:
+    normal: {fileID: 2100000, guid: d4068de136b6e412fb6dd9557f6be928, type: 2}
+    hovered: {fileID: 2100000, guid: 6f03915a53b3443ee9a6a689f422bbb8, type: 2}
+    selected: {fileID: 2100000, guid: 89024b733b985404b83c105b9f6e6f5f, type: 2}
+  curveMaterials:
+    normal: {fileID: 2100000, guid: 2ce330390b14b41cf863a8444280d43d, type: 2}
+    hovered: {fileID: 2100000, guid: 846f0d5ac10c54324b71667d32210e43, type: 2}
+    selected: {fileID: 2100000, guid: 1cb3e7f345086455cbe49d0ece9d074f, type: 2}
+  slabShapeVertexMaterials:
+    normal: {fileID: 2100000, guid: 31e480b6a361f42d79bd8f330893d7b8, type: 2}
+    hovered: {fileID: 2100000, guid: 02f9afa651b5544ef92f9f36042ee06a, type: 2}
+    selected: {fileID: 2100000, guid: 457d25dc10e6d4f15b8d50bca3500caf, type: 2}
+  slabShapeCreaseMaterials:
+    normal: {fileID: 2100000, guid: 2307ddf13aca8454d963cb47ee974f42, type: 2}
+    hovered: {fileID: 2100000, guid: cc428f6cc96804991afa522d39d263e4, type: 2}
+    selected: {fileID: 2100000, guid: a5cecec2b321a4efd92a9607ae5f7c1b, type: 2}

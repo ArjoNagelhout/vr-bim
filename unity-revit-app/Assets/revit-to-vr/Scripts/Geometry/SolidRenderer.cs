@@ -12,12 +12,14 @@ namespace RevitToVR
 
         private MeshFilter _meshFilter;
         private MeshRenderer _meshRenderer;
+        private MeshCollider _meshCollider;
 
         protected void Awake()
         {
             _meshFilter = gameObject.AddComponent<MeshFilter>();
             _meshRenderer = gameObject.AddComponent<MeshRenderer>();
-            _meshRenderer.material = UnityAssetProvider.instance.defaultMaterial;
+            _meshRenderer.material = UnityAssetProvider.instance.defaultMaterials.normal;
+            _meshCollider = gameObject.AddComponent<MeshCollider>();
         }
 
         protected override void OnInitialize()
@@ -40,12 +42,16 @@ namespace RevitToVR
 
         void IMeshDataEventListener.OnMeshAdded(Mesh mesh)
         {
-            _meshFilter.mesh = mesh;
+            _meshFilter.sharedMesh = mesh;
+            _meshCollider.sharedMesh = mesh;
+            _meshCollider.convex = true;
         }
 
         void IMeshDataEventListener.OnMeshRemoved()
         {
             _meshFilter.mesh = null;
+            _meshCollider.sharedMesh = null;
+            _meshCollider.convex = false;
         }
         
         // ISelectionChangedListener
@@ -53,13 +59,13 @@ namespace RevitToVR
         public override void OnSelect()
         {
             base.OnSelect();
-            _meshRenderer.material = UnityAssetProvider.instance.defaultSelectedMaterial;
+            _meshRenderer.material = UnityAssetProvider.instance.defaultMaterials.selected;
         }
 
         public override void OnDeselect()
         {
             base.OnDeselect();
-            _meshRenderer.material = UnityAssetProvider.instance.defaultMaterial;
+            _meshRenderer.material = UnityAssetProvider.instance.defaultMaterials.normal;
         }
     }
 }

@@ -46,6 +46,7 @@ namespace RevitToVR
 
         protected virtual void OnInitialize()
         {
+            // remove interactable
             
         }
 
@@ -61,6 +62,9 @@ namespace RevitToVR
 
         protected virtual void OnDestroy()
         {
+            // add interactable
+            //gameObject.AddComponent<
+            
             foreach (GeometryObjectRenderer geometryObjectRenderer in _geometryObjectRenderers)
             {
                 Destroy(geometryObjectRenderer.gameObject);
