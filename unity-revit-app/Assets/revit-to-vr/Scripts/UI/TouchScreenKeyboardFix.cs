@@ -46,22 +46,28 @@ namespace RevitToVR
             _inputField = GetComponent<TMP_InputField>();
             Debug.Assert(_inputField != null);
             _inputField.onSelect.AddListener(ScheduleEnableTouchScreenKeyboard);
+            _inputField.onDeselect.AddListener(OnDeselect);
             _trigger.action.Enable();
-            
-            UIConsole.Log("Started TouchScreenKeyboardFix");
         }
 
         private void StopListening()
         {
             _listeningToTextChanges = false;
             _keyboard = null;
+            UIConsole.Log("Stop Listening");
         }
 
         private void OnDestroy()
         {
             _stopAllListening -= StopListening;
             _inputField.onSelect.RemoveListener(ScheduleEnableTouchScreenKeyboard);
+            _inputField.onDeselect.RemoveListener(OnDeselect);
             Unschedule();
+        }
+
+        private void OnDeselect(string why)
+        {
+            UIConsole.Log("OnDeselect");
         }
 
         private void Unschedule()
@@ -70,15 +76,22 @@ namespace RevitToVR
             {
                 _trigger.action.canceled -= OnTriggerCanceled;
                 _enableKeyboardScheduled = false;
+                UIConsole.Log("Unschedule");
             }
         }
         
         private void ScheduleEnableTouchScreenKeyboard(string text)
         {
+            if (_listeningToTextChanges)
+            {
+                UIConsole.Log("Don't schedule");
+                return;
+            }
+            
             _enableKeyboardScheduled = true;
             _trigger.action.canceled += OnTriggerCanceled;
             Debug.Assert(_trigger.action.enabled);
-            UIConsole.Log("Scheduled keyboard fix");
+            UIConsole.Log("Scheduled");
         }
 
         private void Update()
@@ -90,7 +103,6 @@ namespace RevitToVR
         {
             Debug.Assert(context.phase == InputActionPhase.Canceled);
             Debug.Assert(_enableKeyboardScheduled);
-            UIConsole.Log("OnTriggerValueCanceled");
             
             // the provided string argument from the TMP_InputField.onSelect is probably the input field's text
             // but there is no documentation, as per usual, so we just grab the text
@@ -102,13 +114,22 @@ namespace RevitToVR
             }
             _stopAllListening?.Invoke();
             
-            _keyboard = TouchScreenKeyboard.Open(_inputField.text, TouchScreenKeyboardType.Default);
-            
-            UIConsole.Log("Opened keyboard");
-            EventSystem.current.SetSelectedGameObject(null);
+            DeselectAll();
             
             _listeningToTextChanges = true;
             Unschedule();
+            
+            _keyboard = TouchScreenKeyboard.Open(_inputField.text, TouchScreenKeyboardType.Default);
+            UIConsole.Log("Opened keyboard");
+            DeselectAll();
+        }
+
+        private void DeselectAll()
+        {
+            EventSystem.current.SetSelectedGameObject(null);
+            EventSystem.current.firstSelectedGameObject = null;
+            
+            UIConsole.Log("DeselectAll");
         }
 
         private void ListenToKeyPresses()
@@ -120,11 +141,13 @@ namespace RevitToVR
             
             if (_keyboard == null)
             {
+                StopListening();
                 return;
             }
 
             if (!_keyboard.active)
             {
+                StopListening();
                 return;
             }
 

@@ -80,3 +80,10 @@ get ip address on Windows:
 ```
 ipconfig
 ```
+
+
+# Android debugging
+
+adb:
+
+/Applications/Unity/Hub/Editor/2022.3.28f1/PlaybackEngines/AndroidPlayer/SDK/platform-tools/adb

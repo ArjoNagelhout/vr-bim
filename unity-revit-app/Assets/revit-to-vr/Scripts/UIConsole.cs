@@ -38,7 +38,7 @@ namespace RevitToVR
         {
             Clear();
             Instance.Text += text + "\n";
-            Debug.Log(text);
+            Debug.Log("UIConsole: " + text);
             
         }
 
