@@ -32,6 +32,20 @@ namespace RevitToVR
         private TouchScreenKeyboard _keyboard;
         private TMP_InputField _inputField;
 
+        private static GameObject _dummyObject;
+        private static GameObject dummyObject
+        {
+            get
+            {
+                if (_dummyObject == null)
+                {
+                    _dummyObject = new GameObject("TouchScreenKeyboardFix_DummyObject");
+                }
+                
+                return _dummyObject;
+            }
+        }
+
         private static event Action _stopAllListening;
         
         [FormerlySerializedAs("_triggerValue")] [SerializeField] private InputActionReference _trigger;
@@ -55,6 +69,8 @@ namespace RevitToVR
             _listeningToTextChanges = false;
             _keyboard = null;
             UIConsole.Log("Stop Listening");
+            
+            DeselectAll();
         }
 
         private void OnDestroy()
@@ -126,9 +142,8 @@ namespace RevitToVR
 
         private void DeselectAll()
         {
-            EventSystem.current.SetSelectedGameObject(null);
-            EventSystem.current.firstSelectedGameObject = null;
-            
+            EventSystem.current.SetSelectedGameObject(dummyObject); // we attempt to use dummy object because setting it to null doesn't work for some reason. Maybe not needed anymore
+            _inputField.OnDeselect(new BaseEventData(EventSystem.current)); // needed because Unity and TextMeshPro are stupid
             UIConsole.Log("DeselectAll");
         }
 
