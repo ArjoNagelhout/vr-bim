@@ -68,7 +68,7 @@ namespace RevitToVR
         {
             _listeningToTextChanges = false;
             _keyboard = null;
-            UIConsole.Log("Stop Listening");
+            // UIConsole.Log("Stop Listening");
             
             DeselectAll();
         }
@@ -83,7 +83,7 @@ namespace RevitToVR
 
         private void OnDeselect(string why)
         {
-            UIConsole.Log("OnDeselect");
+            // UIConsole.Log("OnDeselect");
         }
 
         private void Unschedule()
@@ -92,7 +92,7 @@ namespace RevitToVR
             {
                 _trigger.action.canceled -= OnTriggerCanceled;
                 _enableKeyboardScheduled = false;
-                UIConsole.Log("Unschedule");
+                // UIConsole.Log("Unschedule");
             }
         }
         
@@ -100,14 +100,14 @@ namespace RevitToVR
         {
             if (_listeningToTextChanges)
             {
-                UIConsole.Log("Don't schedule");
+                // UIConsole.Log("Don't schedule");
                 return;
             }
             
             _enableKeyboardScheduled = true;
             _trigger.action.canceled += OnTriggerCanceled;
             Debug.Assert(_trigger.action.enabled);
-            UIConsole.Log("Scheduled");
+            // UIConsole.Log("Scheduled");
         }
 
         private void Update()
@@ -136,15 +136,15 @@ namespace RevitToVR
             Unschedule();
             
             _keyboard = TouchScreenKeyboard.Open(_inputField.text, TouchScreenKeyboardType.Default);
-            UIConsole.Log("Opened keyboard");
+            // UIConsole.Log("Opened keyboard");
             DeselectAll();
         }
 
         private void DeselectAll()
         {
             EventSystem.current.SetSelectedGameObject(dummyObject); // we attempt to use dummy object because setting it to null doesn't work for some reason. Maybe not needed anymore
-            _inputField.OnDeselect(new BaseEventData(EventSystem.current)); // needed because Unity and TextMeshPro are stupid
-            UIConsole.Log("DeselectAll");
+            _inputField.OnDeselect(new BaseEventData(EventSystem.current)); // needed for some reason, because apparently setting the selected game object to something different isn't enough...
+            // UIConsole.Log("DeselectAll");
         }
 
         private void ListenToKeyPresses()
