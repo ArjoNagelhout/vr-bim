@@ -530,7 +530,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1dd2336254add4aa6b292266fd1cb683, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _triggerValue: {fileID: 7904272356298805229, guid: c348712bda248c246b8c49b3db54643f, type: 3}
+  _trigger: {fileID: 83097790271614945, guid: c348712bda248c246b8c49b3db54643f, type: 3}
 --- !u!114 &3380215715214208481
 MonoBehaviour:
   m_ObjectHideFlags: 0

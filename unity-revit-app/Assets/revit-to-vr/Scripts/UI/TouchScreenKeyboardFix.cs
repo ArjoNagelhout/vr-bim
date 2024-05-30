@@ -3,8 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Controls;
+using UnityEngine.Serialization;
 
 namespace RevitToVR
 {
@@ -29,22 +31,35 @@ namespace RevitToVR
     {
         private TouchScreenKeyboard _keyboard;
         private TMP_InputField _inputField;
-        [SerializeField] private InputActionReference _triggerValue;
+
+        private static event Action _stopAllListening;
+        
+        [FormerlySerializedAs("_triggerValue")] [SerializeField] private InputActionReference _trigger;
 
         private bool _enableKeyboardScheduled = false;
+        private bool _listeningToTextChanges = false;
 
         private void Start()
         {
+            _stopAllListening += StopListening; 
+            
             _inputField = GetComponent<TMP_InputField>();
             Debug.Assert(_inputField != null);
             _inputField.onSelect.AddListener(ScheduleEnableTouchScreenKeyboard);
-            _triggerValue.action.Enable();
+            _trigger.action.Enable();
             
             UIConsole.Log("Started TouchScreenKeyboardFix");
         }
 
+        private void StopListening()
+        {
+            _listeningToTextChanges = false;
+            _keyboard = null;
+        }
+
         private void OnDestroy()
         {
+            _stopAllListening -= StopListening;
             _inputField.onSelect.RemoveListener(ScheduleEnableTouchScreenKeyboard);
             Unschedule();
         }
@@ -53,8 +68,7 @@ namespace RevitToVR
         {
             if (_enableKeyboardScheduled)
             {
-                _triggerValue.action.performed -= OnTriggerValuePerformed;
-                _triggerValue.action.canceled -= OnTriggerValueCanceled;
+                _trigger.action.canceled -= OnTriggerCanceled;
                 _enableKeyboardScheduled = false;
             }
         }
@@ -62,21 +76,21 @@ namespace RevitToVR
         private void ScheduleEnableTouchScreenKeyboard(string text)
         {
             _enableKeyboardScheduled = true;
-            _triggerValue.action.performed += OnTriggerValuePerformed;
-            _triggerValue.action.canceled += OnTriggerValueCanceled;
-            Debug.Assert(_triggerValue.action.enabled);
+            _trigger.action.canceled += OnTriggerCanceled;
+            Debug.Assert(_trigger.action.enabled);
             UIConsole.Log("Scheduled keyboard fix");
         }
 
-        private void OnTriggerValueCanceled(InputAction.CallbackContext context)
+        private void Update()
+        {
+            ListenToKeyPresses();
+        }
+
+        private void OnTriggerCanceled(InputAction.CallbackContext context)
         {
             Debug.Assert(context.phase == InputActionPhase.Canceled);
+            Debug.Assert(_enableKeyboardScheduled);
             UIConsole.Log("OnTriggerValueCanceled");
-            
-            if (!_enableKeyboardScheduled)
-            {
-                return;
-            }
             
             // the provided string argument from the TMP_InputField.onSelect is probably the input field's text
             // but there is no documentation, as per usual, so we just grab the text
@@ -86,25 +100,35 @@ namespace RevitToVR
                 _keyboard.active = false;
                 _keyboard = null;
             }
+            _stopAllListening?.Invoke();
+            
             _keyboard = TouchScreenKeyboard.Open(_inputField.text, TouchScreenKeyboardType.Default);
+            
             UIConsole.Log("Opened keyboard");
+            EventSystem.current.SetSelectedGameObject(null);
+            
+            _listeningToTextChanges = true;
             Unschedule();
         }
 
-        private void OnTriggerValuePerformed(InputAction.CallbackContext context)
+        private void ListenToKeyPresses()
         {
-            Debug.Assert(context.phase == InputActionPhase.Performed);
-            UIConsole.Log("OnTriggerValuePerformed");
-
-            float axisValue = context.ReadValue<float>();
-            UIConsole.Log($"axis value: {axisValue.ToString()}");
-
-            if (axisValue != 0.0f)
+            if (!_listeningToTextChanges)
             {
                 return;
             }
             
-            
+            if (_keyboard == null)
+            {
+                return;
+            }
+
+            if (!_keyboard.active)
+            {
+                return;
+            }
+
+            _inputField.text = _keyboard.text;
         }
     }
 }
