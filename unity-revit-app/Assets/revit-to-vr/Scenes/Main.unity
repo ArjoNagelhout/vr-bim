@@ -2471,6 +2471,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7360904541342592381, guid: 24f982a80e36e4ea9b2e0b5cb5d500f7, type: 3}
+      propertyPath: _onRightControllerTriggerUp
+      value: 
+      objectReference: {fileID: -2439264783773714294, guid: 0be0028c24f2a4c14a96b6aa39055933, type: 3}
     - target: {fileID: 7884899276965416474, guid: 24f982a80e36e4ea9b2e0b5cb5d500f7, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -2557,7 +2561,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8155767449114046531, guid: 24f982a80e36e4ea9b2e0b5cb5d500f7, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0.954
+      value: 1.097
       objectReference: {fileID: 0}
     - target: {fileID: 8155767449114046531, guid: 24f982a80e36e4ea9b2e0b5cb5d500f7, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
