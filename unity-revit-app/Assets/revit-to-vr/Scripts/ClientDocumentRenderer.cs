@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using revit_to_vr_common;
 using UnityEngine;
@@ -19,7 +20,7 @@ namespace RevitToVR
             new Dictionary<VRBIM_MeshId, IMeshDataEventListener>();
         
         // elements
-        private Dictionary<long, ElementRenderer> _elementRenderers = new Dictionary<long, ElementRenderer>();
+        [NonSerialized] public Dictionary<long, ElementRenderer> ElementRenderers = new Dictionary<long, ElementRenderer>();
         private IMeshRepository _meshRepositoryImplementation;
         
         // register listeners for mesh data events
@@ -98,45 +99,45 @@ namespace RevitToVR
 
         private void AddElementRenderer<T>(long elementId, VRBIM_Element element) where T : ElementRenderer
         {
-            Debug.Assert(!_elementRenderers.ContainsKey(elementId));
+            Debug.Assert(!ElementRenderers.ContainsKey(elementId));
             // instantiate element renderer
             GameObject elementRendererObject = new GameObject();
             elementRendererObject.transform.SetParent(transform, false);
             T elementRenderer = elementRendererObject.AddComponent<T>();
             elementRenderer.Initialize(this, element);
-            _elementRenderers.Add(elementId, elementRenderer);
+            ElementRenderers.Add(elementId, elementRenderer);
         }
 
         void IClientDocumentListener.ElementRemoved(long elementId)
         {
-            Debug.Assert(_elementRenderers.ContainsKey(elementId));
-            Destroy(_elementRenderers[elementId].gameObject);
-            _elementRenderers.Remove(elementId);
+            Debug.Assert(ElementRenderers.ContainsKey(elementId));
+            Destroy(ElementRenderers[elementId].gameObject);
+            ElementRenderers.Remove(elementId);
         }
 
         void IClientDocumentListener.OnClose()
         {
             // destroy all created renderers
-            foreach (KeyValuePair<long, ElementRenderer> entry in _elementRenderers)
+            foreach (KeyValuePair<long, ElementRenderer> entry in ElementRenderers)
             {
                 Destroy(entry.Value.gameObject);
             }
-            _elementRenderers.Clear();
+            ElementRenderers.Clear();
         }
 
         void IClientDocumentListener.ElementSelected(long elementId)
         {
-            if (_elementRenderers.TryGetValue(elementId, out ElementRenderer elementRenderer))
+            if (ElementRenderers.TryGetValue(elementId, out ElementRenderer elementRenderer))
             {
-                (elementRenderer as ISelectionChangedListener).OnSelect();
+                (elementRenderer as IElementSelectionChangedListener).OnSelect();
             }
         }
 
         void IClientDocumentListener.ElementDeselected(long elementId)
         {
-            if (_elementRenderers.TryGetValue(elementId, out ElementRenderer elementRenderer))
+            if (ElementRenderers.TryGetValue(elementId, out ElementRenderer elementRenderer))
             {
-                (elementRenderer as ISelectionChangedListener).OnDeselect();
+                (elementRenderer as IElementSelectionChangedListener).OnDeselect();
             }
         }
     }

@@ -14,7 +14,7 @@ namespace RevitToVR
     // we simply destroy and re-add elements when they're changed, so we don't need
     // to handle changes. This obviously isn't the correct way to handle this, but
     // for demonstration purposes it suffices.  
-    public class ElementRenderer : MonoBehaviour, ISelectionChangedListener, IElementVRInteractableListener
+    public class ElementRenderer : MonoBehaviour, IElementSelectionChangedListener, IElementVRInteractableListener
     {
         protected ClientDocumentRenderer _documentRenderer;
         

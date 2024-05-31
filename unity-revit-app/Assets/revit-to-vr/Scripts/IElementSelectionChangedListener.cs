@@ -1,7 +1,7 @@
 namespace RevitToVR
 {
     
-    public interface ISelectionChangedListener
+    public interface IElementSelectionChangedListener
     {
         // gets called on the specific element
         public void OnSelect();

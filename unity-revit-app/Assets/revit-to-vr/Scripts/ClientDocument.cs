@@ -22,7 +22,7 @@ namespace RevitToVR
 
         void OnClose();
     }
-    
+
     public class ClientDocument : IDisposable
     {
         public IClientDocumentListener Listener;

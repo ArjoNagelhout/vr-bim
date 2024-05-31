@@ -218,6 +218,9 @@ namespace RevitToVR
             _clientDocumentRenderer.transform.localScale = new Vector3(0.05f, 0.05f, 0.05f);
             _clientDocumentRenderer.name = $"ClientDocumentRenderer ({e.documentGuid})";
             
+            // todo: move, this is hacky
+            PropertiesPanel.Instance.ClientDocumentRenderer = _clientDocumentRenderer;
+            
             // set mesh repository
             _meshRepository = _clientDocumentRenderer;
             
@@ -250,6 +253,9 @@ namespace RevitToVR
         {
             UIConsole.Log("Handle SelectionChangedEvent");
             _clientDocument.Apply(e);
+            
+            // move this somewhere else
+            PropertiesPanel.Instance.OnSelectionChanged(e.selectedElementIds);
         }
 
         private void Handle(SendMeshDataEvent e)
