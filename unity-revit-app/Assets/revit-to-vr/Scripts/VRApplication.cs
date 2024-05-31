@@ -75,6 +75,7 @@ namespace RevitToVR
             Handle(new DocumentClosedEvent());
             OnDestroy();
             OnClose();
+            UIConsole.Clear();
         }
 
         private void CreateEditModeState()
@@ -135,7 +136,7 @@ namespace RevitToVR
                     return;
                 }
 
-                UIConsole.Log("VRApplication > OnMessage: Received json: " + json);
+                //UIConsole.Log("VRApplication > OnMessage: Received json: " + json);
 
                 JsonSerializerOptions options = Configuration.jsonSerializerOptions;
                 revit_to_vr_common.ServerEvent e =
