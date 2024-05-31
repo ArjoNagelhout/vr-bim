@@ -386,7 +386,8 @@ namespace RevitToVR
 
             // mesh.RecalculateBounds();
 
-            mesh.UploadMeshData(true);
+            mesh.UploadMeshData(false);
+            Debug.Assert(mesh.isReadable);
 
             _meshRepository.AddMesh(e.descriptor.id, mesh);
         }

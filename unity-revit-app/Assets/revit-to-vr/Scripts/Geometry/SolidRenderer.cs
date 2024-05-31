@@ -21,6 +21,10 @@ namespace RevitToVR
             _meshRenderer.material = UnityAssetProvider.instance.defaultMaterials.normal;
             _meshCollider = gameObject.AddComponent<MeshCollider>();
             _meshCollider.sharedMesh = null;
+            _meshCollider.cookingOptions = MeshColliderCookingOptions.EnableMeshCleaning |
+                                           MeshColliderCookingOptions.CookForFasterSimulation |
+                                           MeshColliderCookingOptions.UseFastMidphase |
+                                           MeshColliderCookingOptions.WeldColocatedVertices;
         }
 
         protected override void OnInitialize()
@@ -47,6 +51,7 @@ namespace RevitToVR
             _meshFilter.sharedMesh = mesh;
             _meshCollider.sharedMesh = mesh;
             _meshCollider.convex = false;
+            Debug.Assert(_meshCollider.sharedMesh.isReadable);
             UIConsole.Log(_meshCollider.sharedMesh.name);
         }
 

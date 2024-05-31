@@ -65,6 +65,10 @@ namespace RevitToVR
             
             name = $"{_element.name} ({_element.elementId})";
             
+            // add interactable, register events
+            
+            // _interactable.colliders.Clear();
+            
             // create GeometryObjectRenderer for each geometry object
             if (_element.geometries != null)
             {
@@ -82,7 +86,6 @@ namespace RevitToVR
                 }                
             }
             
-            // add interactable, register events
             _interactable = gameObject.AddComponent<ElementVRInteractable>();
             _interactable.listener = this;
             
@@ -102,6 +105,7 @@ namespace RevitToVR
             T r = o.AddComponent<T>();
             r.Initialize(_documentRenderer, geometry);
             _geometryObjectRenderers.Add(r);
+            //_interactable.colliders.Add(r.GetComponent<MeshCollider>());
         }
 
         protected virtual void OnDestroy()
