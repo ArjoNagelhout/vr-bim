@@ -89,6 +89,10 @@ namespace RevitToVR
                 
                 elements.Add(key, changedElement.Value);
                 Listener?.ElementAdded(key, changedElement.Value);
+                if (selectedElementIds.Contains(key))
+                {
+                    Listener?.ElementSelected(key);
+                }
             }
         }
 
