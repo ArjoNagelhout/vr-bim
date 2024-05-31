@@ -72,6 +72,9 @@ namespace RevitToVR
         public void RequestDisconnect()
         {
             // todo
+            Handle(new DocumentClosedEvent());
+            OnDestroy();
+            OnClose();
         }
 
         private void CreateEditModeState()
@@ -376,7 +379,8 @@ namespace RevitToVR
             };
 
             mesh.bounds = bounds;
-
+            VRBIM_MeshId id = e.descriptor.id;
+            mesh.name = id.IsTemporary ? $"temporary mesh: {id.temporaryId.ToString()}" : $"mesh: {id.id.ToString()}";
             mesh.SetSubMesh(0, subMeshDescriptor, MeshUpdateFlags.DontRecalculateBounds);
 
             // mesh.RecalculateBounds();

@@ -88,6 +88,8 @@ namespace RevitToVR
         {
             string json = JsonSerializer.Serialize(data, Configuration.jsonSerializerOptions);
 
+            //UIConsole.Log($"sending json: {json}");
+            
             // to check why deserialization might fail:
             //try
             //{

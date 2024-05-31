@@ -45,6 +45,7 @@ namespace RevitToVR
             _meshFilter.sharedMesh = mesh;
             _meshCollider.sharedMesh = mesh;
             _meshCollider.convex = false;
+            UIConsole.Log(_meshCollider.sharedMesh.name);
         }
 
         void IMeshDataEventListener.OnMeshRemoved()
