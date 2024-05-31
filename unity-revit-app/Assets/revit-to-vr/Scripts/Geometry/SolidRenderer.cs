@@ -20,6 +20,7 @@ namespace RevitToVR
             _meshRenderer = gameObject.AddComponent<MeshRenderer>();
             _meshRenderer.material = UnityAssetProvider.instance.defaultMaterials.normal;
             _meshCollider = gameObject.AddComponent<MeshCollider>();
+            _meshCollider.sharedMesh = null;
         }
 
         protected override void OnInitialize()
@@ -42,6 +43,7 @@ namespace RevitToVR
 
         void IMeshDataEventListener.OnMeshAdded(Mesh mesh)
         {
+            _meshCollider.sharedMesh = null;
             _meshFilter.sharedMesh = mesh;
             _meshCollider.sharedMesh = mesh;
             _meshCollider.convex = false;
