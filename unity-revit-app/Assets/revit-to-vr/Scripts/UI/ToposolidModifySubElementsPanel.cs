@@ -4,18 +4,29 @@ using UnityEngine;
 
 namespace RevitToVR
 {
+    public interface IToposolidModifySubElementsPanelListener
+    {
+        public void OnFinish();
+
+        public void OnCancel();
+        
+        // add modify sub elements buttons here
+    }
+    
     public class ToposolidModifySubElementsPanel : MonoBehaviour
     {
-        // Start is called before the first frame update
-        void Start()
+        public IToposolidModifySubElementsPanelListener Listener;
+
+        public void Finish()
         {
-        
+            Listener?.OnFinish();
         }
 
-        // Update is called once per frame
-        void Update()
+        public void Cancel()
         {
-        
+            Listener?.OnCancel();
         }
+        
+        // add modify sub elements buttons / actions here
     }
 }

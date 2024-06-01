@@ -240,7 +240,7 @@ GameObject:
   - component: {fileID: 6966748486164663430}
   - component: {fileID: 602204637617411354}
   m_Layer: 5
-  m_Name: TopoSolid_EditMode_EditSketch_UI
+  m_Name: TopoSolid_EditMode_EditSketch_UIPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
