@@ -60,3 +60,5 @@ MonoBehaviour:
     normal: {fileID: 2100000, guid: 2307ddf13aca8454d963cb47ee974f42, type: 2}
     hovered: {fileID: 2100000, guid: cc428f6cc96804991afa522d39d263e4, type: 2}
     selected: {fileID: 2100000, guid: a5cecec2b321a4efd92a9607ae5f7c1b, type: 2}
+  toposolidEditSketchRendererUIPrefab: {fileID: 4632605192995311263, guid: f4dc61bd92e0646cda4813cd3dadf318, type: 3}
+  toposolidModifySubElementsUIPrefab: {fileID: 0}

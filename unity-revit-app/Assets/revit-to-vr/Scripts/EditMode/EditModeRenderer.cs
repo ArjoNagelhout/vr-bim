@@ -18,12 +18,12 @@ namespace RevitToVR
             
         }
         
-        public virtual void StartEditMode()
+        public virtual void OnStartedEditMode()
         {
             
         }
 
-        public virtual void StopEditMode()
+        public virtual void OnStoppedEditMode()
         {
             
         }

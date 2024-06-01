@@ -15,6 +15,7 @@ namespace revit_to_vr_common
     [JsonDerivedType(typeof(SendMeshDataEvent), typeDiscriminator: "sendMeshData")]
     [JsonDerivedType(typeof(StartedEditMode), typeDiscriminator: "startedEditMode")]
     [JsonDerivedType(typeof(StoppedEditMode), typeDiscriminator: "stoppedEditMode")]
+    [JsonDerivedType(typeof(StartEditModeNotAllowed), typeDiscriminator: "startEditModeNotAllowed")]
     [System.Serializable]
     public class ServerEvent
     {
@@ -63,6 +64,13 @@ namespace revit_to_vr_common
     public class StartedEditMode : ServerEvent
     {
         public EditModeData populatedEditModeData;
+    }
+
+    [System.Serializable]
+    [JsonDerivedType(typeof(StartEditModeNotAllowed), typeDiscriminator: "startEditModeNotAllowed")]
+    public class StartEditModeNotAllowed : ServerEvent
+    {
+        public string errorMessage;
     }
 
     [System.Serializable]

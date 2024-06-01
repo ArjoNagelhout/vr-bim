@@ -38,9 +38,11 @@ namespace RevitToVR
             {
                 case ToposolidModifySubElementsEditModeData toposolidModifySubElements:
                     Instantiate<ToposolidModifySubElementsRenderer>();
+                    _renderer.name = "Toposolid > EditModeRenderer: ModifySubElements";
                     break;
                 case ToposolidEditSketchEditModeData toposolidEditSketch:
                     Instantiate<ToposolidEditSketchRenderer>();
+                    _renderer.name = "Toposolid > EditModeRenderer: EditSketch";
                     break;
                 default:
                     Debug.Assert(false, "Invalid EditModeData");
@@ -48,19 +50,18 @@ namespace RevitToVR
             }
             
             _renderer.Initialize(_data);
-            _renderer.StartEditMode();
+            _renderer.OnStartedEditMode();
         }
 
         private void Instantiate<T>() where T : EditModeRenderer
         {
             GameObject obj = new GameObject();
-            obj.name = nameof(T);
             _renderer = obj.AddComponent<T>();
         }
 
         public void Apply(StoppedEditMode e)
         {
-            _renderer.StopEditMode();
+            _renderer.OnStoppedEditMode();
 
             _renderer = null;
             _data = null;

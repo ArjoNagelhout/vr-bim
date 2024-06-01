@@ -4,18 +4,33 @@ using UnityEngine;
 
 namespace RevitToVR
 {
+    public interface IToposolidEditSketchPanelListener
+    {
+        public void OnFinish();
+
+        public void OnCancel();
+
+        public void OnDrawLine();
+    }
+    
     public class ToposolidEditSketchPanel : MonoBehaviour
     {
-        // Start is called before the first frame update
-        void Start()
+        public IToposolidEditSketchPanelListener Listener;
+
+        // these methods are called by buttons
+        public void Finish()
         {
-        
+            Listener?.OnFinish();
         }
 
-        // Update is called once per frame
-        void Update()
+        public void Cancel()
         {
-        
+            Listener?.OnCancel();
+        }
+
+        public void DrawLine()
+        {
+            Listener?.OnDrawLine();
         }
     }
 }

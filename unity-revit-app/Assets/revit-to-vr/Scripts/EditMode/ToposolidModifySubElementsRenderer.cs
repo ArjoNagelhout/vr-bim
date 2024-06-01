@@ -1,24 +1,30 @@
 using revit_to_vr_common;
+using UnityEngine;
 
 namespace RevitToVR
 {
     public class ToposolidModifySubElementsRenderer : EditModeRenderer
     {
         private ToposolidModifySubElementsEditModeData modifySubElementsData => _editModeData as ToposolidModifySubElementsEditModeData;
+
+        private GameObject _instantiatedUIPrefab;
         
         protected override void OnInitialize()
         {
             base.OnInitialize();
         }
 
-        public override void StartEditMode()
+        public override void OnStartedEditMode()
         {
-            base.StartEditMode();
+            base.OnStartedEditMode();
+            _instantiatedUIPrefab = PropertiesPanel.Instance.StartEditMode(
+                UnityAssetProvider.instance.toposolidModifySubElementsUIPrefab);
         }
 
-        public override void StopEditMode()
+        public override void OnStoppedEditMode()
         {
-            base.StopEditMode();
+            base.OnStoppedEditMode();
+            PropertiesPanel.Instance.StopEditMode();
         }
     }
 }

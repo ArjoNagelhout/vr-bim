@@ -468,6 +468,8 @@ namespace revit_to_vr_plugin
             editMode.StartEditMode();
 
             MainService.SendJson(new StartedEditMode() { populatedEditModeData = editMode.editModeData });
+
+            applicationState.editMode = editMode;
         }
 
         private void HandleStopEditMode(StopEditMode e)
@@ -497,6 +499,11 @@ namespace revit_to_vr_plugin
         public void OnClientDisconnected()
         {
             UIConsole.Log("Application > OnClientDisconnected");
+            if (applicationState.editMode != null)
+            {
+                applicationState.editMode.StopEditMode();
+                applicationState.editMode = null;
+            }
         }
 
         private void SendAllElements()

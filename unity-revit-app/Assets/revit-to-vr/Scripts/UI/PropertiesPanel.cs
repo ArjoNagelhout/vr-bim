@@ -22,6 +22,31 @@ namespace RevitToVR
         private List<ElementRenderer> _cachedSelectedElements = new List<ElementRenderer>();
         private ToposolidRenderer _cachedToposolidRenderer;
 
+        // where we should add the edit mode UI. 
+        [SerializeField] private Transform _contentTransform;
+
+        private GameObject _instantiatedEditModeUI;
+        private bool _editModeActive = false;
+
+        // returns the instantiated prefab, so that its data can be set, if required
+        public GameObject StartEditMode(GameObject uiPrefab)
+        {
+            Debug.Assert(_instantiatedEditModeUI == null);
+            _instantiatedEditModeUI = Instantiate(uiPrefab, _contentTransform, false);
+            _editModeActive = true;
+            UpdateState();
+            return _instantiatedEditModeUI;
+        }
+
+        public void StopEditMode()
+        {
+            Debug.Assert(_editModeActive);
+            Debug.Assert(_instantiatedEditModeUI != null);
+            Destroy(_instantiatedEditModeUI);
+            _editModeActive = false;
+            UpdateState();
+        }
+
         private void Awake()
         {
             if (_instance != null)
@@ -42,7 +67,7 @@ namespace RevitToVR
             None,
             Toposolid,
             Multiple,
-            Invalid,
+            Invalid
         }
 
         private State _state = State.None;
@@ -69,10 +94,7 @@ namespace RevitToVR
                 {
                     _cachedSelectedElements.Add(value);                    
                 }
-                else
-                {
-                    Debug.Assert(false, "should exist");
-                }
+                // we skip the elements that we don't have as element renderers
             }
 
             if (selectedElementIds.Count == 0)
@@ -85,7 +107,7 @@ namespace RevitToVR
             }
             else
             {
-                if (_cachedSelectedElements[0] is ToposolidRenderer)
+                if (_cachedSelectedElements.Count == 1 && _cachedSelectedElements[0] is ToposolidRenderer)
                 {
                     _cachedToposolidRenderer = _cachedSelectedElements[0] as ToposolidRenderer;
                     state = State.Toposolid;
@@ -99,6 +121,16 @@ namespace RevitToVR
 
         private void UpdateState()
         {
+            if (_editModeActive)
+            {
+                errorMessage.SetActive(false);
+                foreach (GameObject obj in toposolidSelected)
+                {
+                    obj.SetActive(false);
+                }
+                return;
+            }
+            
             errorMessage.SetActive(state != State.Toposolid);
             foreach (GameObject obj in toposolidSelected)
             {

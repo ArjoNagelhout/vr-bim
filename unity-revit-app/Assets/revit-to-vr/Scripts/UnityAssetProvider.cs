@@ -25,6 +25,10 @@ namespace RevitToVR
         public StateMaterials slabShapeVertexMaterials;
 
         public StateMaterials slabShapeCreaseMaterials;
+
+        public GameObject toposolidEditSketchRendererUIPrefab;
+
+        public GameObject toposolidModifySubElementsUIPrefab;
         
         // singleton implementation
         
