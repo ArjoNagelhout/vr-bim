@@ -104,7 +104,7 @@ namespace RevitToVR
             Vector3 original = GetScaledCachedPosition();
             Vector3 current = transform.localPosition;
 
-            float distance = Vector3.Distance(original, current);
+            //float distance = Vector3.Distance(original, current);
             
             // apply the change (send event to the server)
             // calculate offset
@@ -123,7 +123,10 @@ namespace RevitToVR
                     }
                 }
             });
-            
+
+            _cachedPosition.y = scaledOffset;
+            UpdatePosition();
+
             // if (distance > positionChangeEpsilon)
             // {
             //     
