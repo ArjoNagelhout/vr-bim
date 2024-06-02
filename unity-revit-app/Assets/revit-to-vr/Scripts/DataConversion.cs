@@ -22,7 +22,7 @@ namespace RevitToVR
         
         public static Vector3 ToUnityVector3(VRBIM_Vector3 vector)
         {
-            return new Vector3(vector.x, vector.y, vector.z);
+            return new Vector3(vector.x, FlipYAndZAxes ? vector.z : vector.y, FlipYAndZAxes ? vector.y : vector.z);
         }
 
         public static Bounds ToUnityBounds(VRBIM_AABB bounds)

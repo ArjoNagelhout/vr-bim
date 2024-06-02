@@ -47,7 +47,7 @@ namespace RevitToVR
         {
             EditModeState.instance.StartEditMode(new ToposolidModifySubElementsEditModeData()
             {
-                
+                toposolidId = toposolid.elementId
             });
         }
     }

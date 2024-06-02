@@ -201,6 +201,17 @@ namespace revit_to_vr_plugin
             selection.SetElementIds(ids.Select((value) => new ElementId(value)).ToList());
         }
 
+        public Element GetElement(long elementId)
+        {
+            ElementId id = new ElementId(elementId);
+
+            Debug.Assert(applicationState.openedDocument != null);
+            Element element = applicationState.openedDocument.GetElement(id);
+            Debug.Assert(element != null);
+
+            return element;
+        }
+
         private void OnSelectionChanged(object sender, SelectionChangedEventArgs args)
         {
             UIConsole.Log("OnSelectionChanged");

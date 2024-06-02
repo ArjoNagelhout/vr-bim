@@ -1,6 +1,8 @@
-﻿using revit_to_vr_common;
+﻿using Autodesk.Revit.DB;
+using revit_to_vr_common;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -28,7 +30,11 @@ namespace revit_to_vr_plugin
 
         protected override void OnStartEditMode()
         {
-
+            long id = modifySubElementsData.toposolidId;
+            Element toposolidElement = Application.Instance.GetElement(id);
+            Debug.Assert(toposolidElement is Toposolid);
+            Toposolid toposolid = toposolidElement as Toposolid;
+            modifySubElementsData.slabShapeData = ToposolidConversion.ConvertSlabShapeData(toposolid.GetSlabShapeEditor());
         }
 
         protected override void OnStopEditMode()

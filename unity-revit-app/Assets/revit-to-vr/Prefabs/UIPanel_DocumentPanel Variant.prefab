@@ -466,7 +466,7 @@ GameObject:
   - component: {fileID: 7980539860121842959}
   - component: {fileID: 8136699090769955310}
   m_Layer: 5
-  m_Name: SliderTitle
+  m_Name: SliderTitle_DocumentScale
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -897,7 +897,7 @@ GameObject:
   - component: {fileID: 5789504129486719368}
   - component: {fileID: 4778221512872142632}
   m_Layer: 5
-  m_Name: Slider
+  m_Name: Slider_DocumentScale
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -969,13 +969,25 @@ MonoBehaviour:
   m_FillRect: {fileID: 1937339608224495067}
   m_HandleRect: {fileID: 371199734326701173}
   m_Direction: 0
-  m_MinValue: 0
+  m_MinValue: 0.01
   m_MaxValue: 1
   m_WholeNumbers: 0
-  m_Value: 0.794
+  m_Value: 0.603
   m_OnValueChanged:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 3379657500889923575}
+        m_TargetAssemblyTypeName: RevitToVR.DocumentPanel, RevitToVR
+        m_MethodName: OnDocumentScaleValueChanged
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1001 &1087019962167695869
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1322,15 +1334,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3474706868825900441, guid: 3f5a7c7240c7d48a3b78d4c3e33a4218, type: 3}
       propertyPath: m_Size
-      value: 0.94151264
+      value: 0.9415381
       objectReference: {fileID: 0}
     - target: {fileID: 3474706868825900441, guid: 3f5a7c7240c7d48a3b78d4c3e33a4218, type: 3}
       propertyPath: m_Value
-      value: 1.0001048
+      value: 0.999927
       objectReference: {fileID: 0}
     - target: {fileID: 5857827548925893220, guid: 3f5a7c7240c7d48a3b78d4c3e33a4218, type: 3}
       propertyPath: m_PresetInfoIsWorld
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6597399178773024885, guid: 3f5a7c7240c7d48a3b78d4c3e33a4218, type: 3}
       propertyPath: m_SizeDelta.y
@@ -1403,3 +1415,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6780e7d1656054c6a9639f6e27cffa9e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  documentScaleText: {fileID: 8136699090769955310}
+  slider: {fileID: 4778221512872142632}

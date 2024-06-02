@@ -17,6 +17,40 @@ namespace RevitToVR
 
         void RemoveMesh(VRBIM_MeshId meshId);
     }
+
+    public class LocalClientConfiguration
+    {
+        private static string documentScaleKey = "DOCUMENT_SCALE";
+        private static string handleScaleKey = "HANDLE_SCALE";
+        
+        private float _documentScale = PlayerPrefs.GetFloat(documentScaleKey);
+        public float DocumentScale
+        {
+            get => _documentScale;
+            set
+            {
+                _documentScale = value;
+                PlayerPrefs.SetFloat(documentScaleKey, _documentScale);
+                onDocumentScaleChanged?.Invoke(_documentScale);
+            }
+        }
+        public event Action<float> onDocumentScaleChanged;
+
+        private float _handleScale = PlayerPrefs.GetFloat(handleScaleKey);
+
+        public float HandleScale
+        {
+            get => _handleScale;
+            set
+            {
+                _handleScale = value;
+                PlayerPrefs.SetFloat(handleScaleKey, _handleScale);
+                onHandleScaleChanged?.Invoke(_handleScale);
+            }
+        }
+
+        public event Action<float> onHandleScaleChanged;
+    }
     
     public class VRApplication : MonoBehaviour
     {
@@ -36,6 +70,9 @@ namespace RevitToVR
         private ClientDocumentRenderer _clientDocumentRenderer;
         private IMeshRepository _meshRepository;
         private EditModeState _editModeState;
+
+        // configuration to use locally (not communicated to the server)
+        public LocalClientConfiguration localClientConfiguration = null;
         
         // the event we received, so that we can parse the binary data that is sent using a separate .Send() after the event
         private ServerEvent _cachedEvent;
@@ -48,6 +85,7 @@ namespace RevitToVR
             }
 
             _instance = this;
+            localClientConfiguration = new LocalClientConfiguration();
         }
         
         private void Start()
@@ -73,7 +111,7 @@ namespace RevitToVR
         {
             // todo
             Handle(new DocumentClosedEvent());
-            OnDestroy();
+            Disconnect();
             OnClose();
             UIConsole.Clear();
         }
@@ -85,6 +123,11 @@ namespace RevitToVR
         }
 
         private void OnDestroy()
+        {
+            Disconnect();
+        }
+
+        private void Disconnect()
         {
             if (_mainServiceClient != null)
             {
@@ -219,7 +262,6 @@ namespace RevitToVR
             
             // create renderer
             _clientDocumentRenderer = new GameObject().AddComponent<ClientDocumentRenderer>();
-            _clientDocumentRenderer.transform.localScale = new Vector3(0.05f, 0.05f, 0.05f);
             _clientDocumentRenderer.name = $"ClientDocumentRenderer ({e.documentGuid})";
             
             // todo: move, this is hacky

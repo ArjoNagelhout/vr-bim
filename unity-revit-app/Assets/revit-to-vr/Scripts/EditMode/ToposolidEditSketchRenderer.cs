@@ -47,7 +47,8 @@ namespace RevitToVR
 
         void IToposolidEditSketchPanelListener.OnDrawLine()
         {
-            // todo
+            // todo, should create a draw line context, which captures XR Interactor input,
+            // and takes two points. (maybe add snapping)
         }
     }
 }

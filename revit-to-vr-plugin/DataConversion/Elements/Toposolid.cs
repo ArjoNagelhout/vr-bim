@@ -15,8 +15,7 @@ namespace revit_to_vr_plugin
             return new VRBIM_Toposolid()
             {
                 hostTopoId = toposolid.HostTopoId.Value,
-                sketchId = toposolid.SketchId.Value,
-                slabShapeData = ConvertSlabShapeData(toposolid.GetSlabShapeEditor())
+                sketchId = toposolid.SketchId.Value
             };
         }
 

@@ -29,6 +29,12 @@ namespace RevitToVR
         public GameObject toposolidEditSketchRendererUIPrefab;
 
         public GameObject toposolidModifySubElementsUIPrefab;
+
+        // modify sub elements
+        
+        public GameObject slabShapeCreasePrefab;
+
+        public GameObject slabShapeVertexPrefab;
         
         // singleton implementation
         

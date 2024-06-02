@@ -24,6 +24,7 @@ namespace revit_to_vr_common
     [JsonDerivedType(typeof(ToposolidModifySubElementsEditModeData), typeDiscriminator: "toposolidModifySubElements")]
     public class ToposolidModifySubElementsEditModeData : EditModeData
     {
-        
+        public long toposolidId;
+        public VRBIM_SlabShapeData slabShapeData;
     }
 }

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace RevitToVR
 {
@@ -10,6 +11,10 @@ namespace RevitToVR
     {
         private VRApplication _vrApplication;
 
+        [SerializeField] private TextMeshProUGUI handleScaleText;
+        [SerializeField] private Slider handleScaleSlider;
+        private LocalClientConfiguration _config;
+        
         [SerializeField] private TextMeshProUGUI connectedMessage;
         [SerializeField] private GameObject connectedVisual;
         [SerializeField] private GameObject notConnectedVisual;
@@ -63,6 +68,30 @@ namespace RevitToVR
             messageCount = 0;
             
             ipAddressInputField.onValueChanged.AddListener(OnInputFieldIpAddressChanged);
+        }
+
+        private void OnEnable()
+        {
+            _config = VRApplication.instance.localClientConfiguration;
+            _config.onHandleScaleChanged += OnHandleScaleChanged;
+            OnHandleScaleChanged(_config.HandleScale);
+            handleScaleSlider.value = _config.HandleScale;
+        }
+
+        private void OnDisable()
+        {
+            _config.onHandleScaleChanged -= OnHandleScaleChanged;
+        }
+
+        // to be called from the slider
+        public void SetHandleScale(float value_)
+        {
+            _config.HandleScale = value_;
+        }
+        
+        private void OnHandleScaleChanged(float scale)
+        {
+            handleScaleText.text = "Handle Scale: " + scale.ToString("0.0000");
         }
 
         private void OnInputFieldIpAddressChanged(string newValue)
