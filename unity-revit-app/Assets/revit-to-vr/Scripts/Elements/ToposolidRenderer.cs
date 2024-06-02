@@ -7,7 +7,7 @@ namespace RevitToVR
     // this is the logic that enables editing a Toposolid or inspecting its data
     public class ToposolidRenderer : ElementRenderer
     {
-        private VRBIM_Toposolid toposolid => _element as VRBIM_Toposolid;
+        public VRBIM_Toposolid toposolid => _element as VRBIM_Toposolid;
         
         protected override void OnInitialize()
         {

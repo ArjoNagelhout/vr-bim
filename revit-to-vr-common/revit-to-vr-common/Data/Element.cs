@@ -25,6 +25,8 @@ namespace revit_to_vr_common
     [JsonDerivedType(typeof(VRBIM_Toposolid), typeDiscriminator: "toposolid")]
     public class VRBIM_Toposolid : VRBIM_Element
     {
+        public bool IsSubdivision => hostTopoId != Configuration.invalidElementId;
+
         public long hostTopoId; // if this TopoSolid is a subdivision of another TopoSolid this returns the element id of that containing TopoSolid
         public long sketchId; // the sketch is used to define the shape of the TopoSolid
         

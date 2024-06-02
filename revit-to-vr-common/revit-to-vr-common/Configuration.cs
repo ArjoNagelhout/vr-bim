@@ -26,6 +26,8 @@ namespace revit_to_vr_common
             jsonSerializerOptions.Converters.Add(new VRBIM_Vector3ListConverter());
         }
 
+        public static int invalidElementId = -1;
+
         public static string protocolPrefix = "ws://";
 
         public static string uri => protocolPrefix + GetLocalIpAddress(NetworkInterfaceType.Ethernet);

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace RevitToVR
 {
@@ -27,6 +28,8 @@ namespace RevitToVR
 
         private GameObject _instantiatedEditModeUI;
         private bool _editModeActive = false;
+
+        [SerializeField] private Button modifySubElementsButton;
 
         // returns the instantiated prefab, so that its data can be set, if required
         public GameObject StartEditMode(GameObject uiPrefab)
@@ -135,6 +138,13 @@ namespace RevitToVR
             foreach (GameObject obj in toposolidSelected)
             {
                 obj.SetActive(state == State.Toposolid);   
+            }
+
+            // set whether the modifySubElements button should be clickable
+            if (state == State.Toposolid)
+            {
+                Debug.Assert(_cachedToposolidRenderer != null);
+                modifySubElementsButton.interactable = !_cachedToposolidRenderer.toposolid.IsSubdivision;
             }
 
             switch (state)
