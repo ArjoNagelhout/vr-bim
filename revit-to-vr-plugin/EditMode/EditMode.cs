@@ -1,4 +1,5 @@
-﻿using revit_to_vr_common;
+﻿using Autodesk.Revit.UI;
+using revit_to_vr_common;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -34,6 +35,17 @@ namespace revit_to_vr_plugin
         }
 
         protected virtual void OnStopEditMode()
+        {
+
+        }
+
+        public void UpdateEditMode(UIApplication uiApp, UpdateEditModeData data)
+        {
+            UIConsole.Log("UpdateEditMode");
+            OnUpdateEditMode(uiApp, data);
+        }
+
+        protected virtual void OnUpdateEditMode(UIApplication uiApp, UpdateEditModeData data)
         {
 
         }

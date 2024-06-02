@@ -80,5 +80,11 @@ namespace RevitToVR
             Debug.Assert(_data != null);
             MainServiceClient.instance.SendJson(new StopEditMode() {data = _data });
         }
+
+        public void UpdateEditMode(UpdateEditModeData data)
+        {
+            Debug.Assert(data != null);
+            MainServiceClient.instance.SendJson(new UpdateEditMode() {data = data});
+        }
     }
 }

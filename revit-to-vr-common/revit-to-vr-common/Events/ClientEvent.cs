@@ -15,6 +15,8 @@ namespace revit_to_vr_common
     [JsonDerivedType(typeof(StartEditMode), typeDiscriminator: "startEditMode")]
     [JsonDerivedType(typeof(StopEditMode), typeDiscriminator: "stopEditMode")]
     [JsonDerivedType(typeof(SelectElementClientEvent), typeDiscriminator: "selectElementClientEvent")]
+    [JsonDerivedType(typeof(UpdateEditMode), typeDiscriminator: "updateEditMode")]
+    [JsonDerivedType(typeof(PerformSingleActionClientEvent), typeDiscriminator: "performSingleActionClientEvent")]
     public class ClientEvent
     {
 
@@ -55,6 +57,26 @@ namespace revit_to_vr_common
     public class StopEditMode : ClientEvent
     {
         public EditModeData data; // to check whether the client tries to close the correct edit mode
+    }
+
+    [System.Serializable]
+    [JsonDerivedType(typeof(UpdateEditMode), typeDiscriminator: "updateEditMode")]
+    public class UpdateEditMode : ClientEvent
+    {
+        public UpdateEditModeData data;
+    }
+
+    public enum SingleActionType
+    {
+        Undo = 0,
+        Redo
+    }
+
+    [System.Serializable]
+    [JsonDerivedType(typeof(PerformSingleActionClientEvent), typeDiscriminator: "performSingleActionClientEvent")]
+    public class PerformSingleActionClientEvent : ClientEvent
+    {
+        public SingleActionType actionType;
     }
 
     public enum SelectElementType

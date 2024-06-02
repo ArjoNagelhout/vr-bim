@@ -27,4 +27,25 @@ namespace revit_to_vr_common
         public long toposolidId;
         public VRBIM_SlabShapeData slabShapeData;
     }
+
+    // update from client:
+
+    [JsonDerivedType(typeof(UpdateEditModeData), typeDiscriminator: "base")]
+    [JsonDerivedType(typeof(UpdateModifySubElements), typeDiscriminator: "updateModifySubElements")]
+    public class UpdateEditModeData
+    {
+
+    }
+
+    [JsonDerivedType(typeof(UpdateModifySubElements), typeDiscriminator: "updateModifySubElements")]
+    public class UpdateModifySubElements : UpdateEditModeData
+    {
+        public class Entry
+        {
+            public int index; // index of vertex
+            public float offset; // offset
+        }
+
+        public List<Entry> entries;
+    }
 }

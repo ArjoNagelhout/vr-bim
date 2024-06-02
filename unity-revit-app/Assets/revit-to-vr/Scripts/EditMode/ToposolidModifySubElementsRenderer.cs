@@ -50,13 +50,16 @@ namespace RevitToVR
                 _instantiatedSlabShapeCreases.Add(creaseComponent);
             }
 
+            int index = 0;
             foreach (VRBIM_SlabShapeVertex vertex in slabShapeData.vertices)
             {
                 GameObject obj = Instantiate(UnityAssetProvider.instance.slabShapeVertexPrefab);
                 SlabShapeVertex vertexComponent = obj.GetComponent<SlabShapeVertex>();
                 Debug.Assert(vertexComponent != null);
                 vertexComponent.Data = vertex;
+                vertexComponent.index = index;
                 _instantiatedSlabShapeVertices.Add(vertexComponent);
+                index++;
             }
         }
 
@@ -85,7 +88,6 @@ namespace RevitToVR
             _editModeData.isCanceled = false;
             EditModeState.instance.StopEditMode();
         }
-        
 
         void IToposolidModifySubElementsPanelListener.OnCancel()
         {

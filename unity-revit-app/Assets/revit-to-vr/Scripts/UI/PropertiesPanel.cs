@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using revit_to_vr_common;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -17,10 +18,10 @@ namespace RevitToVR
 
         [SerializeField] private GameObject errorMessage;
         [SerializeField] private TextMeshProUGUI errorMessageText;
-        
+
         [SerializeField] private List<GameObject> toposolidSelected;
 
-        private List<ElementRenderer> _cachedSelectedElements = new List<ElementRenderer>();
+        private long _cachedSelectedToposolidId = Configuration.invalidElementId;
         private ToposolidRenderer _cachedToposolidRenderer;
 
         // where we should add the edit mode UI. 
@@ -56,7 +57,7 @@ namespace RevitToVR
             {
                 Destroy(_instance);
             }
-            
+
             _instance = this;
         }
 
@@ -74,6 +75,7 @@ namespace RevitToVR
         }
 
         private State _state = State.None;
+
         private State state
         {
             get => _state;
@@ -87,18 +89,9 @@ namespace RevitToVR
         public void OnSelectionChanged(List<long> selectedElementIds)
         {
             Debug.Assert(ClientDocumentRenderer != null);
-            
-            _cachedSelectedElements.Clear();
-            _cachedToposolidRenderer = null;
 
-            foreach (long id in selectedElementIds)
-            {
-                if (ClientDocumentRenderer.ElementRenderers.TryGetValue(id, out ElementRenderer value))
-                {
-                    _cachedSelectedElements.Add(value);                    
-                }
-                // we skip the elements that we don't have as element renderers
-            }
+            _cachedToposolidRenderer = null;
+            _cachedSelectedToposolidId = Configuration.invalidElementId;
 
             if (selectedElementIds.Count == 0)
             {
@@ -108,11 +101,15 @@ namespace RevitToVR
             {
                 state = State.Multiple;
             }
-            else
+            else if (selectedElementIds.Count == 1)
             {
-                if (_cachedSelectedElements.Count == 1 && _cachedSelectedElements[0] is ToposolidRenderer)
+                _cachedSelectedToposolidId = selectedElementIds[0];
+                if (_cachedSelectedToposolidId != Configuration.invalidElementId &&
+                    ClientDocumentRenderer.ElementRenderers.TryGetValue(_cachedSelectedToposolidId,
+                        out ElementRenderer elementRenderer) &&
+                    elementRenderer is ToposolidRenderer value)
                 {
-                    _cachedToposolidRenderer = _cachedSelectedElements[0] as ToposolidRenderer;
+                    _cachedToposolidRenderer = value;
                     state = State.Toposolid;
                 }
                 else
@@ -120,6 +117,28 @@ namespace RevitToVR
                     state = State.Invalid;
                 }
             }
+        }
+
+        private VRBIM_Toposolid GetSelectedToposolid()
+        {
+            Debug.Assert(_cachedSelectedToposolidId != Configuration.invalidElementId);
+
+            if (_cachedToposolidRenderer == null)
+            {
+                // this can happen when the mesh has been updated, but the selection has not changed
+                if (ClientDocumentRenderer.ElementRenderers.TryGetValue(_cachedSelectedToposolidId,
+                        out ElementRenderer elementRenderer) && elementRenderer is ToposolidRenderer value)
+                {
+                    _cachedToposolidRenderer = value;
+                }
+                else
+                {
+                    Debug.Assert(false,
+                        "selected Toposolid id doesn't exist in document, server should have sent a selection changed event");
+                }
+            }
+
+            return _cachedToposolidRenderer.toposolid;
         }
 
         private void UpdateState()
@@ -131,20 +150,21 @@ namespace RevitToVR
                 {
                     obj.SetActive(false);
                 }
+
                 return;
             }
-            
+
             errorMessage.SetActive(state != State.Toposolid);
             foreach (GameObject obj in toposolidSelected)
             {
-                obj.SetActive(state == State.Toposolid);   
+                obj.SetActive(state == State.Toposolid);
             }
 
             // set whether the modifySubElements button should be clickable
             if (state == State.Toposolid)
             {
-                Debug.Assert(_cachedToposolidRenderer != null);
-                modifySubElementsButton.interactable = !_cachedToposolidRenderer.toposolid.IsSubdivision;
+                VRBIM_Toposolid toposolid = GetSelectedToposolid();
+                modifySubElementsButton.interactable = !toposolid.IsSubdivision;
             }
 
             switch (state)

@@ -6,15 +6,26 @@ using UnityEngine.XR.Interaction.Toolkit;
 
 namespace RevitToVR
 {
-    public interface ISimpleInteractableListener
+    public interface IMaterialStateInteractableListener
     {
-        // on move events (if we want to enable moving the interactable)
+        public void OnHoverEntered();
+
+        public void OnHoverExited();
+
+        public void OnSelectEntered();
+
+        public void OnSelectExited();
+
     }
     
     // automatically sets materials
     [RequireComponent(typeof(MeshRenderer))]
-    public class SimpleInteractable : XRBaseInteractable
+    public class MaterialStateInteractable : MonoBehaviour
     {
+        private XRBaseInteractable _interactable;
+
+        public IMaterialStateInteractableListener Listener;
+        
         private StateMaterials _materials = new StateMaterials();
         public StateMaterials Materials
         {
@@ -44,7 +55,30 @@ namespace RevitToVR
 
         private void Start()
         {
+            _interactable = GetComponent<XRBaseInteractable>();
+            RegisterInteractableEvents();
             UpdateMaterial();
+        }
+
+        private void OnDestroy()
+        {
+            UnregisterInteractableEvents();
+        }
+
+        private void RegisterInteractableEvents()
+        {
+            _interactable.hoverEntered.AddListener(OnHoverEntered);
+            _interactable.hoverExited.AddListener(OnHoverExited);
+            _interactable.selectEntered.AddListener(OnSelectEntered);
+            _interactable.selectExited.AddListener(OnSelectExited);
+        }
+
+        private void UnregisterInteractableEvents()
+        {
+            _interactable.hoverEntered.RemoveListener(OnHoverEntered);
+            _interactable.hoverExited.RemoveListener(OnHoverExited);
+            _interactable.selectEntered.RemoveListener(OnSelectEntered);
+            _interactable.selectExited.RemoveListener(OnSelectExited);
         }
 
         private MeshRenderer _meshRenderer = null;
@@ -84,28 +118,28 @@ namespace RevitToVR
             }
         }
 
-        protected override void OnHoverEntered(HoverEnterEventArgs args)
+        private void OnHoverEntered(HoverEnterEventArgs args)
         {
-            base.OnHoverEntered(args);
             hovered = true;
+            Listener?.OnHoverEntered();
         }
 
-        protected override void OnHoverExited(HoverExitEventArgs args)
+        private void OnHoverExited(HoverExitEventArgs args)
         {
-            base.OnHoverExited(args);
             hovered = false;
+            Listener?.OnHoverExited();
         }
 
-        protected override void OnSelectEntered(SelectEnterEventArgs args)
+        private void OnSelectEntered(SelectEnterEventArgs args)
         {
-            base.OnSelectEntered(args);
             selected = true;
+            Listener?.OnSelectEntered();
         }
 
-        protected override void OnSelectExited(SelectExitEventArgs args)
+        private void OnSelectExited(SelectExitEventArgs args)
         {
-            base.OnSelectExited(args);
             selected = false;
+            Listener?.OnSelectExited();
         }
     }
 }

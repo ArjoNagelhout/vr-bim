@@ -92,8 +92,8 @@ namespace revit_to_vr_plugin
         private DockablePaneProvider paneProvider;
 
         // state
-        ApplicationState applicationState = new ApplicationState(); // server side state information
-        ClientState clientState = new ClientState();
+        public ApplicationState applicationState = new ApplicationState(); // server side state information
+        private ClientState clientState = new ClientState();
 
         // methods
         public Application()
@@ -160,12 +160,48 @@ namespace revit_to_vr_plugin
                     case SelectElementClientEvent selectElement:
                         HandleSelectElementClientEvent(uiApp, selectElement);
                         break;
+                    case UpdateEditMode updateEditMode:
+                        HandleUpdateEditMode(uiApp, updateEditMode);
+                        break;
+                    case StopEditMode stopEditMode:
+                        HandleStopEditMode(uiApp, stopEditMode);
+                        break;
+                    case PerformSingleActionClientEvent performSingleActionClientEvent:
+                        HandlePerformSingleActionClientEvent(uiApp, performSingleActionClientEvent);
+                        break;
                     default:
                         Debug.Assert(false, "Client event was not handled in on idling queue");
                         break;
                 }
             }
             events.Clear();
+        }
+
+        private void HandlePerformSingleActionClientEvent(UIApplication uiApp, PerformSingleActionClientEvent e)
+        {
+            switch (e.actionType)
+            {
+                case SingleActionType.Undo:
+                    // not possible in revit...
+                    break;
+                case SingleActionType.Redo:
+                    // not possible in revit..., unless we keep track of all the operations ourselves (effectively creating our own undo system inside of a transaction, that's not great)
+                    break;
+            }
+        }
+
+        private void HandleUpdateEditMode(UIApplication uiApp, UpdateEditMode e)
+        {
+            EditMode editMode = applicationState.editMode;
+            Debug.Assert(editMode != null);
+            editMode.UpdateEditMode(uiApp, e.data);
+        }
+
+        private void HandleStopEditMode(UIApplication uiApp, StopEditMode e)
+        {
+            EditMode editMode = applicationState.editMode;
+            Debug.Assert(editMode != null && editMode.editModeData.GetType() == e.data.GetType());
+            SendStopEditMode();
         }
 
         private void HandleSelectElementClientEvent(UIApplication uiApp, SelectElementClientEvent e)
@@ -217,6 +253,12 @@ namespace revit_to_vr_plugin
             UIConsole.Log("OnSelectionChanged");
 
             Debug.Assert(applicationState.openedDocument.CreationGUID == args.GetDocument().CreationGUID);
+
+            // stop current mode if needed
+            if (applicationState.editMode != null)
+            {
+                SendStopEditMode();
+            }
 
             ISet<ElementId> elements = args.GetSelectedElements();
 
@@ -421,8 +463,14 @@ namespace revit_to_vr_plugin
                 case StartEditMode startEditMode:
                     HandleStartEditMode(startEditMode);
                     break;
+                case PerformSingleActionClientEvent performSingleActionClientEvent:
+                    applicationState.clientEventsToProcessOnIdling.Enqueue(performSingleActionClientEvent);
+                    break;
                 case StopEditMode stopEditMode:
-                    HandleStopEditMode(stopEditMode);
+                    applicationState.clientEventsToProcessOnIdling.Enqueue(stopEditMode); // because the update edit mode is enqueued, we should also enqueue stop edit mode to avoid stopping before the update has been applied. 
+                    break;
+                case UpdateEditMode updateEditMode:
+                    applicationState.clientEventsToProcessOnIdling.Enqueue(updateEditMode); // modifying sub elements should be done inside a transaction, otherwise it will throw an exception (with no message, obviously)
                     break;
                 case SelectElementClientEvent selectElement:
                     applicationState.clientEventsToProcessOnIdling.Enqueue(selectElement); // we can't perform this directly as we need access to the UIApplication
@@ -481,14 +529,7 @@ namespace revit_to_vr_plugin
             MainService.SendJson(new StartedEditMode() { populatedEditModeData = editMode.editModeData });
 
             applicationState.editMode = editMode;
-        }
-
-        private void HandleStopEditMode(StopEditMode e)
-        {
-            EditMode editMode = applicationState.editMode;
-            Debug.Assert(editMode != null && editMode.editModeData.GetType() == e.data.GetType());
-            SendStopEditMode();
-        }
+        } 
 
         private void SendStopEditMode()
         {
