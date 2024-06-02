@@ -5,18 +5,17 @@ using UnityEngine;
 
 namespace RevitToVR
 {
-    
-    
     public class ToposolidModifySubElementsRenderer : EditModeRenderer, IToposolidModifySubElementsPanelListener
     {
-        private ToposolidModifySubElementsEditModeData modifySubElementsData => _editModeData as ToposolidModifySubElementsEditModeData;
+        private ToposolidModifySubElementsEditModeData modifySubElementsData =>
+            _editModeData as ToposolidModifySubElementsEditModeData;
 
         private GameObject _instantiatedUIPrefab;
         private ToposolidModifySubElementsPanel _panel;
 
         private List<SlabShapeCrease> _instantiatedSlabShapeCreases = new List<SlabShapeCrease>();
         private List<SlabShapeVertex> _instantiatedSlabShapeVertices = new List<SlabShapeVertex>();
-        
+
         protected override void OnInitialize()
         {
             base.OnInitialize();
@@ -30,7 +29,7 @@ namespace RevitToVR
             _panel = _instantiatedUIPrefab.GetComponent<ToposolidModifySubElementsPanel>();
             Debug.Assert(_panel != null);
             _panel.Listener = this;
-            
+
             InstantiateHandles();
         }
 
@@ -40,7 +39,7 @@ namespace RevitToVR
             // get the element data, as we have already sent the crease and vertex data. (this could also have been done
             // as the edit mode data
             VRBIM_SlabShapeData slabShapeData = modifySubElementsData.slabShapeData;
-            
+
             foreach (VRBIM_SlabShapeCrease crease in slabShapeData.creases)
             {
                 GameObject obj = Instantiate(UnityAssetProvider.instance.slabShapeCreasePrefab);
@@ -58,6 +57,9 @@ namespace RevitToVR
                 Debug.Assert(vertexComponent != null);
                 vertexComponent.Data = vertex;
                 vertexComponent.index = index;
+                vertexComponent.toposolid =
+                    VRApplication.instance.ClientDocument.GetElement(modifySubElementsData.toposolidId) as
+                        VRBIM_Toposolid;
                 _instantiatedSlabShapeVertices.Add(vertexComponent);
                 index++;
             }

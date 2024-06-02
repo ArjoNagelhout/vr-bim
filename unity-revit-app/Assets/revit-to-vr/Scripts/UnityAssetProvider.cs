@@ -22,7 +22,9 @@ namespace RevitToVR
 
         public StateMaterials curveMaterials; // for editing the sketch
 
-        public StateMaterials slabShapeVertexMaterials;
+        public StateMaterials slabShapeVertexInteriorMaterials;
+
+        public StateMaterials slabShapeVertexEdgeAndCornerMaterials; // green
 
         public StateMaterials slabShapeCreaseMaterials;
 

@@ -65,7 +65,7 @@ namespace revit_to_vr_plugin
         public static void Log(string text)
         {
             string formatted = $"[{DateTime.Now}] {text}";
-            Instance.Text += formatted + "\n";
+            Instance.Text = formatted + "\n";
             Debug.WriteLine(formatted);
         }
 

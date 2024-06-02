@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using revit_to_vr_common;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace RevitToVR
 {
@@ -10,9 +11,10 @@ namespace RevitToVR
     {
         private static int invalidIndex = -1;
         
-        private MaterialStateInteractable _interactable;
+        [SerializeField] private MaterialStateInteractable interactable;
         
         private VRBIM_SlabShapeVertex _data;
+        public VRBIM_Toposolid toposolid;
 
         public int index = invalidIndex;
 
@@ -33,6 +35,21 @@ namespace RevitToVR
             // update the transform and render data of this vertex
             _cachedPosition = DataConversion.ToUnityVector3(_data.position);
             UpdatePosition();
+            
+            // set materials
+            switch (_data.vertexType)
+            {
+                case VRBIM_SlabShapeVertexType.Corner:
+                case VRBIM_SlabShapeVertexType.Edge:
+                    interactable.Materials = UnityAssetProvider.instance.slabShapeVertexEdgeAndCornerMaterials;
+                    break;
+                case VRBIM_SlabShapeVertexType.Interior:
+                    interactable.Materials = UnityAssetProvider.instance.slabShapeVertexInteriorMaterials;
+                    break;
+                case VRBIM_SlabShapeVertexType.Invalid:
+                    interactable.Materials = UnityAssetProvider.instance.defaultMaterials;
+                    break;
+            }
         }
 
         private Vector3 _cachedPosition = Vector3.zero;
@@ -57,11 +74,9 @@ namespace RevitToVR
             _config.onHandleScaleChanged += OnHandleScaleChanged;
             OnDocumentScaleChanged(_config.DocumentScale);
             OnHandleScaleChanged(_config.HandleScale);
-
-            _interactable = GetComponent<MaterialStateInteractable>();
-            Debug.Assert(_interactable != null);
-            _interactable.Materials = UnityAssetProvider.instance.slabShapeVertexMaterials;
-            _interactable.Listener = this;
+            
+            Debug.Assert(interactable != null);
+            interactable.Listener = this;
         }
 
         private void OnDestroy()
@@ -101,7 +116,7 @@ namespace RevitToVR
         void IMaterialStateInteractableListener.OnSelectExited()
         {
             // calculate distance between the current position and the
-            Vector3 original = GetScaledCachedPosition();
+            //Vector3 original = GetScaledCachedPosition();
             Vector3 current = transform.localPosition;
 
             //float distance = Vector3.Distance(original, current);
@@ -110,6 +125,10 @@ namespace RevitToVR
             // calculate offset
             float offset = current.y;// - original.y;
             float scaledOffset = offset / _cachedDocumentScale; // needs to be multiplied by 1000. 1000mm in each meter
+            
+            // subtract the level offset from the scaledoffset
+            scaledOffset -= toposolid.heightOffsetFromLevel;
+            
             Debug.Assert(index != invalidIndex);
             UIConsole.Log($"SlabShapeVertex > OnSelectExited, index: {index}, scaledOffset: {scaledOffset}");
             EditModeState.instance.UpdateEditMode(new UpdateModifySubElements()
@@ -124,7 +143,7 @@ namespace RevitToVR
                 }
             });
 
-            _cachedPosition.y = scaledOffset;
+            _cachedPosition.y = scaledOffset + toposolid.heightOffsetFromLevel;
             UpdatePosition();
 
             // if (distance > positionChangeEpsilon)

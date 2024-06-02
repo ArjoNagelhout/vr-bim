@@ -29,7 +29,9 @@ namespace revit_to_vr_common
 
         public long hostTopoId; // if this TopoSolid is a subdivision of another TopoSolid this returns the element id of that containing TopoSolid
         public long sketchId; // the sketch is used to define the shape of the TopoSolid
-        
+
+        public float heightOffsetFromLevel; // offset from the level, built-in parameter
+        public float subdivideHeight;
     }
 
     [System.Serializable]

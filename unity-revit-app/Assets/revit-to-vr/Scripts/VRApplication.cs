@@ -66,7 +66,7 @@ namespace RevitToVR
         public ClientConfiguration clientConfiguration;
         
         private MainServiceClient _mainServiceClient;
-        private ClientDocument _clientDocument;
+        public ClientDocument ClientDocument;
         private ClientDocumentRenderer _clientDocumentRenderer;
         private IMeshRepository _meshRepository;
         private EditModeState _editModeState;
@@ -244,8 +244,8 @@ namespace RevitToVR
         {
             UIConsole.Log("Handle DocumentChangedEvent");
             
-            Debug.Assert(_clientDocument != null);
-            _clientDocument.Apply(e);
+            Debug.Assert(ClientDocument != null);
+            ClientDocument.Apply(e);
         }
 
         // document opened information gets cached server side and sent on connection open
@@ -255,7 +255,7 @@ namespace RevitToVR
             UIConsole.Log("Handle DocumentOpenedEvent");
 
             // ugly, but suffices for now, we don't want to open the document twice
-            if (_clientDocument != null)
+            if (ClientDocument != null)
             {
                 Handle(new DocumentClosedEvent());
             }
@@ -271,18 +271,18 @@ namespace RevitToVR
             _meshRepository = _clientDocumentRenderer;
             
             // create document
-            _clientDocument = new ClientDocument();
-            _clientDocument.Listener = _clientDocumentRenderer;
+            ClientDocument = new ClientDocument();
+            ClientDocument.Listener = _clientDocumentRenderer;
             
             // apply data
-            _clientDocument.Apply(e);
+            ClientDocument.Apply(e);
         }
 
         private void Handle(DocumentClosedEvent e)
         {
             UIConsole.Log("Handle DocumentClosedEvent");
             
-            _clientDocument.Apply(e);
+            ClientDocument.Apply(e);
             
             // destroy renderer
             Destroy(_clientDocumentRenderer.gameObject);
@@ -291,14 +291,14 @@ namespace RevitToVR
             _meshRepository = null;
             
             // destroy document
-            _clientDocument.Dispose();
-            _clientDocument = null;
+            ClientDocument.Dispose();
+            ClientDocument = null;
         }
 
         private void Handle(SelectionChangedEvent e)
         {
             UIConsole.Log("Handle SelectionChangedEvent");
-            _clientDocument.Apply(e);
+            ClientDocument.Apply(e);
             
             // move this somewhere else
             PropertiesPanel.Instance.OnSelectionChanged(e.selectedElementIds);

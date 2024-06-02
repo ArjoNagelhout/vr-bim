@@ -12,10 +12,15 @@ namespace revit_to_vr_plugin
         // the properties that are part of the base type (e.g. Element) are populated by another method. 
         public static VRBIM_Toposolid ConvertToposolid(Toposolid toposolid)
         {
+            Parameter heightOffsetFromLevel = toposolid.get_Parameter(BuiltInParameter.TOPOSOLID_HEIGHTABOVELEVEL_PARAM);
+            Parameter subdivideHeight = toposolid.get_Parameter(BuiltInParameter.TOPOSOLID_SUBDIVIDE_HEIGNT);
+
             return new VRBIM_Toposolid()
             {
                 hostTopoId = toposolid.HostTopoId.Value,
-                sketchId = toposolid.SketchId.Value
+                sketchId = toposolid.SketchId.Value,
+                heightOffsetFromLevel = heightOffsetFromLevel == null ? 0.0f : (float)heightOffsetFromLevel.AsDouble(),
+                subdivideHeight = subdivideHeight == null ? 0.0f : (float)subdivideHeight.AsDouble()
             };
         }
 

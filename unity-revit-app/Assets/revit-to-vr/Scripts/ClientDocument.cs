@@ -42,6 +42,12 @@ namespace RevitToVR
             Listener?.OnClose();
         }
 
+        public VRBIM_Element GetElement(long elementId)
+        {
+            Debug.Assert(elements.ContainsKey(elementId));
+            return elements[elementId];
+        }
+
         public void Apply(SelectionChangedEvent e)
         {
             HashSet<long> new_ = e.selectedElementIds.ToHashSet();

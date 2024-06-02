@@ -119,10 +119,8 @@ namespace RevitToVR
             }
         }
 
-        private VRBIM_Toposolid GetSelectedToposolid()
+        private void UpdateCachedToposolidRenderer()
         {
-            Debug.Assert(_cachedSelectedToposolidId != Configuration.invalidElementId);
-
             if (_cachedToposolidRenderer == null)
             {
                 // this can happen when the mesh has been updated, but the selection has not changed
@@ -137,7 +135,12 @@ namespace RevitToVR
                         "selected Toposolid id doesn't exist in document, server should have sent a selection changed event");
                 }
             }
-
+        }
+        
+        private VRBIM_Toposolid GetSelectedToposolid()
+        {
+            Debug.Assert(_cachedSelectedToposolidId != Configuration.invalidElementId);
+            UpdateCachedToposolidRenderer();
             return _cachedToposolidRenderer.toposolid;
         }
 
@@ -183,12 +186,14 @@ namespace RevitToVR
 
         public void ToposolidEditSketch()
         {
+            UpdateCachedToposolidRenderer();
             Debug.Assert(_cachedToposolidRenderer != null);
             _cachedToposolidRenderer.EditSketch();
         }
 
         public void ToposolidModifySubElements()
         {
+            UpdateCachedToposolidRenderer();
             Debug.Assert(_cachedToposolidRenderer != null);
             _cachedToposolidRenderer.ModifySubElements();
         }
