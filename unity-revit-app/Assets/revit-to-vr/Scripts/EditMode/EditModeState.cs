@@ -61,9 +61,12 @@ namespace RevitToVR
 
         public void Apply(StoppedEditMode e)
         {
-            _renderer.OnStoppedEditMode();
-
-            _renderer = null;
+            if (_renderer != null)
+            {
+                _renderer.OnStoppedEditMode();
+                Destroy(_renderer.gameObject);
+                _renderer = null;                
+            }
             _data = null;
         }
         

@@ -161,6 +161,7 @@ namespace RevitToVR
 
         private void Disconnect()
         {
+            _editModeState.Apply(new StoppedEditMode());
             if (_mainServiceClient != null)
             {
                 _mainServiceClient.OnMessage -= OnMessage;
