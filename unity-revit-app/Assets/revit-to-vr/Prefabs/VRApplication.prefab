@@ -44,7 +44,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8caf80bf72f5b4bc4bad5dbea2aaa6e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ipAddress: 131.155.160.42
+  defaultElementInteractionLayerMask:
+    m_Bits: 4294967295
   clientConfiguration:
     triangulationlevelOfDetail: 0
     viewDetailLevel: 0

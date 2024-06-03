@@ -898,7 +898,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9b1e8c997df241c1a67045eeac79b41b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_System: {fileID: 1589979491555116479}
+  m_System: {fileID: 7602471259685890259}
   m_MoveSpeed: 1
   m_EnableStrafe: 1
   m_EnableFly: 0
@@ -979,7 +979,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2213c36610e3b1c4bbf886810ed9db12, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_System: {fileID: 1589979491555116479}
+  m_System: {fileID: 7602471259685890259}
   m_TurnAmount: 45
   m_DebounceTime: 0.5
   m_EnableTurnLeftRight: 1
@@ -1021,7 +1021,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 919e39492806b334982b6b84c90dd927, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_System: {fileID: 1589979491555116479}
+  m_System: {fileID: 0}
   m_TurnSpeed: 60
   m_LeftHandTurnAction:
     m_UseReference: 1
@@ -1274,7 +1274,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 01f69dc1cb084aa42b2f2f8cd87bc770, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_System: {fileID: 1589979491555116479}
+  m_System: {fileID: 7602471259685890259}
   m_DelayTime: 0
 --- !u!1 &2626757739553014894
 GameObject:
@@ -1320,7 +1320,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 496880615cd240be960d436c1c8ae570, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_System: {fileID: 1589979491555116479}
+  m_System: {fileID: 7602471259685890259}
   m_ClimbSettings:
     m_UseConstant: 1
     m_ConstantValue:
@@ -1424,7 +1424,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8b94c4c83dec6a94fbaebf543478259e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_System: {fileID: 1589979491555116479}
+  m_System: {fileID: 7602471259685890259}
   m_EnableFreeXMovement: 1
   m_EnableFreeYMovement: 0
   m_EnableFreeZMovement: 1
@@ -1457,7 +1457,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8b94c4c83dec6a94fbaebf543478259e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_System: {fileID: 1589979491555116479}
+  m_System: {fileID: 0}
   m_EnableFreeXMovement: 1
   m_EnableFreeYMovement: 0
   m_EnableFreeZMovement: 1
@@ -1490,7 +1490,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 760ff70c1c91bdd45907d0ff0cdcaf7f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_System: {fileID: 1589979491555116479}
+  m_System: {fileID: 0}
   m_EnableFreeXMovement: 1
   m_EnableFreeYMovement: 0
   m_EnableFreeZMovement: 1
@@ -1545,7 +1545,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6981642495833523204}
-  - component: {fileID: 1589979491555116479}
+  - component: {fileID: 7602471259685890259}
+  - component: {fileID: 4922094524622318498}
   m_Layer: 2
   m_Name: Locomotion System
   m_TagString: Untagged
@@ -1573,7 +1574,7 @@ Transform:
   - {fileID: 8418786636219059989}
   m_Father: {fileID: 1717954561962503726}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1589979491555116479
+--- !u!114 &7602471259685890259
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1586,7 +1587,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Timeout: 10
-  m_XROrigin: {fileID: 1178791450436251564}
+  m_XROrigin: {fileID: 0}
+--- !u!114 &4922094524622318498
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5167925059111895691}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e66fd56afb86a4d83a73c6e6b8265912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  locomotionSystem: {fileID: 7602471259685890259}
 --- !u!1 &5563199296126487199
 GameObject:
   m_ObjectHideFlags: 0

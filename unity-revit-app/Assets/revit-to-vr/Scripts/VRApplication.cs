@@ -8,6 +8,7 @@ using System.Text.Json;
 using revit_to_vr_common;
 using Unity.Collections;
 using UnityEngine.Rendering;
+using UnityEngine.XR.Interaction.Toolkit;
 
 namespace RevitToVR
 {
@@ -17,7 +18,7 @@ namespace RevitToVR
 
         void RemoveMesh(VRBIM_MeshId meshId);
     }
-
+    
     public class LocalClientConfiguration
     {
         private static string documentScaleKey = "DOCUMENT_SCALE";
@@ -57,10 +58,23 @@ namespace RevitToVR
         private static VRApplication _instance;
         public static VRApplication instance => _instance;
 
+        public InteractionLayerMask defaultElementInteractionLayerMask;
+        
         // events for the UI
         public Action onOpen;
         public Action onClose;
         public Action onMessage;
+        
+        // game objects for determining whether user is currently teleporting or selecting
+        [SerializeField] private GameObject rayInteractor;
+        [SerializeField] private GameObject teleportInteractor;
+
+        public bool IsTeleporting()
+        {
+            bool isTeleporting = teleportInteractor.activeInHierarchy;
+            // Debug.Assert(rayInteractor.activeInHierarchy != isTeleporting);
+            return isTeleporting;
+        }
 
         // configuration to use for the connection
         public ClientConfiguration clientConfiguration;
@@ -425,12 +439,14 @@ namespace RevitToVR
             VRBIM_MeshId id = e.descriptor.id;
             mesh.name = id.IsTemporary ? $"temporary mesh: {id.temporaryId.ToString()}" : $"mesh: {id.id.ToString()}";
             mesh.SetSubMesh(0, subMeshDescriptor, MeshUpdateFlags.DontRecalculateBounds);
-
+    
             // mesh.RecalculateBounds();
+            //mesh.RecalculateNormals();
+            //mesh.RecalculateBounds();
 
             mesh.UploadMeshData(false);
             Debug.Assert(mesh.isReadable);
-
+            
             _meshRepository.AddMesh(e.descriptor.id, mesh);
         }
     }

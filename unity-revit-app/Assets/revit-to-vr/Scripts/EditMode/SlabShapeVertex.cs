@@ -128,6 +128,11 @@ namespace RevitToVR
             
             // subtract the level offset from the scaledoffset
             scaledOffset -= toposolid.heightOffsetFromLevel;
+
+            if (scaledOffset < 0.0f)
+            {
+                scaledOffset = 0.0f;
+            }
             
             Debug.Assert(index != invalidIndex);
             UIConsole.Log($"SlabShapeVertex > OnSelectExited, index: {index}, scaledOffset: {scaledOffset}");

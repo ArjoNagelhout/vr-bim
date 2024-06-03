@@ -11,24 +11,27 @@ namespace RevitToVR
 
         public void OnMeshRemoved();
     }
-    
+
     public class ClientDocumentRenderer : MonoBehaviour, IClientDocumentListener, IMeshRepository
     {
         // meshes
         private Dictionary<VRBIM_MeshId, Mesh> _meshes = new Dictionary<VRBIM_MeshId, Mesh>();
+
         private Dictionary<VRBIM_MeshId, IMeshDataEventListener> _meshDataEventListeners =
             new Dictionary<VRBIM_MeshId, IMeshDataEventListener>();
-        
+
         // elements
-        [NonSerialized] public Dictionary<long, ElementRenderer> ElementRenderers = new Dictionary<long, ElementRenderer>();
+        [NonSerialized]
+        public Dictionary<long, ElementRenderer> ElementRenderers = new Dictionary<long, ElementRenderer>();
+
         private IMeshRepository _meshRepositoryImplementation;
-        
+
         // register listeners for mesh data events
         public void RegisterMeshDataEventListener(VRBIM_MeshId meshId, IMeshDataEventListener listener)
         {
             Debug.Assert(!_meshDataEventListeners.ContainsKey(meshId));
             _meshDataEventListeners.Add(meshId, listener);
-            
+
             // if the mesh already exists, directly call the listener
             if (_meshes.TryGetValue(meshId, out Mesh mesh))
             {
@@ -47,7 +50,7 @@ namespace RevitToVR
                 _meshes.Remove(meshId);
             }
         }
-        
+
         // IMeshRepository implementation
 
         public void AddMesh(VRBIM_MeshId meshId, Mesh mesh)
@@ -56,11 +59,11 @@ namespace RevitToVR
             RemoveMesh(meshId);
 
             _meshes.Add(meshId, mesh);
-            
+
             // make sure that anyone is listening for this mesh id
             if (_meshDataEventListeners.TryGetValue(meshId, out IMeshDataEventListener listener))
             {
-                listener.OnMeshAdded(mesh);                
+                listener.OnMeshAdded(mesh);
             }
         }
 
@@ -119,8 +122,9 @@ namespace RevitToVR
         {
             Debug.Assert(!ElementRenderers.ContainsKey(elementId));
             // instantiate element renderer
-            GameObject elementRendererObject = new GameObject();
-            elementRendererObject.transform.SetParent(transform, false);
+            GameObject elementRendererObject =
+                Instantiate(UnityAssetProvider.instance.elementRendererPrefab, transform, false);
+            //elementRendererObject.transform.SetParent(transform, false);
             T elementRenderer = elementRendererObject.AddComponent<T>();
             elementRenderer.Initialize(this, element);
             ElementRenderers.Add(elementId, elementRenderer);
@@ -140,6 +144,7 @@ namespace RevitToVR
             {
                 Destroy(entry.Value.gameObject);
             }
+
             ElementRenderers.Clear();
         }
 

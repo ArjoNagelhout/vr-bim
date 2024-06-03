@@ -68,3 +68,4 @@ MonoBehaviour:
   toposolidModifySubElementsUIPrefab: {fileID: 4632605192995311263, guid: c69731affbc044392ba9d213bc68cb6f, type: 3}
   slabShapeCreasePrefab: {fileID: 5711296599123042458, guid: 889d78f99d06a4e11838af83d119dde3, type: 3}
   slabShapeVertexPrefab: {fileID: 1032153298296288340, guid: a84b603d38ea3446b8e311bb85a3f49d, type: 3}
+  elementRendererPrefab: {fileID: 7988103580319960800, guid: 798e690f8d53349b0a924b3a9d5f3872, type: 3}

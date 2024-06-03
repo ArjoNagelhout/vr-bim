@@ -37,6 +37,8 @@ namespace RevitToVR
         public GameObject slabShapeCreasePrefab;
 
         public GameObject slabShapeVertexPrefab;
+
+        public GameObject elementRendererPrefab;
         
         // singleton implementation
         

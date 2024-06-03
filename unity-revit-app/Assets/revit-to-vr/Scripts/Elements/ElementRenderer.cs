@@ -87,6 +87,7 @@ namespace RevitToVR
             }
             
             _interactable = gameObject.AddComponent<ElementVRInteractable>();
+            _interactable.interactionLayers = VRApplication.instance.defaultElementInteractionLayerMask;
             _interactable.listener = this;
             
             OnInitialize();
