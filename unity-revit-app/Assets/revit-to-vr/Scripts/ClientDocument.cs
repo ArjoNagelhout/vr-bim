@@ -30,7 +30,7 @@ namespace RevitToVR
         // key = element id
         public Dictionary<long, VRBIM_Element> elements = new Dictionary<long, VRBIM_Element>();
         
-        private HashSet<long> selectedElementIds = new HashSet<long>();
+        public HashSet<long> selectedElementIds = new HashSet<long>();
         
         public void Apply(DocumentOpenedEvent e)
         {

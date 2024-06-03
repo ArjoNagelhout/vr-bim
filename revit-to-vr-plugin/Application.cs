@@ -193,14 +193,18 @@ namespace revit_to_vr_plugin
         private void HandleUpdateEditMode(UIApplication uiApp, UpdateEditMode e)
         {
             EditMode editMode = applicationState.editMode;
-            Debug.Assert(editMode != null);
-            editMode.UpdateEditMode(uiApp, e.data);
+            if (editMode != null)
+            {
+                editMode.UpdateEditMode(uiApp, e.data);
+            }
+            //Debug.Assert(editMode != null);
+            //
         }
 
         private void HandleStopEditMode(UIApplication uiApp, StopEditMode e)
         {
             EditMode editMode = applicationState.editMode;
-            Debug.Assert(editMode != null && editMode.editModeData.GetType() == e.data.GetType());
+            //Debug.Assert(editMode != null && editMode.editModeData.GetType() == e.data.GetType());
             SendStopEditMode();
         }
 
@@ -534,9 +538,13 @@ namespace revit_to_vr_plugin
         private void SendStopEditMode()
         {
             EditMode editMode = applicationState.editMode;
-            Debug.Assert(editMode != null);
-            editMode.StopEditMode();
-            MainService.SendJson(new StoppedEditMode() { stoppedEditModeData = editMode.editModeData });
+            EditModeData stoppedData = null;
+            if (editMode != null)
+            {
+                editMode.StopEditMode();
+                stoppedData = editMode.editModeData;
+            }
+            MainService.SendJson(new StoppedEditMode() { stoppedEditModeData = stoppedData });
             applicationState.editMode = null;
         }
 

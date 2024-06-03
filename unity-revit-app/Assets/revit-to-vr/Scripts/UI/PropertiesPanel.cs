@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using revit_to_vr_common;
 using TMPro;
 using UnityEngine;
@@ -83,6 +84,14 @@ namespace RevitToVR
             {
                 _state = value;
                 UpdateState();
+            }
+        }
+
+        private void OnEnable()
+        {
+            if (VRApplication.instance != null && VRApplication.instance.ClientDocument != null)
+            {
+                OnSelectionChanged(VRApplication.instance.ClientDocument.selectedElementIds.ToList());                
             }
         }
 

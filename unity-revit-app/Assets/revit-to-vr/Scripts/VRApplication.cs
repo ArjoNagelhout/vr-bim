@@ -39,6 +39,11 @@ namespace RevitToVR
             }
         }
 
+        public LocalClientConfiguration()
+        {
+            DocumentLogScale = CalculateLogScale(DocumentScale);
+        }
+
         public float DocumentLogScale;
 
         private float CalculateLogScale(float x)
@@ -453,7 +458,7 @@ namespace RevitToVR
             mesh.name = id.IsTemporary ? $"temporary mesh: {id.temporaryId.ToString()}" : $"mesh: {id.id.ToString()}";
             mesh.SetSubMesh(0, subMeshDescriptor, MeshUpdateFlags.DontRecalculateBounds);
     
-            // mesh.RecalculateBounds();
+            mesh.RecalculateBounds();
             //mesh.RecalculateNormals();
             //mesh.RecalculateBounds();
 
