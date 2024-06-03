@@ -72,7 +72,7 @@ namespace RevitToVR
             _config = VRApplication.instance.localClientConfiguration;
             _config.onDocumentScaleChanged += OnDocumentScaleChanged;
             _config.onHandleScaleChanged += OnHandleScaleChanged;
-            OnDocumentScaleChanged(_config.DocumentScale);
+            OnDocumentScaleChanged(_config.DocumentScale, _config.DocumentLogScale);
             OnHandleScaleChanged(_config.HandleScale);
             
             Debug.Assert(interactable != null);
@@ -85,9 +85,9 @@ namespace RevitToVR
             _config.onHandleScaleChanged -= OnHandleScaleChanged;
         }
 
-        private void OnDocumentScaleChanged(float scale)
+        private void OnDocumentScaleChanged(float scale, float logScale)
         {
-            _cachedDocumentScale = scale;
+            _cachedDocumentScale = logScale;
             UpdatePosition();
         }
 

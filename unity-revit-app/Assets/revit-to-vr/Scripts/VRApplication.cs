@@ -23,6 +23,8 @@ namespace RevitToVR
     {
         private static string documentScaleKey = "DOCUMENT_SCALE";
         private static string handleScaleKey = "HANDLE_SCALE";
+
+        private static float a = 9f;
         
         private float _documentScale = PlayerPrefs.GetFloat(documentScaleKey);
         public float DocumentScale
@@ -32,10 +34,21 @@ namespace RevitToVR
             {
                 _documentScale = value;
                 PlayerPrefs.SetFloat(documentScaleKey, _documentScale);
-                onDocumentScaleChanged?.Invoke(_documentScale);
+                DocumentLogScale = CalculateLogScale(_documentScale);
+                onDocumentScaleChanged?.Invoke(_documentScale, DocumentLogScale);
             }
         }
-        public event Action<float> onDocumentScaleChanged;
+
+        public float DocumentLogScale;
+
+        private float CalculateLogScale(float x)
+        {
+            return 0.5f * Mathf.Pow(x + 0.19f, 4);
+            //return -Mathf.Log10(-0.9f * x + 1.0f);
+        }
+        
+        public delegate void OnDocumentScaleChanged(float normal, float logarithmicScale);
+        public event OnDocumentScaleChanged onDocumentScaleChanged;
 
         private float _handleScale = PlayerPrefs.GetFloat(handleScaleKey);
 

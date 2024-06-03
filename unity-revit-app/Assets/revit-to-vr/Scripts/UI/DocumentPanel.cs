@@ -21,7 +21,7 @@ namespace RevitToVR
         {
             _config = VRApplication.instance.localClientConfiguration;
             _config.onDocumentScaleChanged += OnDocumentScaleChanged;
-            OnDocumentScaleChanged(_config.DocumentScale);
+            OnDocumentScaleChanged(_config.DocumentScale, _config.DocumentLogScale);
             slider.value = _config.DocumentScale;
         }
 
@@ -37,9 +37,10 @@ namespace RevitToVR
         }
 
         // event called by LocalClientConfig
-        private void OnDocumentScaleChanged(float scale)
+        private void OnDocumentScaleChanged(float scale, float logScale)
         {
-            documentScaleText.text = "Document scale: " + scale.ToString("0.0000");
+            documentScaleText.text =
+                $"Document scale: {scale.ToString("0.0000")}, log scale: {logScale.ToString(("0.0000"))}";
         }
     }
 }

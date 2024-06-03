@@ -85,7 +85,7 @@ namespace RevitToVR
         {
             LocalClientConfiguration config = VRApplication.instance.localClientConfiguration;
             config.onDocumentScaleChanged += OnDocumentScaleChanged;
-            OnDocumentScaleChanged(config.DocumentScale);
+            OnDocumentScaleChanged(config.DocumentScale, config.DocumentLogScale);
         }
 
         private void OnDestroy()
@@ -93,9 +93,9 @@ namespace RevitToVR
             VRApplication.instance.localClientConfiguration.onDocumentScaleChanged -= OnDocumentScaleChanged;
         }
 
-        private void OnDocumentScaleChanged(float scale)
+        private void OnDocumentScaleChanged(float scale, float logScale)
         {
-            transform.localScale = new Vector3(scale, scale, scale);
+            transform.localScale = new Vector3(logScale, logScale, logScale);
         }
 
         // IClientDocumentListener implementation
