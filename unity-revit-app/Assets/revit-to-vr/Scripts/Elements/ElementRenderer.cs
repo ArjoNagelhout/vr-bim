@@ -68,6 +68,8 @@ namespace RevitToVR
             // add interactable, register events
             
             // _interactable.colliders.Clear();
+
+            GeometryObjectMaterial material = GetMaterial(element.typeName);
             
             // create GeometryObjectRenderer for each geometry object
             if (_element.geometries != null)
@@ -77,10 +79,10 @@ namespace RevitToVR
                     switch (geometry)
                     {
                         case VRBIM_Solid:
-                            AddGeometry<SolidRenderer>(geometry);
+                            AddGeometry<SolidRenderer>(geometry, material);
                             break;
                         case VRBIM_Curve:
-                            AddGeometry<CurveRenderer>(geometry);
+                            AddGeometry<CurveRenderer>(geometry, material);
                             break;
                     }
                 }                
@@ -93,18 +95,30 @@ namespace RevitToVR
             OnInitialize();
         }
 
+        private static GeometryObjectMaterial GetMaterial(string typeName)
+        {
+            return typeName switch
+            {
+                "Generic - 1000mm" => GeometryObjectMaterial.Generic,
+                "Path - 350mm Asphalt" => GeometryObjectMaterial.Path,
+                "Grassland - 1200mm" => GeometryObjectMaterial.Grassland,
+                _ => GeometryObjectMaterial.Other
+            };
+        }
+
         protected virtual void OnInitialize()
         {
             
         }
 
-        private void AddGeometry<T>(VRBIM_Geometry geometry) where T : GeometryObjectRenderer
+        private void AddGeometry<T>(VRBIM_Geometry geometry, GeometryObjectMaterial material) where T : GeometryObjectRenderer
         {
             GameObject o = new GameObject();
             o.name = $"Geometry: {typeof(T).Name}";
             o.transform.SetParent(transform, false);
             T r = o.AddComponent<T>();
-            r.Initialize(_documentRenderer, geometry);
+            UIConsole.Log(material.ToString());
+            r.Initialize(_documentRenderer, geometry, material);
             _geometryObjectRenderers.Add(r);
             //_interactable.colliders.Add(r.GetComponent<MeshCollider>());
         }

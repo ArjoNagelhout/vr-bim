@@ -18,6 +18,14 @@ namespace RevitToVR
         // default mesh material 
         public StateMaterials defaultMaterials;
         
+        // geometry object materials
+
+        public Material geometryObjectPathMaterial;
+
+        public Material geometryObjectGrasslandMaterial;
+
+        public Material geometryObjectGenericMaterial;
+        
         // editing of toposolid
 
         public StateMaterials curveMaterials; // for editing the sketch

@@ -14,6 +14,8 @@ namespace revit_to_vr_common
     {
         public long elementId;
         public string name;
+        public long typeElementId; // family element id
+        public string typeName; // to avoid having to retrieve the type element separately
         public VRBIM_AABB bounds;
         public long ownerViewId; // id of the view that owns the element, used for determining the plane along which rotation is defined of the element
         public VRBIM_Location location; // transform

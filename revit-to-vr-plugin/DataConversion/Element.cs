@@ -14,8 +14,10 @@ namespace revit_to_vr_plugin
         // when the mesh data needs to be updated, it gets added to the toSend parameter
         // to see whether it needs updating, it uses the ApplicationState.sentGeometryPerGeometryObjectId
         // https://help.autodesk.com/view/RVT/2022/ENU/?guid=Revit_API_Revit_API_Developers_Guide_Revit_Geometric_Elements_Geometry_GeometryObject_Class_html
-        public static VRBIM_Element Convert(Element element, ClientState state, Queue<MeshDataToSend> toSend, ClientConfiguration clientConfiguration)
+        public static VRBIM_Element Convert(Document document, ElementId elementId, ClientState state, Queue<MeshDataToSend> toSend, ClientConfiguration clientConfiguration)
         {
+            Element element = document.GetElement(elementId);
+
             if (element == null)
             {
                 UIConsole.Log("Element is null");
@@ -44,6 +46,16 @@ namespace revit_to_vr_plugin
             output.elementId = element.Id.Value;
             output.name = element.Name;
             output.ownerViewId = element.OwnerViewId.Value;
+
+            // set the type id and type name
+            ElementId typeId = element.GetTypeId();
+            Element typeElement = document.GetElement(typeId);
+            output.typeElementId = typeId.Value;
+            if (typeElement != null)
+            {
+                output.typeName = typeElement.Name;
+                //UIConsole.Log(output.typeName);
+            }
 
             output.location = ConvertLocation(element.Location);
 

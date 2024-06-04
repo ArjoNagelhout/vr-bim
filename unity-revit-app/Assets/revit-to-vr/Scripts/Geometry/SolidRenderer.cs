@@ -33,6 +33,7 @@ namespace RevitToVR
             _documentRenderer.RegisterMeshDataEventListener(
                 Utils.CreateTemporaryMeshId(solid.temporaryMeshId),
                 this);
+            _meshRenderer.sharedMaterial = GetNormalMaterial();
         }
 
         protected override void OnDestroy()
@@ -75,10 +76,25 @@ namespace RevitToVR
             }
             else
             {
-                material = UnityAssetProvider.instance.defaultMaterials.normal;
+                material = GetNormalMaterial();
             }
 
             _meshRenderer.sharedMaterial = material;
+        }
+
+        private Material GetNormalMaterial()
+        {
+            switch (_material)
+            {
+                case GeometryObjectMaterial.Generic:
+                    return UnityAssetProvider.instance.geometryObjectGenericMaterial;
+                case GeometryObjectMaterial.Path:
+                    return UnityAssetProvider.instance.geometryObjectPathMaterial;
+                case GeometryObjectMaterial.Grassland:
+                    return UnityAssetProvider.instance.geometryObjectGrasslandMaterial;
+                default:
+                    return UnityAssetProvider.instance.defaultMaterials.normal;
+            }
         }
     }
 }

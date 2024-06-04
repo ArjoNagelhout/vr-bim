@@ -48,6 +48,9 @@ MonoBehaviour:
     normal: {fileID: 2100000, guid: d4068de136b6e412fb6dd9557f6be928, type: 2}
     hovered: {fileID: 2100000, guid: 6f03915a53b3443ee9a6a689f422bbb8, type: 2}
     selected: {fileID: 2100000, guid: 89024b733b985404b83c105b9f6e6f5f, type: 2}
+  geometryObjectPathMaterial: {fileID: 2100000, guid: 04d35ebbe81ff4e5bb9a4b20fb5b25dd, type: 2}
+  geometryObjectGrasslandMaterial: {fileID: 2100000, guid: 3ca70f11f82ec4eda8c3d6f074234bce, type: 2}
+  geometryObjectGenericMaterial: {fileID: 2100000, guid: 909dcf96d2a834d8fa37c26aa927c345, type: 2}
   curveMaterials:
     normal: {fileID: 2100000, guid: 2ce330390b14b41cf863a8444280d43d, type: 2}
     hovered: {fileID: 2100000, guid: 846f0d5ac10c54324b71667d32210e43, type: 2}

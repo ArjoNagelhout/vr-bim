@@ -310,8 +310,7 @@ namespace revit_to_vr_plugin
             {
                 foreach (ElementId elementId in changedElementIds)
                 {
-                    Element element = applicationState.openedDocument.GetElement(elementId);
-                    VRBIM_Element targetElement = DataConversion.Convert(element, clientState, toSend, clientState.clientConfiguration);
+                    VRBIM_Element targetElement = DataConversion.Convert(applicationState.openedDocument, elementId, clientState, toSend, clientState.clientConfiguration);
                     if (targetElement != null)
                     {
                         e.changedElements.Add(elementId.Value, targetElement);
