@@ -19,8 +19,6 @@ namespace RevitToVR
 
         private void Start()
         {
-            _config = VRApplication.instance.localClientConfiguration;
-            
             Register();
         }
         
@@ -31,6 +29,11 @@ namespace RevitToVR
 
         private void Register()
         {
+            if (_config == null)
+            {
+                _config = VRApplication.instance.localClientConfiguration;
+            }
+            
             _config.onDocumentScaleChanged += OnDocumentScaleChanged;
             OnDocumentScaleChanged(_config.DocumentScale, _config.DocumentLogScale);
             slider.value = _config.DocumentScale;
