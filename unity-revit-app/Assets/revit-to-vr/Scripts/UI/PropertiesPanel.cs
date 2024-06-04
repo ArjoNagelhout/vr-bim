@@ -65,6 +65,8 @@ namespace RevitToVR
         private void Start()
         {
             state = State.None;
+            
+            Register();
         }
 
         private enum State
@@ -88,6 +90,11 @@ namespace RevitToVR
         }
 
         private void OnEnable()
+        {
+            Register();
+        }
+
+        private void Register()
         {
             if (VRApplication.instance != null && VRApplication.instance.ClientDocument != null)
             {

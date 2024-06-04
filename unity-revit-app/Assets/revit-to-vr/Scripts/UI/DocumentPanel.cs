@@ -17,9 +17,20 @@ namespace RevitToVR
 
         [SerializeField] private Slider slider;
 
-        private void OnEnable()
+        private void Start()
         {
             _config = VRApplication.instance.localClientConfiguration;
+            
+            Register();
+        }
+        
+        private void OnEnable()
+        {
+            Register();
+        }
+
+        private void Register()
+        {
             _config.onDocumentScaleChanged += OnDocumentScaleChanged;
             OnDocumentScaleChanged(_config.DocumentScale, _config.DocumentLogScale);
             slider.value = _config.DocumentScale;
