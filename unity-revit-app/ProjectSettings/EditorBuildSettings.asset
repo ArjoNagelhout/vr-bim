@@ -5,9 +5,12 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/revit-to-vr/Scenes/Main.unity
     guid: 60f3dfc4e86e14128b1ae4dd047ff0cd
+  - enabled: 1
+    path: Assets/revit-to-vr/Scenes/VegetationTest.unity
+    guid: 6661d0026482c4d489d40dcc085f0269
   m_configObjects:
     Unity.XR.Oculus.Settings: {fileID: 11400000, guid: bfa1182bd221b4ca89619141f66f1260, type: 2}
     Unity.XR.WindowsMR.Settings: {fileID: 11400000, guid: dc5a169419fa04987b057f65238cf3ba, type: 2}
