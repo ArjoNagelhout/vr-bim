@@ -1,5 +1,7 @@
 # VR BIM
 
+![Header](https://github.com/user-attachments/assets/6707b783-21e7-489a-81b0-4530609b3fcc)
+
 This repository contains experiments in creating a live-link between Revit and Unity to enable live editing of BIM data in VR. This is not production ready code. It's a proof-of-concept created as part of my BSc thesis at the Eindhoven University of Technology to validate technical feasibility and perform user studies. 
 
 It does not adhere to any best practices, but it might provide some valuable insight into how to build an application that strives to have this type of functionality, which is the reason I made this open-source. 
@@ -48,3 +50,5 @@ python scripts/deinstall_addins.py
 Unity app that receives data from the Revit plugin. 
 
 The target platform for the app is the Meta Quest Pro, but any Meta Quest (e.g. 2 or 3) should work. 
+
+![Screenshot](https://github.com/user-attachments/assets/c4e0aa06-ff5a-4903-810b-3ca3dc9c5f0a)
